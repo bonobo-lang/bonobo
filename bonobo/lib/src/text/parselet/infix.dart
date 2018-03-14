@@ -26,4 +26,14 @@ final Map<TokenType, InfixParselet> _infixParselets = {
 
     return new TupleExpressionContext([left, right], span, comments);
   }),
+
+  // Parse arg-less calls
+  TokenType.parentheses: new InfixParselet(2, (parser, left, token, comments) {
+    return new CallExpressionContext(
+      left,
+      new TupleExpressionContext([], token.span, []),
+      left.span.expand(token.span),
+      []..addAll(left.comments)..addAll(comments),
+    );
+  }),
 };

@@ -231,6 +231,25 @@ class Parser extends _Parser {
       left = infix.parse(this, left, token, []);
     }
 
+    // TODO: Support this logic for MemberExpression
+    if (left is IdentifierContext) {
+      // See https://github.com/bonobo-lang/bonobo/issues/9.
+      var arg = parseExpression(0);
+
+      if (arg != null) {
+        left = new CallExpressionContext(
+          left,
+          new TupleExpressionContext(
+            [arg],
+            arg.span,
+            [],
+          ),
+          left.span.expand(arg.span),
+          [],
+        );
+      }
+    }
+
     return left;
   }
 

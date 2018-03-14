@@ -26,6 +26,7 @@ enum TokenType {
   rCurly,
   lParen,
   rParen,
+  parentheses,
 
   // Reserved
   f,

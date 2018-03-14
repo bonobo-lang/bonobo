@@ -14,7 +14,7 @@ class Scanner {
   ScannerState state = ScannerState.normal;
   FileSpan _emptySpan;
 
-  static final RegExp whitespace = new RegExp(r'[ \n\r\t]+');
+  static final RegExp whitespace = new RegExp(r'\s+');
 
   static final Map<Pattern, TokenType> normalPatterns = {
     // Misc.
@@ -28,6 +28,7 @@ class Scanner {
     '}': TokenType.rCurly,
     '(': TokenType.lParen,
     ')': TokenType.rParen,
+    new RegExp(r'\(\s*\)'): TokenType.parentheses,
 
     // Reserved
     'f': TokenType.f,

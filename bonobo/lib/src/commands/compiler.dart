@@ -127,6 +127,6 @@ class BonoboCCompiler {
       return id;
     }
 
-    throw new ArgumentError();
+    throw new ArgumentError('Cannot compile ${ctx.runtimeType} to C yet!!!\n${ctx.span.highlight()}');
   }
 }
