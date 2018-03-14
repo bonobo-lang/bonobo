@@ -16,7 +16,7 @@ Future<Tuple2<String, Uri>> getInput(Command command) async {
   } else {
     var file = new io.File(command.argResults.rest[0]);
     contents = await file.readAsString();
-    sourceUrl = file.uri;
+    sourceUrl = file.absolute.uri;
   }
 
   return new Tuple2(contents, sourceUrl);

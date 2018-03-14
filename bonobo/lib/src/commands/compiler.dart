@@ -2,6 +2,11 @@ part of bonobo.src.commands;
 
 final c.Expression String_new = new c.Expression('String_new');
 
+c.Code gdbLineInfo(SourceSpan span) {
+  return new c.Code(
+      '#line ${span.start.line + 1} "${span.sourceUrl.toFilePath()}"');
+}
+
 class BonoboCCompiler {
   final List<BonoboError> errors = [];
   final c.CompilationUnit output = new c.CompilationUnit();
@@ -57,7 +62,10 @@ class BonoboCCompiler {
     var signature = new c.FunctionSignature(
         returnType, ctx.name == 'main' ? '_main' : ctx.name);
     var function = new c.CFunction(signature);
-    output.body.add(function);
+    output.body.addAll([
+      gdbLineInfo(ctx.span),
+      function,
+    ]);
 
     for (var p in ctx.parameters) {
       var type = await compileType(p.type);
@@ -85,7 +93,7 @@ class BonoboCCompiler {
 
       if (stmt is ReturnStatementContext) {
         var expression = await compileExpression(stmt.expression, out, scope);
-        out.add(expression.asReturn());
+        out.addAll([gdbLineInfo(stmt.span), expression.asReturn()]);
       }
     }
 
