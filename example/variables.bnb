@@ -1,0 +1,6 @@
+f main: Num {
+    // Immutable variables can be declared
+    v a = 2, b = 23, c = b
+    ret a
+    ret Num
+}

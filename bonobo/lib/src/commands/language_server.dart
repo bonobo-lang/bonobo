@@ -422,6 +422,9 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     var uri = convertDocumentId(documentId);
     var function = currentFunction(analyzer, uri, position);
     var items = <lsp.CompletionItem>[];
+
+    // TODO: Snippets?
+
     List<Variable<BonoboObject>> scope =
         (function?.scope ?? analyzer.rootScope).allVariables;
 
