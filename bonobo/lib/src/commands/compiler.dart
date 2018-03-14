@@ -108,6 +108,10 @@ class BonoboCCompiler {
   Future<c.Expression> compileExpression(
       ExpressionContext ctx, List<c.Code> body, SymbolTable scope) async {
     // Literals
+    if (ctx is IdentifierContext) {
+      return new c.Expression(ctx.name);
+    }
+
     if (ctx is StringLiteralContext) {
       var data = new c.Expression.value(ctx.value);
       return String_new.invoke([data]);
