@@ -1,5 +1,7 @@
 part of bonobo.src.commands;
 
+final c.Expression String_new = new c.Expression('String_new');
+
 class BonoboCCompiler {
   final List<BonoboError> errors = [];
   final c.CompilationUnit output = new c.CompilationUnit();
@@ -13,10 +15,30 @@ class BonoboCCompiler {
     // Import the Bonobo runtime, first and foremost.
     output.body.add(new c.Include.system('bonobo.h'));
 
+    BonoboFunction mainFunction;
+
     for (var symbol in analyzer.rootScope.allPublicVariables) {
       if (symbol.value is BonoboFunction) {
-        await compileFunction(symbol.value);
+        var f = symbol.value as BonoboFunction;
+        if (f.name == 'main') mainFunction = f;
+        await compileFunction(f);
       }
+    }
+
+    if (mainFunction == null) {
+      errors.add(new BonoboError(
+        BonoboErrorSeverity.error,
+        "A 'main' function is required.",
+        analyzer.parser.scanner.emptySpan,
+      ));
+    } else {
+      // Create a simple int main() that just calls _main()
+      output.body
+          .add(new c.CFunction(new c.FunctionSignature(c.CType.int, 'main'))
+            ..body.addAll([
+              new c.Expression('_main').invoke([]),
+              new c.Expression.value(0).asReturn(),
+            ]));
     }
   }
 
@@ -32,7 +54,8 @@ class BonoboCCompiler {
       return;
     }
 
-    var signature = new c.FunctionSignature(returnType, ctx.name);
+    var signature = new c.FunctionSignature(
+        returnType, ctx.name == 'main' ? '_main' : ctx.name);
     var function = new c.CFunction(signature);
     output.body.add(function);
 
@@ -50,13 +73,53 @@ class BonoboCCompiler {
       function.signature.parameters.add(new c.Parameter(type, p.name));
     }
 
-    await compileControlFlow(ctx.body, ctx);
+    function.body.addAll(await compileControlFlow(ctx.body, ctx, ctx.scope));
   }
 
-  Future compileControlFlow(ControlFlow ctx, BonoboFunction function) async {}
+  Future<List<c.Code>> compileControlFlow(
+      ControlFlow ctx, BonoboFunction function, SymbolTable scope) async {
+    var out = [];
+
+    for (int i = 0; i < ctx.statements.length; i++) {
+      var stmt = ctx.statements[i];
+
+      if (stmt is ReturnStatementContext) {
+        var expression = await compileExpression(stmt.expression, out, scope);
+        out.add(expression.asReturn());
+      }
+    }
+
+    return out;
+  }
 
   Future<c.CType> compileType(BonoboType type) async {
     // TODO: Array types? Generics?
     return type.ctype ?? analyzer.types[type.name];
+  }
+
+  Future<c.Expression> compileExpression(
+      ExpressionContext ctx, List<c.Code> body, SymbolTable scope) async {
+    // Literals
+    if (ctx is StringLiteralContext) {
+      var data = new c.Expression.value(ctx.value);
+      return String_new.invoke([data]);
+    }
+
+    if (ctx is PrintExpressionContext) {
+      // TODO: Call printf?
+      var name = scope.uniqueName('printValue');
+      var value = await analyzer.resolveExpression(ctx.expression, scope);
+      var cType = await compileType(value.type);
+      var cExpression = await compileExpression(ctx.expression, body, scope);
+      var id = new c.Expression(name);
+      body.addAll([
+        new c.Field(cType, name, cExpression),
+        new c.Expression('${value.type.name}_print').invoke([id]),
+      ]);
+
+      return id;
+    }
+
+    throw new ArgumentError();
   }
 }

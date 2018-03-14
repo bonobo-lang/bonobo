@@ -4,12 +4,15 @@ class BonoboAnalyzer {
   final List<BonoboError> errors = [];
   final Map<String, BonoboType> types = {};
   final CompilationUnitContext compilationUnit;
+  final Parser parser;
   final Uri sourceUrl;
   AnalysisContext analysisContext;
   SymbolTable<BonoboObject> rootScope;
   SymbolTable<BonoboObject> currentScope;
 
-  BonoboAnalyzer(this.compilationUnit, this.sourceUrl, Parser parser) {
+  final Map<SourceLocation, BonoboObject> expressionCache = {};
+
+  BonoboAnalyzer(this.compilationUnit, this.sourceUrl, this.parser) {
     errors.addAll(parser.errors);
   }
 
@@ -214,6 +217,12 @@ class BonoboAnalyzer {
   }
 
   Future<BonoboObject> resolveExpression(
+      ExpressionContext ctx, SymbolTable<BonoboObject> scope) async {
+    return expressionCache[ctx.span.start] ??=
+        await _resolveExpression(ctx, scope);
+  }
+
+  Future<BonoboObject> _resolveExpression(
       ExpressionContext ctx, SymbolTable<BonoboObject> scope) async {
     final BonoboObject defaultObject =
         new BonoboObject(BonoboType.Root, ctx.span);

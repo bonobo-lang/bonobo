@@ -5,8 +5,8 @@
 /**
  * The runtime implementation of a Bonobo Num.
  */
-typedef struct {
-    struct Num* next;
+typedef struct bonobo_Num {
+    struct bonobo_Num* next;
 } Num;
 
 #endif

@@ -2,23 +2,21 @@
 #define BONOBO_STRING_H
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 /**
  * The runtime implementation of a Bonobo string.
  */
-typedef struct {
+typedef struct bonobo_String {
     const char* data;
     uint64_t length;
-    struct String* next;
+    struct bonobo_String* next;
 } String;
-
-/**
- * String "constructor".
- */
-String* String_new(const char*);
 
 void String_destroy(String*);
 
-//String* String_concat(String*, String*);
+String* String_new(const char*);
+
+int String_print(String*);
 
 #endif
