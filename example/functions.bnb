@@ -1,3 +1,5 @@
+f main => emoji()
+
 // You can explicitly declare the return type of functions.
 f one: Num => 1
 

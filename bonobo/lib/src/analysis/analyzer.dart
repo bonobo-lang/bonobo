@@ -78,8 +78,7 @@ class BonoboAnalyzer {
       function.scope.assign(p.name, new BonoboObject(p.type, p.span))
         ..value
             .usages
-            .add(new SymbolUsage(SymbolUsageType.declaration, decl.name.span))
-        ..lock();
+            .add(new SymbolUsage(SymbolUsageType.declaration, decl.name.span));
 
       if (decl.type != null) {
         p.type.usages
