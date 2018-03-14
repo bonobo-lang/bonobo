@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+for filename in ./*.bnb do
+    echo "$filename"
+done
