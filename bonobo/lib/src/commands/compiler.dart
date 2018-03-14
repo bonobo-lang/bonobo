@@ -20,13 +20,14 @@ class BonoboCCompiler {
     // Import the Bonobo runtime, first and foremost.
     output.body.add(new c.Include.system('bonobo.h'));
 
+    var signatures = <c.FunctionSignature>[];
     BonoboFunction mainFunction;
 
     for (var symbol in analyzer.rootScope.allPublicVariables) {
       if (symbol.value is BonoboFunction) {
         var f = symbol.value as BonoboFunction;
         if (f.name == 'main') mainFunction = f;
-        await compileFunction(f);
+        await compileFunction(f, signatures);
       }
     }
 
@@ -37,6 +38,9 @@ class BonoboCCompiler {
         analyzer.parser.scanner.emptySpan,
       ));
     } else {
+      // Insert forward declarations of all functions
+      output.body.insertAll(0, signatures);
+
       // Create a simple int main() that just calls _main()
       output.body
           .add(new c.CFunction(new c.FunctionSignature(c.CType.int, 'main'))
@@ -47,7 +51,8 @@ class BonoboCCompiler {
     }
   }
 
-  Future compileFunction(BonoboFunction ctx) async {
+  Future compileFunction(
+      BonoboFunction ctx, List<c.FunctionSignature> signatures) async {
     var returnType = await compileType(ctx.returnType);
 
     if (returnType == null) {
@@ -61,6 +66,7 @@ class BonoboCCompiler {
 
     var signature = new c.FunctionSignature(
         returnType, ctx.name == 'main' ? '_main' : ctx.name);
+    signatures.add(signature);
     var function = new c.CFunction(signature);
     output.body.addAll([
       gdbLineInfo(ctx.span),
@@ -124,7 +130,8 @@ class BonoboCCompiler {
 
     if (ctx is CallExpressionContext) {
       var target = await compileExpression(ctx.target, body, scope);
-      var arguments = await Future.wait(ctx.arguments.expressions.map((e) => compileExpression(e, body, scope)));
+      var arguments = await Future.wait(ctx.arguments.expressions
+          .map((e) => compileExpression(e, body, scope)));
       return target.invoke(arguments);
     }
 
@@ -142,6 +149,7 @@ class BonoboCCompiler {
       return id;
     }
 
-    throw new ArgumentError('Cannot compile ${ctx.runtimeType} to C yet!!!\n${ctx.span.highlight()}');
+    throw new ArgumentError(
+        'Cannot compile ${ctx.runtimeType} to C yet!!!\n${ctx.span.highlight()}');
   }
 }

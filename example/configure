@@ -32,8 +32,8 @@ for filename in *.bnb; do
     # Create make target
     printf "$NAME:\n\t" >> Makefile
     printf "bash -c '$BONOBO compile -o $C_PATH $filename'\n\t" >> Makefile
-    printf "$GCC -I $RUNTIME_DIR -o $C_OUTPUT $C_PATH $RUNTIME_SRCS\n\n" >> Makefile
-    printf "rm -f $C_PATH" >> Makefile
+    printf "$GCC -I $RUNTIME_DIR -o $C_OUTPUT $C_PATH $RUNTIME_SRCS\n\t" >> Makefile
+    printf "rm -f $C_PATH\n\n" >> Makefile
 done
 
 # Build them all
