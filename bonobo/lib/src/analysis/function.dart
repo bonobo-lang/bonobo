@@ -1,6 +1,9 @@
 part of bonobo.src.analysis;
 
 class _BonoboFunctionType extends BonoboInheritedType {
+  @override
+  final String documentation = 'An executable unit of code.';
+
   static _BonoboFunctionType _instance;
 
   _BonoboFunctionType._() : super('Function');
