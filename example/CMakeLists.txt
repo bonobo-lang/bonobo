@@ -18,4 +18,5 @@ macro("add_bonobo_executable" name)
     target_link_libraries(${name} bonobo_runtime)
 endmacro()
 
-add_bonobo_executable(hello hello.bnb)
+# Build `hello.bnb`.
+add_bonobo_executable(hello)
