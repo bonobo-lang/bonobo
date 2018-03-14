@@ -2,6 +2,7 @@
 
 String* String_new(const char* data) {
     String* ptr = (String*) malloc(sizeof(String));
+    ptr->data = data;
     ptr->next = NULL;
     return ptr;
 }
@@ -11,14 +12,15 @@ void String_destroy(String* ptr) {
 }
 
 int String_print(String* ptr) {
-    int result;
+    int result = -1;
 
-    do {
-        result = printf("%s", ptr->data);
+    while (ptr != NULL) {
+        if ((result = printf("%s", ptr->data)) < 0)
+            break;
         ptr = ptr->next;
-    } while (result == 0 && ptr != NULL);
+    }
 
-    if (result == 0)
+    if (result > 0)
         printf("\n");
 
     return result;

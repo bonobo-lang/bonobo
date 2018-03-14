@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+
 /**
  * The runtime implementation of a Bonobo string.
  */
