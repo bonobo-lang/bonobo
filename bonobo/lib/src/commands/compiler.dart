@@ -104,7 +104,8 @@ class BonoboCCompiler {
       var stmt = ctx.statements[i];
 
       if (stmt is ReturnStatementContext) {
-        var expression = await compileExpression(stmt.expression, out, scope);
+        var expression =
+            await compileExpression(stmt.expression, function, out, scope);
         out.addAll([gdbLineInfo(stmt.span), expression.asReturn()]);
       }
     }
@@ -117,8 +118,8 @@ class BonoboCCompiler {
     return type.ctype ?? analyzer.types[type.name];
   }
 
-  Future<c.Expression> compileExpression(
-      ExpressionContext ctx, List<c.Code> body, SymbolTable scope) async {
+  Future<c.Expression> compileExpression(ExpressionContext ctx,
+      BonoboFunction function, List<c.Code> body, SymbolTable scope) async {
     // Literals
     if (ctx is IdentifierContext) {
       return new c.Expression(ctx.name);
@@ -139,22 +140,25 @@ class BonoboCCompiler {
     }
 
     if (ctx is CallExpressionContext) {
-      var target = await compileExpression(ctx.target, body, scope);
+      var target = await compileExpression(ctx.target, function, body, scope);
       var arguments = await Future.wait(ctx.arguments.expressions
-          .map((e) => compileExpression(e, body, scope)));
+          .map((e) => compileExpression(e, function, body, scope)));
       return target.invoke(arguments);
     }
 
     if (ctx is ParenthesizedExpressionContext) {
-      var value = await compileExpression(ctx.expression, body, scope);
+      var value =
+          await compileExpression(ctx.expression, function, body, scope);
       return value.parentheses();
     }
 
     if (ctx is PrintExpressionContext) {
       var name = scope.uniqueName('printValue');
-      var value = await analyzer.resolveExpression(ctx.expression, scope);
+      var value =
+          await analyzer.resolveExpression(ctx.expression, function, scope);
       var cType = await compileType(value.type);
-      var cExpression = await compileExpression(ctx.expression, body, scope);
+      var cExpression =
+          await compileExpression(ctx.expression, function, body, scope);
       var id = new c.Expression(name);
       body.addAll([
         new c.Field(cType, name, cExpression),

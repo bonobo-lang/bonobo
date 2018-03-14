@@ -143,7 +143,7 @@ class BonoboAnalyzer {
       }
 
       if (stmt is ReturnStatementContext) {
-        var value = await resolveExpression(stmt.expression, scope);
+        var value = await resolveExpression(stmt.expression, function, scope);
         deadCode = true;
 
         if (function.returnType != null) {
@@ -170,7 +170,7 @@ class BonoboAnalyzer {
           try {
             childScope.create(
               decl.name.name,
-              value: await resolveExpression(decl.expression, childScope),
+              value: await resolveExpression(decl.expression,  function, childScope),
               constant: decl.isFinal,
             );
           } on StateError catch (e) {
@@ -215,20 +215,20 @@ class BonoboAnalyzer {
     }
   }
 
-  Future<BonoboObject> resolveExpression(
-      ExpressionContext ctx, SymbolTable<BonoboObject> scope) async {
+  Future<BonoboObject> resolveExpression(ExpressionContext ctx,
+      BonoboFunction function, SymbolTable<BonoboObject> scope) async {
     return expressionCache[ctx.span.start] ??=
-        await _resolveExpression(ctx, scope);
+        await _resolveExpression(ctx, function, scope);
   }
 
-  Future<BonoboObject> _resolveExpression(
-      ExpressionContext ctx, SymbolTable<BonoboObject> scope) async {
+  Future<BonoboObject> _resolveExpression(ExpressionContext ctx,
+      BonoboFunction function, SymbolTable<BonoboObject> scope) async {
     final BonoboObject defaultObject =
         new BonoboObject(BonoboType.Root, ctx.span);
 
     // Misc.
     if (ctx is ParenthesizedExpressionContext) {
-      return await resolveExpression(ctx.expression, scope);
+      return await resolveExpression(ctx.expression, function, scope);
     }
 
     // Literals
@@ -255,7 +255,7 @@ class BonoboAnalyzer {
 
     // Other expressions, lexicographical order
     if (ctx is CallExpressionContext) {
-      var target = await resolveExpression(ctx.target, scope);
+      var target = await resolveExpression(ctx.target, function, scope);
 
       if (target is! BonoboFunction) {
         errors.add(new BonoboError(
@@ -284,14 +284,25 @@ class BonoboAnalyzer {
 
       for (int i = 0; i < ctx.arguments.expressions.length; i++) {
         var p = f.parameters[i],
-            arg = await resolveExpression(ctx.arguments.expressions[i], scope);
+            arg = await resolveExpression(
+                ctx.arguments.expressions[i], function, scope);
 
-        if (!arg.type.isAssignableTo(p.type)) {
+        if (arg.type != BonoboType.Root && !arg.type.isAssignableTo(p.type)) {
           errors.add(new BonoboError(
               BonoboErrorSeverity.error,
               "'${arg.type.name}' is not assignable to '${p.type.name}'.",
               ctx.arguments.expressions[i].span));
           parametersMatch = false;
+        }
+
+        // Attempt to infer the type of a parameter, if it has not been set.
+        if (arg.type == BonoboType.Root) {
+          var parameter = function.parameters
+              .firstWhere((p) => p.name == arg.span.text, orElse: () => null);
+
+          if (parameter?.type == BonoboType.Root) {
+            parameter.type = p.type;
+          }
         }
       }
 
@@ -301,7 +312,7 @@ class BonoboAnalyzer {
     }
 
     if (ctx is PrintExpressionContext)
-      return await resolveExpression(ctx.expression, scope);
+      return await resolveExpression(ctx.expression, function, scope);
 
     errors.add(new BonoboError(BonoboErrorSeverity.error,
         "Cannot resolve type of expression '${ctx.span.text}'.", ctx.span));

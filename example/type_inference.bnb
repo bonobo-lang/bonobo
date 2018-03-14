@@ -10,4 +10,4 @@ f main => 0
 f someNum(a: Num, b: Num) => 24.0
 
 // Bonobo can also infer the types of parameters.
-f someOtherNum(a) => someNum(1, 35)
+f someOtherNum(a) => someNum(a, 35)
