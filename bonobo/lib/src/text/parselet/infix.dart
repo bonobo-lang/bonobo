@@ -1,39 +1,118 @@
 part of bonobo.src.text;
 
-final Map<TokenType, InfixParselet> _infixParselets = {
-  // Parse tuples
-  TokenType.comma: new InfixParselet(1, (parser, left, token, comments) {
-    var span = left.span.expand(token.span);
-    var right = parser.parseExpression(0);
+final Map<TokenType, InfixParselet> _infixParselets = createInfixParselets();
 
-    if (right == null) {
-      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
-          "Missing expression after ','", token.span));
-      return null;
-    }
+Map<TokenType, InfixParselet> createInfixParselets() {
+  int precedence = 1;
 
-    span = span.expand(right.span);
+  var infixParselets = {
+    // Parse tuples
+    TokenType.comma:
+        new InfixParselet(precedence++, (parser, left, token, comments) {
+      var span = left.span.expand(token.span);
+      var right = parser.parseExpression(1);
 
-    if (right is TupleExpressionContext) {
-      return new TupleExpressionContext(
-        []
-          ..add(left)
-          ..addAll(right.expressions),
-        span,
+      if (right == null) {
+        parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
+            "Missing expression after ','", token.span));
+        return null;
+      }
+
+      span = span.expand(right.span);
+
+      if (right is TupleExpressionContext) {
+        return new TupleExpressionContext(
+          []
+            ..add(left)
+            ..addAll(right.expressions),
+          span,
+          []..addAll(left.comments)..addAll(comments),
+        );
+      }
+
+      return new TupleExpressionContext([left, right], span, comments);
+    }),
+
+    // Parse arg-less calls
+    TokenType.parentheses:
+        new InfixParselet(precedence++, (parser, left, token, comments) {
+      return new CallExpressionContext(
+        left,
+        new TupleExpressionContext([], token.span, []),
+        left.span.expand(token.span),
         []..addAll(left.comments)..addAll(comments),
       );
+    }),
+  };
+
+  addBinary(List<TokenType> types) {
+    var p = precedence++;
+    for (var type in types) {
+      infixParselets[type] = new BinaryParselet(p);
     }
+  }
 
-    return new TupleExpressionContext([left, right], span, comments);
-  }),
+  addBinary([
+    TokenType.equals,
+    TokenType.elvis_equals,
+    TokenType.tilde_equals,
+    TokenType.pow_equals,
+    TokenType.times_equals,
+    TokenType.div_equals,
+    TokenType.plus_minus_equals,
+    TokenType.plus_equals,
+    TokenType.minus_equals,
+    TokenType.xor_equals,
+    TokenType.and_equals,
+    TokenType.or_equals,
+    TokenType.b_and_equals,
+    TokenType.b_or_equals,
+  ]);
 
-  // Parse arg-less calls
-  TokenType.parentheses: new InfixParselet(2, (parser, left, token, comments) {
-    return new CallExpressionContext(
-      left,
-      new TupleExpressionContext([], token.span, []),
-      left.span.expand(token.span),
-      []..addAll(left.comments)..addAll(comments),
-    );
-  }),
-};
+  // TODO: Tern
+  infixParselets[TokenType.question] =
+      new InfixParselet(precedence++, (parser, left, token, comments) {
+    parser.errors.add(new BonoboError(BonoboErrorSeverity.warning,
+        'The conditional operator is not supported... YET', token.span));
+    return null;
+  });
+
+  // TODO: B_OR
+  addBinary([TokenType.b_or]);
+
+  // TODO: B_AND
+  addBinary([TokenType.b_and]);
+
+  // TODO: OR
+  addBinary([TokenType.or]);
+
+  // TODO: AND
+  addBinary([TokenType.and]);
+
+  // TODO: B_EQU, B_NOT_EQU
+  addBinary([TokenType.b_equals, TokenType.b_not_equals]);
+
+  // TODO: LT, LTE, GT, GTE
+  addBinary([
+    TokenType.lt,
+    TokenType.lte,
+    TokenType.gt,
+    TokenType.gte,
+  ]);
+
+  // TODO: SHL, SHR
+  addBinary([TokenType.shl, TokenType.shr]);
+
+  // TODO: +, -
+  addBinary([TokenType.plus, TokenType.minus]);
+
+  // TODO: *, /, %
+  addBinary([TokenType.times, TokenType.div, TokenType.mod]);
+
+  // TODO: **
+  addBinary([TokenType.pow]);
+
+  // TODO: [], .
+
+  return infixParselets;
+}

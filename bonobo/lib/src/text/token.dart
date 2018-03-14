@@ -50,6 +50,7 @@ enum TokenType {
   b_or,
   b_equals,
   b_not,
+  question,
 
   // Assignment
   elvis_equals,
@@ -65,8 +66,6 @@ enum TokenType {
   or_equals,
   b_and_equals,
   b_or_equals,
-  b_equals_equals,
-  b_not_equals,
   colon_equals,
   equals,
 
