@@ -83,6 +83,12 @@ class Parser extends _Parser {
   }
 
   ParameterListContext parseParameterList() {
+    var closedParen = nextToken(TokenType.parentheses)?.span;
+
+    if (closedParen != null) {
+      return new ParameterListContext([], closedParen, []);
+    }
+
     var lParen = nextToken(TokenType.lParen);
     if (lParen == null) return null;
     var span = lParen.span, lastSpan = span;
