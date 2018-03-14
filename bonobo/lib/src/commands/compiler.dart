@@ -17,14 +17,6 @@ class BonoboCCompiler {
   }
 
   Future compile() async {
-    output.body.addAll([
-      // Necessary standard imports.
-      new c.Include.system('stdint.h'),
-
-      // Import the Bonobo runtime.
-      new c.Include.system('bonobo.h'),
-    ]);
-
     var signatures = <c.FunctionSignature>[];
     BonoboFunction mainFunction;
 
@@ -45,6 +37,15 @@ class BonoboCCompiler {
     } else {
       // Insert forward declarations of all functions
       output.body.insertAll(0, signatures);
+
+      // Insert all includes
+      output.body.insertAll(0, [
+        // Necessary standard imports.
+        new c.Include.system('stdint.h'),
+
+        // Import the Bonobo runtime.
+        new c.Include.system('bonobo.h'),
+      ]);
 
       // Create a simple int main() that just calls _main()
       output.body
@@ -129,8 +130,12 @@ class BonoboCCompiler {
     }
 
     if (ctx is StringLiteralContext) {
-      var data = new c.Expression.value(ctx.value);
-      return String_new.invoke([data]);
+      var value = removeQuotesFromString(ctx.span.text)
+          .replaceAll("\\'", "'")
+          .replaceAll('"', '\\"');
+      return new c.Expression('"$value"');
+      //var data = new c.Expression.value(ctx.value);
+      //return String_new.invoke([data]);
     }
 
     if (ctx is CallExpressionContext) {

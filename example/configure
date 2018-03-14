@@ -24,13 +24,14 @@ for filename in *.bnb; do
     NAME=$(basename "$filename" .bnb)
     BONOBO_SRCS="$filename $BONOBO_SRCS"
     C_PATH="$NAME.c"
-    C_OUTPUT="$NAME"
+    C_OUTPUT="build/$NAME"
     C_OUTPUTS="$C_OUTPUT $C_OUTPUTS"
     C_SRCS="$C_PATH $C_SRCS"
     TARGETS="$NAME $TARGETS"
 
     # Create make target
     printf "$NAME:\n\t" >> Makefile
+    printf "mkdir -p build\n\t" >> Makefile
     printf "bash -c '$BONOBO compile -o $C_PATH $filename'\n\t" >> Makefile
     printf "$GCC -I $RUNTIME_DIR -o $C_OUTPUT $C_PATH $RUNTIME_SRCS\n\t" >> Makefile
     printf "rm -f $C_PATH\n\n" >> Makefile

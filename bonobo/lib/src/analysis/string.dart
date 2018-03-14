@@ -4,7 +4,7 @@ class _BonoboStringType extends BonoboInheritedType {
   @override
   final String documentation = 'An immutable list of bytes, used to hold text.';
 
-  static final c.CType _cType = new c.CType('String').pointer();
+  static final c.CType _cType = c.CType.char.const$().pointer();
 
   _BonoboStringType() : super('String');
 
