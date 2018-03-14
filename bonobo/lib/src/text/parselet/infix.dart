@@ -14,11 +14,11 @@ final Map<TokenType, InfixParselet> _infixParselets = {
 
     span = span.expand(right.span);
 
-    if (left is TupleExpressionContext) {
+    if (right is TupleExpressionContext) {
       return new TupleExpressionContext(
         []
-          ..addAll(left.expressions)
-          ..add(right),
+          ..add(left)
+          ..addAll(right.expressions),
         span,
         []..addAll(left.comments)..addAll(comments),
       );

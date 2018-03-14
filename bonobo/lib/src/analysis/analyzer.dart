@@ -170,7 +170,8 @@ class BonoboAnalyzer {
           try {
             childScope.create(
               decl.name.name,
-              value: await resolveExpression(decl.expression,  function, childScope),
+              value: await resolveExpression(
+                  decl.expression, function, childScope),
               constant: decl.isFinal,
             );
           } on StateError catch (e) {
@@ -313,6 +314,13 @@ class BonoboAnalyzer {
 
     if (ctx is PrintExpressionContext)
       return await resolveExpression(ctx.expression, function, scope);
+
+    if (ctx is TupleExpressionContext) {
+      var expressions = await Future.wait(
+          ctx.expressions.map((e) => resolveExpression(e, function, scope)));
+      var type = new BonoboTupleType(expressions.map((e) => e.type).toList());
+      return new BonoboObject(type, ctx.span);
+    }
 
     errors.add(new BonoboError(BonoboErrorSeverity.error,
         "Cannot resolve type of expression '${ctx.span.text}'.", ctx.span));

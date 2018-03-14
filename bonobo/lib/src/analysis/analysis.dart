@@ -26,6 +26,8 @@ part 'scope.dart';
 
 part 'string.dart';
 
+part 'tuple.dart';
+
 part 'type.dart';
 
 part 'usage.dart';
