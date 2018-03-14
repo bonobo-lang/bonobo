@@ -106,7 +106,6 @@ class BonoboCCompiler {
     }
 
     if (ctx is PrintExpressionContext) {
-      // TODO: Call printf?
       var name = scope.uniqueName('printValue');
       var value = await analyzer.resolveExpression(ctx.expression, scope);
       var cType = await compileType(value.type);
