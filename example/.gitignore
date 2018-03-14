@@ -13,3 +13,4 @@ CTestTestfile.cmake
 *.a
 *.exe
 hello
+.vscode

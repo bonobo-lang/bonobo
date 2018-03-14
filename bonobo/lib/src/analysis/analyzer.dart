@@ -52,11 +52,12 @@ class BonoboAnalyzer {
       }
     }
 
-    // Now, analyze them fully.
+    // Collect signature information.
     for (var ctx in functions) {
       await populateFunctionSignature(ctx);
     }
 
+    // Now, analyze them fully.
     for (var ctx in functions) {
       await analyzeFunction(ctx);
 
@@ -85,21 +86,20 @@ class BonoboAnalyzer {
             .add(new SymbolUsage(SymbolUsageType.read, decl.type.span));
       }
     }
-  }
 
-  Future analyzeFunction(BonoboFunction function) async {
-    bool shouldInfer = function.declaration.signature.returnType == null;
-
-    if (!shouldInfer) {
+    if (function.declaration.signature.returnType != null) {
       function.returnType =
           await resolveType(function.declaration.signature.returnType);
       function.returnType.usages.add(new SymbolUsage(SymbolUsageType.read,
           function.declaration.signature.returnType.span));
-    }
+    } else
+      function.returnType = BonoboType.Root;
+  }
 
+  Future analyzeFunction(BonoboFunction function) async {
     function.body = await analyzeControlFlow(function);
 
-    if (shouldInfer) {
+    if (function.declaration.signature.returnType == null) {
       // Attempt to infer the return type, if none is specified
       function.returnType = function.body.returnType ?? BonoboType.Root;
     }
@@ -226,10 +226,12 @@ class BonoboAnalyzer {
     final BonoboObject defaultObject =
         new BonoboObject(BonoboType.Root, ctx.span);
 
+    // Misc.
     if (ctx is ParenthesizedExpressionContext) {
       return await resolveExpression(ctx.expression, scope);
     }
 
+    // Literals
     if (ctx is NumberLiteralContext) {
       return new BonoboObject(BonoboType.Num, ctx.span);
     }
@@ -249,6 +251,53 @@ class BonoboAnalyzer {
       errors.add(new BonoboError(BonoboErrorSeverity.error,
           "The name '${ctx.name}' does not exist in this context.", ctx.span));
       return defaultObject;
+    }
+
+    // Other expressions, lexicographical order
+    if (ctx is CallExpressionContext) {
+      var target = await resolveExpression(ctx.target, scope);
+
+      if (target is! BonoboFunction) {
+        errors.add(new BonoboError(
+            BonoboErrorSeverity.error,
+            "Cannot call an instance of '${target.type.name}' as a function.",
+            ctx.span));
+        return defaultObject;
+      }
+
+      var f = target as BonoboFunction;
+
+      if (f.parameters.length != ctx.arguments.length) {
+        var arguments = 'arguments', were = 'were';
+
+        if (f.parameters.length == 1) arguments = 'argument';
+        if (ctx.arguments.length == 1) were = 'was';
+
+        errors.add(new BonoboError(
+            BonoboErrorSeverity.error,
+            "'${f.name} expects ${f.parameters.length} $arguments, but ${ctx.arguments.length} $were provided.",
+            ctx.span));
+        return defaultObject;
+      }
+
+      bool parametersMatch = true;
+
+      for (int i = 0; i < ctx.arguments.length; i++) {
+        var p = f.parameters[i],
+            arg = await resolveExpression(ctx.arguments[i], scope);
+
+        if (!arg.type.isAssignableTo(p.type)) {
+          errors.add(new BonoboError(
+              BonoboErrorSeverity.error,
+              "'${arg.type.name}' is not assignable to '${p.type.name}'.",
+              ctx.arguments[i].span));
+          parametersMatch = false;
+        }
+      }
+
+      if (!parametersMatch) return defaultObject;
+
+      return new BonoboObject(f.returnType, ctx.span);
     }
 
     if (ctx is PrintExpressionContext)

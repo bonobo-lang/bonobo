@@ -1,3 +1,4 @@
+// A brief explanation of functions in Bonobo...
 f main => emoji()
 
 // You can explicitly declare the return type of functions.
