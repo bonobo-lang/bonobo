@@ -113,6 +113,12 @@ class BonoboCCompiler {
       return String_new.invoke([data]);
     }
 
+    if (ctx is CallExpressionContext) {
+      var target = await compileExpression(ctx.target, body, scope);
+      var arguments = await Future.wait(ctx.arguments.expressions.map((e) => compileExpression(e, body, scope)));
+      return target.invoke(arguments);
+    }
+
     if (ctx is PrintExpressionContext) {
       var name = scope.uniqueName('printValue');
       var value = await analyzer.resolveExpression(ctx.expression, scope);
