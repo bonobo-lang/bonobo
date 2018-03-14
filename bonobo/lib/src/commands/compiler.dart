@@ -145,6 +145,11 @@ class BonoboCCompiler {
       return target.invoke(arguments);
     }
 
+    if (ctx is ParenthesizedExpressionContext) {
+      var value = await compileExpression(ctx.expression, body, scope);
+      return value.parentheses();
+    }
+
     if (ctx is PrintExpressionContext) {
       var name = scope.uniqueName('printValue');
       var value = await analyzer.resolveExpression(ctx.expression, scope);

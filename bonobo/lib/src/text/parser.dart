@@ -243,16 +243,27 @@ class Parser extends _Parser {
       var arg = parseExpression(0);
 
       if (arg != null) {
-        left = new CallExpressionContext(
-          left,
-          new TupleExpressionContext(
-            [arg],
-            arg.span,
+        var span = left.span.expand(arg.span);
+
+        if (arg.innermost is! TupleExpressionContext) {
+          left = new CallExpressionContext(
+            left,
+            new TupleExpressionContext(
+              [arg],
+              arg.span,
+              [],
+            ),
+            span,
             [],
-          ),
-          left.span.expand(arg.span),
-          [],
-        );
+          );
+        } else {
+          left = new CallExpressionContext(
+            left,
+            arg.innermost,
+            span,
+            [],
+          );
+        }
       }
     }
 
