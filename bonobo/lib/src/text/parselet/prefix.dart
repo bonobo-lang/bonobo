@@ -38,6 +38,10 @@ final Map<TokenType, PrefixParselet> _prefixParselets = {
     var span = token.span.expand(expression.span);
     var rParen = parser.nextToken(TokenType.rParen)?.span;
 
+    if (rParen == null && parser.peek()?.type == TokenType.rParen) {
+        rParen = parser.consume().span;
+    }
+
     if (rParen == null) {
       parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Missing ')' after expression.", token.span));
