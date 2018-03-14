@@ -55,6 +55,7 @@ Map<TokenType, InfixParselet> createInfixParselets() {
   addBinary([
     TokenType.equals,
     TokenType.elvis_equals,
+    TokenType.mod_equals,
     TokenType.tilde_equals,
     TokenType.pow_equals,
     TokenType.times_equals,
