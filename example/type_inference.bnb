@@ -1,0 +1,12 @@
+// Bonobo has very strong static typing.
+// This makes it possible to infer the type of many,
+// if not all expressions and parameters.
+//
+// In practice, you will usually not have to even provide
+// type annotations.
+
+// Bonobo automatically recognizes the return type to be `Num`.
+f someNum(a: Num, b: Num) => 24.0
+
+// Bonobo can also infer the types of parameters.
+f someOtherNum(a) => someNum(1, 35))

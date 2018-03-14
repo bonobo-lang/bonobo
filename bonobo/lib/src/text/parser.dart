@@ -133,7 +133,7 @@ class Parser extends _Parser {
   }
 
   FunctionBodyContext parseFunctionBody() {
-    return parseBlockFunctionBody() ?? parseLambdaFunctionBody();
+    return parseLambdaFunctionBody() ?? parseBlockFunctionBody();
   }
 
   BlockFunctionBodyContext parseBlockFunctionBody() {

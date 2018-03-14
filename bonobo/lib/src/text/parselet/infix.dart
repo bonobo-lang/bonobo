@@ -10,19 +10,31 @@ final Map<TokenType, InfixParselet> _infixParselets = {
       if (argument != null) {
         arguments.add(argument);
         span = span.expand(lastSpan = argument.span);
-      }
 
-      if (parser.nextToken(TokenType.comma) != null)
-        argument = parser.parseExpression(0);
-      else
+        if (parser.nextToken(TokenType.comma) != null)
+          argument = parser.parseExpression(0);
+        else
+          break;
+      } else if (parser.peek()?.type == TokenType.rParen) {
         break;
+      } else {
+        var token = parser.consume();
+        parser.errors.add(new BonoboError(
+          BonoboErrorSeverity.error,
+          "Expected ',' or ')', found '${token.span.text}'.",
+          token.span,
+        ));
+
+break;
+        //argument = parser.parseExpression(0);
+      }
     }
 
     var rParen = parser.nextToken(TokenType.rParen)?.span;
 
     if (rParen == null) {
-      parser.errors.add(
-          new BonoboError(BonoboErrorSeverity.error, "Missing ')'.", lastSpan));
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          parser.peek()?.span?.text ?? "Missing ')'.", lastSpan));
       return null;
     }
 
