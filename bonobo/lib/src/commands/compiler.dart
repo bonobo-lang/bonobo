@@ -112,6 +112,11 @@ class BonoboCCompiler {
       return new c.Expression(ctx.name);
     }
 
+    if (ctx is NumberLiteralContext) {
+      // TODO: Different types of numbers?
+      return new c.Expression(ctx.span.text);
+    }
+
     if (ctx is StringLiteralContext) {
       var data = new c.Expression.value(ctx.value);
       return String_new.invoke([data]);
