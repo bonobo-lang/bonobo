@@ -1,44 +1,29 @@
 part of bonobo.src.text;
 
 final Map<TokenType, InfixParselet> _infixParselets = {
-  TokenType.lParen: new InfixParselet(1, (parser, left, token, comments) {
-    var arguments = <ExpressionContext>[];
-    var span = left.span.expand(token.span), lastSpan = span;
-    var argument = parser.parseExpression(0);
+  // Parse tuples
+  TokenType.comma: new InfixParselet(1, (parser, left, token, comments) {
+    var span = left.span.expand(token.span);
+    var right = parser.parseExpression(0);
 
-    while (!parser.done) {
-      if (argument != null) {
-        arguments.add(argument);
-        span = span.expand(lastSpan = argument.span);
-
-        if (parser.nextToken(TokenType.comma) != null)
-          argument = parser.parseExpression(0);
-        else
-          break;
-      } else if (parser.peek()?.type == TokenType.rParen) {
-        break;
-      } else {
-        var token = parser.consume();
-        parser.errors.add(new BonoboError(
-          BonoboErrorSeverity.error,
-          "Expected ',' or ')', found '${token.span.text}'.",
-          token.span,
-        ));
-
-break;
-        //argument = parser.parseExpression(0);
-      }
-    }
-
-    var rParen = parser.nextToken(TokenType.rParen)?.span;
-
-    if (rParen == null) {
+    if (right == null) {
       parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
-          parser.peek()?.span?.text ?? "Missing ')'.", lastSpan));
+          "Missing expression after ','", token.span));
       return null;
     }
 
-    return new CallExpressionContext(
-        left, arguments, span.expand(rParen), comments);
+    span = span.expand(right.span);
+
+    if (left is TupleExpressionContext) {
+      return new TupleExpressionContext(
+        []
+          ..addAll(left.expressions)
+          ..add(right),
+        span,
+        []..addAll(left.comments)..addAll(comments),
+      );
+    }
+
+    return new TupleExpressionContext([left, right], span, comments);
   }),
 };

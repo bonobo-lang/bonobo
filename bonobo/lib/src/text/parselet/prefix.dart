@@ -44,6 +44,7 @@ final Map<TokenType, PrefixParselet> _prefixParselets = {
       return null;
     }
 
-    return new ParenthesizedExpressionContext(expression, span.expand(rParen), comments);
+    return new ParenthesizedExpressionContext(
+        expression, span.expand(rParen), comments);
   }
 };

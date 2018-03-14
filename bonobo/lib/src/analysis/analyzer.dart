@@ -267,30 +267,30 @@ class BonoboAnalyzer {
 
       var f = target as BonoboFunction;
 
-      if (f.parameters.length != ctx.arguments.length) {
+      if (f.parameters.length != ctx.arguments.expressions.length) {
         var arguments = 'arguments', were = 'were';
 
         if (f.parameters.length == 1) arguments = 'argument';
-        if (ctx.arguments.length == 1) were = 'was';
+        if (ctx.arguments.expressions.length == 1) were = 'was';
 
         errors.add(new BonoboError(
             BonoboErrorSeverity.error,
-            "'${f.name} expects ${f.parameters.length} $arguments, but ${ctx.arguments.length} $were provided.",
+            "'${f.name} expects ${f.parameters.length} $arguments, but ${ctx.arguments.expressions.length} $were provided.",
             ctx.span));
         return defaultObject;
       }
 
       bool parametersMatch = true;
 
-      for (int i = 0; i < ctx.arguments.length; i++) {
+      for (int i = 0; i < ctx.arguments.expressions.length; i++) {
         var p = f.parameters[i],
-            arg = await resolveExpression(ctx.arguments[i], scope);
+            arg = await resolveExpression(ctx.arguments.expressions[i], scope);
 
         if (!arg.type.isAssignableTo(p.type)) {
           errors.add(new BonoboError(
               BonoboErrorSeverity.error,
               "'${arg.type.name}' is not assignable to '${p.type.name}'.",
-              ctx.arguments[i].span));
+              ctx.arguments.expressions[i].span));
           parametersMatch = false;
         }
       }

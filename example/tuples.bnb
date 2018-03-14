@@ -1,0 +1,7 @@
+f main {
+    // Use the `,` operator to create tuples, which are typed, fixed-size lists of values.
+    v tup = 1, 2, 3
+
+    // Check out the inferred return type of this function!
+    ret ((1, 2, 3), ('4', 5.0))
+}

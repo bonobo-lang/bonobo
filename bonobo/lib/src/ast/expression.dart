@@ -83,8 +83,8 @@ class BinaryExpressionContext extends ExpressionContext {
   final ExpressionContext left, right;
   final Token operator;
 
-  BinaryExpressionContext(
-      this.left, this.operator, this.right, FileSpan span, List<Comment> comments)
+  BinaryExpressionContext(this.left, this.operator, this.right, FileSpan span,
+      List<Comment> comments)
       : super(span, comments);
 }
 
@@ -92,8 +92,8 @@ class AssignmentExpressionContext extends ExpressionContext {
   final ExpressionContext left, right;
   final Token operator;
 
-  AssignmentExpressionContext(
-      this.left, this.operator, this.right, FileSpan span, List<Comment> comments)
+  AssignmentExpressionContext(this.left, this.operator, this.right,
+      FileSpan span, List<Comment> comments)
       : super(span, comments);
 }
 
@@ -105,9 +105,16 @@ class ConditionalExpressionContext extends ExpressionContext {
       : super(span, comments);
 }
 
+class TupleExpressionContext extends ExpressionContext {
+  final List<ExpressionContext> expressions;
+
+  TupleExpressionContext(this.expressions, FileSpan span, List<Comment> comments)
+      : super(span, comments);
+}
+
 class CallExpressionContext extends ExpressionContext {
   final ExpressionContext target;
-  final List<ExpressionContext> arguments;
+  final TupleExpressionContext arguments;
 
   CallExpressionContext(
       this.target, this.arguments, FileSpan span, List<Comment> comments)
