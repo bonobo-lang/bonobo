@@ -1,6 +1,13 @@
 f main: Num {
-    // Immutable variables can be declared
-    v a = 2, b = 23, c = b
-    ret a
-    ret Num
+    // Immutable variables can be declared with the ':=' operator.
+    v one := 1
+
+    // Mutable variables just the '=' operator.
+    v two = 2, three = '3'
+    
+    // The type of variables is automatically inferred, so you don't
+    // have to manually declare them.
+    //
+    // Bonobo is smart enough to know that `three` is a `String`, and report an error.
+    ret three
 }

@@ -160,6 +160,30 @@ class BonoboAnalyzer {
           flow.returnType = value.type;
         }
       }
+
+      if (stmt is VariableDeclarationStatementContext) {
+        var childScope = stmt.scope = scope.createChild();
+
+        for (var decl in stmt.declarations) {
+          try {
+            childScope.create(
+              decl.name.name,
+              value: await resolveExpression(decl.expression, childScope),
+              constant: decl.isFinal,
+            );
+          } on StateError catch (e) {
+            errors.add(new BonoboError(
+              BonoboErrorSeverity.error,
+              e.message,
+              decl.name.span,
+            ));
+          }
+        }
+
+        var childFlow = new ControlFlow();
+        flow.children.add(childFlow);
+        await analyzeBlock(stmt.context, function, childScope, deadCode);
+      }
     }
 
     if (deadCodeSpan != null) {

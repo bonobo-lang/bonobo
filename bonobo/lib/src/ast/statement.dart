@@ -30,6 +30,7 @@ class VariableDeclarationStatementContext extends StatementContext {
   final List<VariableDeclarationContext> declarations;
   final List<StatementContext> context;
   final FileSpan declarationSpan;
+  SymbolTable<BonoboObject> scope;
 
   VariableDeclarationStatementContext(
       this.declarations, this.context, this.declarationSpan, FileSpan span, List<Comment> comments)
