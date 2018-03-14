@@ -34,8 +34,13 @@ enum TokenType {
   ret,
   v,
 
+  // Unary operators
+  increment,
+  decrement,
+  not,
+
   // Binary Operators
-  elvis,
+  //elvis,
   mod,
   tilde,
   pow,
@@ -60,7 +65,7 @@ enum TokenType {
   shr,
 
   // Assignment
-  elvis_equals,
+  //elvis_equals,
   mod_equals,
   tilde_equals,
   pow_equals,
@@ -84,7 +89,7 @@ enum TokenType {
 }
 
 const List<TokenType> assignmentOperators = const [
-  TokenType.elvis_equals,
+  //TokenType.elvis_equals,
   TokenType.mod_equals,
   TokenType.tilde_equals,
   TokenType.pow_equals,

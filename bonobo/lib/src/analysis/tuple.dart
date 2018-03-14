@@ -1,4 +1,4 @@
-part of bonobo.src.tuples;
+part of bonobo.src.analysis;
 
 class BonoboTupleType extends BonoboInheritedType {
   final List<BonoboType> types;
