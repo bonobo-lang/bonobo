@@ -48,13 +48,7 @@ class Parser extends _Parser {
     }
 
     span = span == null ? span : span.expand(name.span);
-    var signature = parseFunctionSignature();
-
-    if (signature == null) {
-      errors.add(new BonoboError(
-          BonoboErrorSeverity.error, "Missing function signature.", name.span));
-      return null;
-    }
+    var signature = parseFunctionSignature(name.span);
 
     span = span.expand(signature.span);
     var body = parseFunctionBody();
@@ -69,15 +63,13 @@ class Parser extends _Parser {
         name, signature, body, span.expand(body.span), comments);
   }
 
-  FunctionSignatureContext parseFunctionSignature() {
+  FunctionSignatureContext parseFunctionSignature(FileSpan currentSpan) {
     var parameterList = parseParameterList();
-
-    if (parameterList == null) return null;
-    var span = parameterList.span, colon;
+    var span = parameterList?.span, colon;
     TypeContext returnType;
 
     if ((colon = nextToken(TokenType.colon)) != null) {
-      span = span.expand(colon.span);
+      span = span == null ? colon.span : span.expand(colon.span);
 
       if ((returnType = parseType()) == null) {
         errors.add(new BonoboError(
@@ -86,7 +78,8 @@ class Parser extends _Parser {
         span = span.expand(returnType.span);
     }
 
-    return new FunctionSignatureContext(parameterList, returnType, span, []);
+    return new FunctionSignatureContext(
+        parameterList, returnType, span ?? currentSpan, []);
   }
 
   ParameterListContext parseParameterList() {
@@ -96,28 +89,14 @@ class Parser extends _Parser {
     var parameters = <ParameterContext>[];
     ParameterContext parameter = parseParameter();
 
-    while (!done) {
-      if (parameter != null) {
-        parameters.add(parameter);
-        span = span.expand(lastSpan = parameter.span);
-      }
+    while (parameter != null) {
+      parameters.add(parameter);
+      span = span.expand(lastSpan = parameter.span);
 
-      if (peek()?.type == TokenType.rParen) {
-        break;
-      } else if (nextToken(TokenType.comma) != null) {
+      if (nextToken(TokenType.comma) != null) {
         parameter = parseParameter();
       } else {
-        var token = consume();
-        if (token == null) break;
-        errors.add(new BonoboError(BonoboErrorSeverity.error,
-            "Expected ',' or ')', found '${token.span.text}'.", token.span));
-        if ((parameter = parseParameter()) == null) {
-          if (peek()?.type == TokenType.rParen)
-            break;
-          else {
-            parameter = parseParameter();
-          }
-        }
+        break;
       }
     }
 
@@ -129,7 +108,9 @@ class Parser extends _Parser {
       return null;
     }
 
-    return new ParameterListContext(parameters, span.expand(rParen.span), []);
+    span = span.expand(rParen.span);
+
+    return new ParameterListContext(parameters, span, []);
   }
 
   ParameterContext parseParameter() {

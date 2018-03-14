@@ -31,15 +31,17 @@ class BonoboAnalyzer {
             .add(new SymbolUsage(SymbolUsageType.declaration, ctx.name.span));
         currentScope.create(ctx.name.name, value: function, constant: true);
 
-        // Create parameters, without types
-        for (var p in ctx.signature.parameterList.parameters) {
-          function.parameters
-              .add(new BonoboFunctionParameter(p.name.name, p.span));
-        }
+        if (ctx.signature.parameterList != null) {
+          // Create parameters, without types
+          for (var p in ctx.signature.parameterList.parameters) {
+            function.parameters
+                .add(new BonoboFunctionParameter(p.name.name, p.span));
+          }
 
-        // Add the names of every parameter
-        for (var p in function.parameters) {
-          function.scope.create(p.name);
+          // Add the names of every parameter
+          for (var p in function.parameters) {
+            function.scope.create(p.name);
+          }
         }
       } on StateError catch (e) {
         errors.add(

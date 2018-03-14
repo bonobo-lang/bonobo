@@ -13,7 +13,9 @@ class LanguageServerCommand extends Command {
 }
 
 class BonoboLanguageServer extends lsp.LanguageServer {
+  static const Duration queueTime = const Duration(seconds: 10);
   final FileSystem fileSystem = new MemoryFileSystem();
+  final Map<Uri, List<Completer<File>>> _queue = {};
   final StreamController<lsp.Diagnostics> _diagnostics = new StreamController();
   final Completer _onDone = new Completer();
   final StreamController<lsp.ApplyWorkspaceEditParams> _workspaceEdits =
@@ -105,7 +107,16 @@ class BonoboLanguageServer extends lsp.LanguageServer {
       lsp.TextDocumentIdentifier documentId) async {
     var uri = convertDocumentId(documentId);
     var file = fileSystem.file(uri);
-    if (!await file.exists()) return null;
+
+    if (!await file.exists()) {
+      var c = new Completer<File>();
+      _queue.putIfAbsent(file.uri, () => []).add(c);
+      file = await c.future.timeout(queueTime).catchError((_) {
+        // TODO: Should this have a timeout? Save resources...
+        throw 'Analysis was requested for file "${file.uri}", but a textDocument/didOpen event was never sent.';
+      });
+    }
+
     return await parseFile(file);
   }
 
@@ -172,7 +183,8 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     return await analyzeFromParser(tuple.item1, tuple.item2);
   }
 
-  Future<BonoboAnalyzer> analyzeFromParser(Parser parser, CompilationUnitContext compilationUnit) async {
+  Future<BonoboAnalyzer> analyzeFromParser(
+      Parser parser, CompilationUnitContext compilationUnit) async {
     var sourceUrl = parser.scanner.scanner.sourceUrl;
     var analyzer = new BonoboAnalyzer(compilationUnit, sourceUrl, parser);
     await analyzer.analyze();
@@ -215,6 +227,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     for (var symbol in analyzer.rootScope.allPublicVariables) {
       if (symbol.value == null) continue;
       if (symbol.value is! BonoboFunction) continue;
+      if (symbol.value.span == null) continue;
       if (symbol.value.span.sourceUrl != sourceUrl) continue;
       if (symbol.value.span.end.line < position.line) continue;
       if (symbol.value.span.start.line > position.line) continue;
@@ -304,7 +317,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     var tuple = await currentSymbolAndAnalyzer(documentId, position);
     var analyzer = tuple?.item1, symbol = tuple?.item2, name = tuple?.item3;
 
-    if (symbol?.value != null) {
+    if (symbol?.value?.span != null) {
       var value = symbol.value;
       return new lsp.Hover((b) {
         var type = value is BonoboFunction ? value.signature : value.type.name;
@@ -335,7 +348,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     var analyzer = await analyze(documentId);
 
     for (var symbol in analyzer.rootScope.allVariables) {
-      if (symbol.value == null) continue;
+      if (symbol.value?.span == null) continue;
       var value = symbol.value;
 
       info.add(new lsp.SymbolInformation((b) {
@@ -478,15 +491,17 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   }
 
   @override
-  void textDocumentDidOpen(lsp.TextDocumentItem document) {
+  textDocumentDidOpen(lsp.TextDocumentItem document) async {
     var sourceUrl = Uri.parse(document.uri);
-    parseText(document.text, sourceUrl, analyze: true);
 
     var file = fileSystem.file(sourceUrl);
-    file.exists().then((exists) async {
-      if (!exists) await file.create(recursive: true);
-      await file.writeAsString(document.text);
-    });
+    if (!await file.exists()) {
+      await file.create(recursive: true);
+      _queue[file.uri]?.forEach((c) => c.complete(file));
+    }
+
+    await file.writeAsString(document.text);
+    parseText(document.text, sourceUrl, analyze: true);
   }
 
   @override
@@ -500,10 +515,11 @@ class BonoboLanguageServer extends lsp.LanguageServer {
 
     if (textOnly) {
       parseText(changes.last.text, sourceUrl, analyze: true);
-      file.writeAsString(changes.last.text);
+      file.create(recursive: true).then((_) {
+        file.writeAsString(changes.last.text);
+      });
       return;
     }
-
 
     scheduleMicrotask(() async {
       for (var change in changes) {

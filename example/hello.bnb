@@ -1,1 +1,1 @@
-f main() => print 'Hello, world!'
+f main => print 'Hello, world!'
