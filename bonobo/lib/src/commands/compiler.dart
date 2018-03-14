@@ -10,6 +10,9 @@ class BonoboCCompiler {
   }
 
   Future compile() async {
+    // Import the Bonobo runtime, first and foremost.
+    output.body.add(new c.Include.system('bonobo.h'));
+
     for (var symbol in analyzer.rootScope.allPublicVariables) {
       if (symbol.value is BonoboFunction) {
         await compileFunction(symbol.value);
@@ -50,9 +53,7 @@ class BonoboCCompiler {
     await compileControlFlow(ctx.body, ctx);
   }
 
-  Future compileControlFlow(ControlFlow ctx, BonoboFunction function) async {
-
-  }
+  Future compileControlFlow(ControlFlow ctx, BonoboFunction function) async {}
 
   Future<c.CType> compileType(BonoboType type) async {
     // TODO: Array types? Generics?

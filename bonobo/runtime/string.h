@@ -9,7 +9,7 @@
 typedef struct {
     const char* data;
     uint64_t length;
-    String* next;
+    struct String* next;
 } String;
 
 /**

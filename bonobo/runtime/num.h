@@ -6,7 +6,7 @@
  * The runtime implementation of a Bonobo Num.
  */
 typedef struct {
-    Num* next;
+    struct Num* next;
 } Num;
 
 #endif
