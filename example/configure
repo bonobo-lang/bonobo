@@ -1,4 +1,40 @@
 #!/usr/bin/env bash
-for filename in ./*.bnb do
-    echo "$filename"
+BONOBO="pub global run bonobo"
+BONOBO_SRCS=""
+C_OUTPUTS=""
+C_SRCS=""
+GCC="gcc"
+TARGETS=""
+
+if [ -e Makefile ]
+then
+    echo "Makefile already exists." >&2
+    exit 1
+fi
+
+touch Makefile
+
+# Make all command
+# printf "all:" > Makefile
+
+for filename in *.bnb; do
+    # Appends...
+    NAME=$(basename "$filename" .bnb)
+    BONOBO_SRCS="$filename $BONOBO_SRCS"
+    C_PATH="$NAME.c"
+    C_OUTPUT="./$NAME"
+    C_OUTPUTS="$C_OUTPUT $C_OUTPUTS"
+    C_SRCS="$C_PATH $C_SRCS"
+    TARGETS="$NAME $TARGETS"
+
+    # Create make target
+    printf "$NAME:\n\t" >> Makefile
+    printf "bash -c '$BONOBO compile -o $C_PATH $filename'\n\t" >> Makefile
+    printf "$GCC -o $C_OUTPUT $C_PATH\n\n" >> Makefile
 done
+
+# Build them all
+printf "all: $TARGETS\n\n" >> Makefile
+
+# Make `clean` target
+printf "clean:\n\trm -f $C_SRCS $C_OUTPUTS\n" >> Makefile
