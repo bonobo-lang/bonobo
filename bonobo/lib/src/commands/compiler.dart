@@ -17,8 +17,13 @@ class BonoboCCompiler {
   }
 
   Future compile() async {
-    // Import the Bonobo runtime, first and foremost.
-    output.body.add(new c.Include.system('bonobo.h'));
+    output.body.addAll([
+      // Necessary standard imports.
+      new c.Include.system('stdint.h'),
+
+      // Import the Bonobo runtime.
+      new c.Include.system('bonobo.h'),
+    ]);
 
     var signatures = <c.FunctionSignature>[];
     BonoboFunction mainFunction;
