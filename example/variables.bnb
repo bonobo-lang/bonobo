@@ -4,6 +4,12 @@ f main: Num {
 
     // Mutable variables just the '=' operator.
     v two = 2, three = '3'
+
+    // You can't overwrite an immutable variable.
+    one = 1.0
+
+    // ... But you CAN overwrite mutable variables.
+    two = three += 4.0
     
     // The type of variables is automatically inferred, so you don't
     // have to manually declare them.
