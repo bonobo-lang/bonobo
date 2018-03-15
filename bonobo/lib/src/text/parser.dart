@@ -182,7 +182,7 @@ class Parser extends _Parser {
     var arrow = nextToken(TokenType.arrow);
 
     if (arrow != null) {
-      var expression = parseExpression(0);
+      var expression = parseExpression(0, false);
 
       if (expression == null) {
         errors.add(new BonoboError(BonoboErrorSeverity.error,
@@ -210,7 +210,8 @@ class Parser extends _Parser {
     return id == null ? null : new IdentifierContext(id.span, []);
   }
 
-  ExpressionContext parseExpression(int precedence) {
+  ExpressionContext parseExpression(
+      int precedence, bool inVariableDeclaration) {
     //var comments = parseComments();
     Token token = peek();
 
@@ -228,19 +229,20 @@ class Parser extends _Parser {
 
     consume();
 
-    var left = prefix(this, token, []);
+    var left = prefix(this, token, [], false);
 
     while (precedence < getPrecedence() && left != null) {
+      if (inVariableDeclaration && peek()?.type == TokenType.comma) return left;
       token = consume();
 
       InfixParselet infix = _infixParselets[token.type];
-      left = infix.parse(this, left, token, []);
+      left = infix.parse(this, left, token, [], inVariableDeclaration);
     }
 
     // TODO: Support this logic for MemberExpression
     if (left is IdentifierContext) {
       // See https://github.com/bonobo-lang/bonobo/issues/9.
-      var arg = parseExpression(0);
+      var arg = parseExpression(0, false);
 
       if (arg != null) {
         var span = left.span.expand(arg.span);
@@ -284,7 +286,7 @@ class Parser extends _Parser {
     });
 
     if (span == null) return null;
-    var expression = parseExpression(0);
+    var expression = parseExpression(0, false);
 
     if (expression == null) {
       errors.add(new BonoboError(BonoboErrorSeverity.error,
@@ -297,7 +299,7 @@ class Parser extends _Parser {
   }
 
   ExpressionStatementContext parseExpressionStatement() {
-    var expression = parseExpression(0);
+    var expression = parseExpression(0, false);
     return expression == null
         ? null
         : new ExpressionStatementContext(expression.innermost);
@@ -357,7 +359,7 @@ class Parser extends _Parser {
     var id = parseIdentifier();
     if (id == null) return null;
     var span = id.span;
-    var op = nextToken(TokenType.colon_equals) ?? nextToken(TokenType.equals);
+    var op = nextToken(TokenType.equals) ?? nextToken(TokenType.colon_equals);
 
     if (op == null) {
       errors.add(new BonoboError(
@@ -369,8 +371,7 @@ class Parser extends _Parser {
 
     span = span.expand(op.span);
     bool isFinal = op.type == TokenType.colon_equals;
-
-    var expression = parseExpression(0);
+    var expression = parseExpression(0, true);
 
     if (expression == null) {
       errors.add(new BonoboError(

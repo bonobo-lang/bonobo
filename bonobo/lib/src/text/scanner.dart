@@ -68,6 +68,7 @@ class Scanner {
 
     // Assignments
     ':=': TokenType.colon_equals,
+    '=': TokenType.equals,
 
     // Data
     new RegExp(r'[0-9]+(\.[0-9]+)?'): TokenType.number,

@@ -7,10 +7,15 @@ Map<TokenType, InfixParselet> createInfixParselets() {
 
   var infixParselets = {
     // Parse tuples
-    TokenType.comma:
-        new InfixParselet(precedence++, (parser, left, token, comments) {
+    TokenType.comma: new InfixParselet(precedence++,
+        (parser, left, token, comments, inVariableDeclaration) {
+
+      if (inVariableDeclaration) {
+        return left;
+      }
+
       var span = left.span.expand(token.span);
-      var right = parser.parseExpression(1);
+      var right = parser.parseExpression(1, inVariableDeclaration);
 
       if (right == null) {
         parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
@@ -35,7 +40,7 @@ Map<TokenType, InfixParselet> createInfixParselets() {
 
     // Parse arg-less calls
     TokenType.parentheses:
-        new InfixParselet(precedence++, (parser, left, token, comments) {
+        new InfixParselet(precedence++, (parser, left, token, comments, inVariableDeclaration) {
       return new CallExpressionContext(
         left,
         new TupleExpressionContext([], token.span, []),
@@ -56,7 +61,7 @@ Map<TokenType, InfixParselet> createInfixParselets() {
 
   // TODO: Tern
   infixParselets[TokenType.question] =
-      new InfixParselet(precedence++, (parser, left, token, comments) {
+      new InfixParselet(precedence++, (parser, left, token, comments, inVariableDeclaration) {
     parser.errors.add(new BonoboError(BonoboErrorSeverity.warning,
         'The conditional operator is not supported... YET', token.span));
     return null;

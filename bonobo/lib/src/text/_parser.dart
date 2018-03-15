@@ -66,6 +66,7 @@ class _Parser {
   /// Calls [next], only returning one [Token].
   Token nextToken(TokenType type) {
     return next([type])?.removeFirst();
+    //return peek()?.type == type ? consume() : null;
   }
 
   /// Parses available comments.
