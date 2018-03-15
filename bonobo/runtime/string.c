@@ -11,6 +11,7 @@ void String_destroy(String* ptr) {
     free(ptr);
 }
 
-int String_print(const char* ptr) {
-    return printf("%s\n", ptr);
+const char* String_print(const char* ptr) {
+    printf("%s\n", ptr);
+    return ptr;
 }

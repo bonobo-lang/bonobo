@@ -18,6 +18,6 @@ void String_destroy(String*);
 
 String* String_new(const char*);
 
-int String_print(const char*);
+const char* String_print(const char*);
 
 #endif

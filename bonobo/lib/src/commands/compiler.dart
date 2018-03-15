@@ -153,19 +153,11 @@ class BonoboCCompiler {
     }
 
     if (ctx is PrintExpressionContext) {
-      var name = scope.uniqueName('printValue');
       var value =
           await analyzer.resolveExpression(ctx.expression, function, scope);
-      var cType = await compileType(value.type);
       var cExpression =
           await compileExpression(ctx.expression, function, body, scope);
-      var id = new c.Expression(name);
-      body.addAll([
-        new c.Field(cType, name, cExpression),
-        new c.Expression('${value.type.name}_print').invoke([id]),
-      ]);
-
-      return id;
+      return new c.Expression('${value.type.name}_print').invoke([cExpression]);
     }
 
     throw new ArgumentError(
