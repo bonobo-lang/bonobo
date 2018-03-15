@@ -17,14 +17,15 @@ class BinaryParselet extends InfixParselet {
       : super(precedence,
             (parser, left, token, comments, inVariableDeclaration) {
           var span = left.span.expand(token.span), lastSpan = span;
-          var equals = parser.nextToken(TokenType.equals)?.span;
+          var equals = token.type == TokenType.equals
+              ? null
+              : parser.nextToken(TokenType.equals)?.span;
 
           if (equals != null) {
             span = span.expand(lastSpan = equals);
           }
 
-          var right =
-              parser.parseExpression(0, inVariableDeclaration);
+          var right = parser.parseExpression(0, inVariableDeclaration);
 
           if (right == null) {
             parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
@@ -34,7 +35,7 @@ class BinaryParselet extends InfixParselet {
 
           span = span.expand(right.span);
 
-          if (equals != null) {
+          if (equals != null || token.type == TokenType.equals) {
             return new AssignmentExpressionContext(
               left,
               token,

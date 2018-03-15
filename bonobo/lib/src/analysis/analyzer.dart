@@ -140,6 +140,8 @@ class BonoboAnalyzer {
               'Dead code - expression is neither a call, nor an assignment.',
               stmt.expression.span));
         }
+
+        await resolveExpression(stmt.expression, function, scope);
       }
 
       if (stmt is ReturnStatementContext) {
@@ -183,7 +185,8 @@ class BonoboAnalyzer {
           }
         }
 
-        var childFlow = stmt.flow = await analyzeBlock(stmt.context, function, childScope, deadCode);
+        var childFlow = stmt.flow =
+            await analyzeBlock(stmt.context, function, childScope, deadCode);
         flow.children.add(childFlow);
       }
     }
@@ -254,6 +257,55 @@ class BonoboAnalyzer {
     }
 
     // Other expressions, lexicographical order
+    if (ctx is AssignmentExpressionContext) {
+      var leftCtx = ctx.left.innermost;
+
+      if (leftCtx is! IdentifierContext) {
+        // TODO: Do this for MemberExpression too
+        errors.add(new BonoboError(BonoboErrorSeverity.error,
+            'You cannot assign a value here.', leftCtx.span));
+      } else if (leftCtx is IdentifierContext) {
+        var symbol = scope.resolve(leftCtx.name);
+
+        if (symbol == null) {
+          errors.add(new BonoboError(
+              BonoboErrorSeverity.error,
+              "The name '${leftCtx.name}' does not exist in this context.",
+              leftCtx.span));
+        } else {
+          BonoboObject value;
+
+          if (ctx.operator == TokenType.equals) {
+            value =
+                await resolveExpression(ctx.right.innermost, function, scope);
+          } else {
+            // Make an artificial binary expression, and assign it as the value.
+            var rootOperator = ctx.operator.span.text
+                .substring(0, ctx.operator.span.length - 1);
+            var binaryExpression = new BinaryExpressionContext(
+              leftCtx,
+              new Token(
+                Scanner.normalPatterns[rootOperator],
+                ctx.operator.span,
+                ctx.operator.match,
+              ),
+              ctx.right.innermost,
+              ctx.span,
+              ctx.comments,
+            );
+            value = await resolveExpression(binaryExpression, function, scope);
+          }
+
+          try {
+            symbol.value = value;
+          } on StateError catch (e) {
+            errors.add(new BonoboError(
+                BonoboErrorSeverity.error, e.message, leftCtx.span));
+          }
+        }
+      }
+    }
+
     if (ctx is CallExpressionContext) {
       var target = await resolveExpression(ctx.target, function, scope);
 
@@ -322,7 +374,7 @@ class BonoboAnalyzer {
     }
 
     errors.add(new BonoboError(BonoboErrorSeverity.error,
-        "Cannot resolve type of expression '${ctx.span.text}'.", ctx.span));
+        "Cannot resolve type of expression '${ctx.span.text}' (${ctx.runtimeType}).", ctx.span));
     return defaultObject;
   }
 }

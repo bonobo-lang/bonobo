@@ -6,7 +6,10 @@ f main: String {
     v two = 2, three = print '3'
 
     // You can't overwrite an immutable variable.
-    one = 1.0
+    //
+    // For example, the following would be an error (uncomment it!)
+    //
+    // one = 1.0
 
     // ... But you CAN overwrite mutable variables.
     two = three += 4.0

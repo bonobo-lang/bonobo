@@ -138,6 +138,7 @@ class BonoboCCompiler {
 
   Future<c.Expression> compileExpression(ExpressionContext ctx,
       BonoboFunction function, List<c.Code> body, SymbolTable scope) async {
+    //print('${ctx.runtimeType}\n${ctx.span.highlight()}');
     // Literals
     if (ctx is IdentifierContext) {
       return new c.Expression(ctx.name);
