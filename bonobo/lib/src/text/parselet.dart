@@ -18,16 +18,33 @@ class InfixParselet {
 class BinaryParselet extends InfixParselet {
   BinaryParselet(int precedence)
       : super(precedence, (parser, left, token, comments) {
-          var span = left.span.expand(token.span);
+          var span = left.span.expand(token.span), lastSpan = span;
+          var equals = parser.nextToken(TokenType.equals)?.span;
+
+          if (equals != null) {
+            span = span.expand(lastSpan = equals);
+          }
+
           var right = parser.parseExpression(0);
 
           if (right == null) {
             parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
-                "Missing expression after '${token.span.text}'.", token.span));
+                "Missing expression after '${lastSpan.text}'.", lastSpan));
             return null;
           }
 
           span = span.expand(right.span);
+
+          if (equals != null) {
+            return new AssignmentExpressionContext(
+              left,
+              token,
+              right,
+              span,
+              []..addAll(comments)..addAll(right.comments),
+            );
+          }
+
           return new BinaryExpressionContext(
             left,
             token,

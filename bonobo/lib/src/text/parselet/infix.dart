@@ -52,23 +52,7 @@ Map<TokenType, InfixParselet> createInfixParselets() {
     }
   }
 
-  addBinary([
-    TokenType.equals,
-    //TokenType.elvis_equals,
-    TokenType.mod_equals,
-    TokenType.tilde_equals,
-    TokenType.pow_equals,
-    TokenType.times_equals,
-    TokenType.div_equals,
-    TokenType.plus_minus_equals,
-    TokenType.plus_equals,
-    TokenType.minus_equals,
-    TokenType.xor_equals,
-    TokenType.and_equals,
-    TokenType.or_equals,
-    TokenType.b_and_equals,
-    TokenType.b_or_equals,
-  ]);
+  addBinary([TokenType.equals]);
 
   // TODO: Tern
   infixParselets[TokenType.question] =

@@ -79,21 +79,21 @@ class PostfixExpressionContext extends ExpressionContext {
       : super(span, comments);
 }
 
+class AssignmentExpressionContext extends ExpressionContext {
+  final ExpressionContext left, right;
+  final Token operator;
+
+  AssignmentExpressionContext(this.left, this.operator, this.right, FileSpan span,
+      List<Comment> comments)
+      : super(span, comments);
+}
+
 class BinaryExpressionContext extends ExpressionContext {
   final ExpressionContext left, right;
   final Token operator;
 
   BinaryExpressionContext(this.left, this.operator, this.right, FileSpan span,
       List<Comment> comments)
-      : super(span, comments);
-}
-
-class AssignmentExpressionContext extends ExpressionContext {
-  final ExpressionContext left, right;
-  final Token operator;
-
-  AssignmentExpressionContext(this.left, this.operator, this.right,
-      FileSpan span, List<Comment> comments)
       : super(span, comments);
 }
 
