@@ -2,6 +2,8 @@ library bonobo.src.analysis;
 
 import 'dart:async';
 import 'package:c_builder/c_builder.dart' as c;
+import 'package:file/file.dart';
+import 'package:path/path.dart' as p;
 import 'package:resource/resource.dart';
 import 'package:source_span/source_span.dart';
 import 'package:symbol_table/symbol_table.dart';
@@ -19,6 +21,10 @@ part 'function.dart';
 part 'num.dart';
 
 part 'object.dart';
+
+part 'module.dart';
+
+part 'module_system.dart';
 
 part 'runtime.dart';
 
