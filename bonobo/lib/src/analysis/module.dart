@@ -3,17 +3,22 @@ part of bonobo.src.analysis;
 /// Represents a standalone unit of Bonobo code.
 class BonoboModule {
   final List<BonoboModule> children = [];
-  final List<CompilationUnitContext> compilationUnits = [];
+  final Map<Uri, CompilationUnitContext> compilationUnits = {};
+  final Map<String, BonoboType> types = {};
   final Directory directory;
+  final bool isCore;
   final BonoboModuleSystem moduleSystem;
   final BonoboModule parent;
   SymbolTable<BonoboObject> scope;
   String _fullName, _name;
 
   BonoboModule._(this.directory, this.parent)
-      : moduleSystem = parent.moduleSystem;
+      : isCore = false,
+        moduleSystem = parent.moduleSystem;
 
-  BonoboModule._root(this.directory, this.moduleSystem) : parent = null;
+  BonoboModule._core(this.directory, this.moduleSystem)
+      : isCore = true,
+        parent = null;
 
   bool get isRoot => parent == null;
 
@@ -24,7 +29,7 @@ class BonoboModule {
     var names = <String>[];
     var module = this;
 
-    while (module != null) {
+    while (module != null && !module.isCore) {
       names.insert(0, module.name);
       module = module.parent;
     }

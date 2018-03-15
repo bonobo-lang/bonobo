@@ -2,37 +2,34 @@ part of bonobo.src.analysis;
 
 class BonoboAnalyzer {
   final List<BonoboError> errors = [];
-  final Map<String, BonoboType> types = {};
   final CompilationUnitContext compilationUnit;
+  final BonoboModuleSystem moduleSystem;
   final Parser parser;
   final Uri sourceUrl;
-  AnalysisContext analysisContext;
-  SymbolTable<BonoboObject> rootScope;
-  SymbolTable<BonoboObject> currentScope;
+  BonoboModule module;
 
   final Map<SourceLocation, BonoboObject> expressionCache = {};
 
-  BonoboAnalyzer(this.compilationUnit, this.sourceUrl, this.parser) {
+  BonoboAnalyzer(this.compilationUnit, this.sourceUrl, this.parser, this.moduleSystem) {
     errors.addAll(parser.errors);
   }
 
   // TODO: Find unused symbols
   Future analyze() async {
-    analysisContext = new AnalysisContext(this);
-    currentScope = rootScope = await createRootScope(analysisContext);
-    types.addAll(await createGlobalTypes(analysisContext));
-
     var functions = <BonoboFunction>[];
+
+    // Figure out which module we're even working in...
+    module = await moduleSystem.findModuleForFile(sourceUrl);
 
     // Get the names of all functions
     for (var ctx in compilationUnit.functions) {
       try {
         var function =
-            new BonoboFunction(ctx.name.name, currentScope.createChild(), ctx);
+            new BonoboFunction(ctx.name.name, module.scope.createChild(), ctx);
         functions.add(function);
         function.usages
             .add(new SymbolUsage(SymbolUsageType.declaration, ctx.name.span));
-        currentScope.create(ctx.name.name, value: function, constant: true);
+        module.scope.create(ctx.name.name, value: function, constant: true);
 
         if (ctx.signature.parameterList != null) {
           // Create parameters, without types
@@ -203,7 +200,7 @@ class BonoboAnalyzer {
     if (ctx == null)
       return BonoboType.Root;
     else if (ctx is IdentifierTypeContext) {
-      var existing = types[ctx.identifier.name];
+      var existing = module.types[ctx.identifier.name];
 
       if (existing == null) {
         errors.add(new BonoboError(BonoboErrorSeverity.error,

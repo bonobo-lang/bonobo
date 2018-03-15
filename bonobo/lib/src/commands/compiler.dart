@@ -133,7 +133,7 @@ class BonoboCCompiler {
 
   Future<c.CType> compileType(BonoboType type) async {
     // TODO: Array types? Generics?
-    return type.ctype ?? analyzer.types[type.name];
+    return type.ctype;
   }
 
   Future<c.Expression> compileExpression(ExpressionContext ctx,

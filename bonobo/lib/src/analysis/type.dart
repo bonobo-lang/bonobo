@@ -1,6 +1,7 @@
 part of bonobo.src.analysis;
 
 // TODO: Fields, getters/setters, etc.
+// TODO: fullName getter based on module system.
 abstract class BonoboType {
   static final BonoboType Root = new _BonoboRootType();
   static final BonoboType Function$ = new _BonoboFunctionType();
