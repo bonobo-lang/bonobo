@@ -1,7 +1,7 @@
 part of bonobo.src.text;
 
-typedef ExpressionContext PrefixParselet(
-    Parser parser, Token token, List<Comment> comments, bool inVariableDeclaration);
+typedef ExpressionContext PrefixParselet(Parser parser, Token token,
+    List<Comment> comments, bool inVariableDeclaration);
 
 class InfixParselet {
   final int precedence;
@@ -14,7 +14,8 @@ class InfixParselet {
 
 class BinaryParselet extends InfixParselet {
   BinaryParselet(int precedence)
-      : super(precedence, (parser, left, token, comments, inVariableDeclaration) {
+      : super(precedence,
+            (parser, left, token, comments, inVariableDeclaration) {
           var span = left.span.expand(token.span), lastSpan = span;
           var equals = parser.nextToken(TokenType.equals)?.span;
 
@@ -22,7 +23,8 @@ class BinaryParselet extends InfixParselet {
             span = span.expand(lastSpan = equals);
           }
 
-          var right = parser.parseExpression(0, inVariableDeclaration);
+          var right =
+              parser.parseExpression(0, inVariableDeclaration);
 
           if (right == null) {
             parser.errors.add(new BonoboError(BonoboErrorSeverity.error,

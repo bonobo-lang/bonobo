@@ -103,6 +103,5 @@ Map<TokenType, InfixParselet> createInfixParselets() {
   addBinary([TokenType.pow]);
 
   // TODO: [], .
-
   return infixParselets;
 }

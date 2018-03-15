@@ -306,11 +306,13 @@ class Parser extends _Parser {
   }
 
   VariableDeclarationStatementContext parseVariableDeclarationStatement() {
+    /*
     var comments = <Comment>[];
     var span = lookAhead(() {
       comments.addAll(parseComments());
       return nextToken(TokenType.v)?.span;
-    });
+    });*/
+    var comments = parseComments(), span = nextToken(TokenType.v)?.span;
 
     //var lastSpan = span;
     if (span == null) return null;

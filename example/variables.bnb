@@ -1,15 +1,15 @@
 f main: String {
     // Immutable variables can be declared with the ':=' operator.
-    //v one := 1
+    v one := 1
 
     // Mutable variables just the '=' operator.
     v two = 2, three = print '3'
 
     // You can't overwrite an immutable variable.
-    //one = 1.0
+    one = 1.0
 
     // ... But you CAN overwrite mutable variables.
-    //two = three += 4.0
+    two = three += 4.0
     
     // The type of variables is automatically inferred, so you don't
     // have to manually declare them.
