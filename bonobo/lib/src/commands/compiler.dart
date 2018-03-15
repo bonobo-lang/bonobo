@@ -107,6 +107,24 @@ class BonoboCCompiler {
         var expression =
             await compileExpression(stmt.expression, function, out, scope);
         out.addAll([gdbLineInfo(stmt.span), expression.asReturn()]);
+        continue;
+      }
+
+      if (stmt is VariableDeclarationStatementContext) {
+        out.add(gdbLineInfo(stmt.span));
+
+        // Declare all variables
+        for (var decl in stmt.declarations) {
+          var value = await analyzer.resolveExpression(
+              decl.expression, function, scope);
+          var cExpression =
+              await compileExpression(decl.expression, function, out, scope);
+          var type = await compileType(value.type);
+          out.add(new c.Field(type, decl.name.name, cExpression));
+        }
+
+        // Then, walk the remaining statements
+        out.addAll(await compileControlFlow(stmt.flow, function, scope));
       }
     }
 

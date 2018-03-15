@@ -30,6 +30,7 @@ class VariableDeclarationStatementContext extends StatementContext {
   final List<VariableDeclarationContext> declarations;
   final List<StatementContext> context;
   final FileSpan declarationSpan;
+  ControlFlow flow;
   SymbolTable<BonoboObject> scope;
 
   VariableDeclarationStatementContext(

@@ -183,9 +183,8 @@ class BonoboAnalyzer {
           }
         }
 
-        var childFlow = new ControlFlow();
+        var childFlow = stmt.flow = await analyzeBlock(stmt.context, function, childScope, deadCode);
         flow.children.add(childFlow);
-        await analyzeBlock(stmt.context, function, childScope, deadCode);
       }
     }
 

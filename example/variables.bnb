@@ -1,9 +1,9 @@
-f main: Num {
+f main: String {
     // Immutable variables can be declared with the ':=' operator.
     //v one := 1
 
     // Mutable variables just the '=' operator.
-    v two = 2, three = '3'
+    v two = 2, three = print '3'
 
     // You can't overwrite an immutable variable.
     //one = 1.0
@@ -14,6 +14,6 @@ f main: Num {
     // The type of variables is automatically inferred, so you don't
     // have to manually declare them.
     //
-    // Bonobo is smart enough to know that `three` is a `String`, and report an error.
+    // Bonobo is smart enough to know that `three` is a `String`.
     ret three
 }
