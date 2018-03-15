@@ -10,4 +10,10 @@ class _BonoboStringType extends BonoboInheritedType {
 
   @override
   c.CType get ctype => _cType;
+
+  @override
+  BonoboType binaryOp(
+      Token operator, BonoboType other, BonoboAnalyzer analyzer) {
+    return this;
+  }
 }

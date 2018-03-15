@@ -76,6 +76,15 @@ abstract class BonoboType {
         "Invalid postfix operator '${operator.span.text}'.", operator.span));
     return Root;
   }
+
+  BonoboType unsupportedBinaryOperator(
+      Token operator, BonoboType other, BonoboAnalyzer analyzer) {
+    analyzer.errors.add(new BonoboError(
+        BonoboErrorSeverity.error,
+        "$name does not support running the '${operator.span.text}' operator against ${other.name}",
+        operator.span));
+    return Root;
+  }
 }
 
 class _BonoboRootType extends BonoboType {

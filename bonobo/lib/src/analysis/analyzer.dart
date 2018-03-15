@@ -275,7 +275,7 @@ class BonoboAnalyzer {
         } else {
           BonoboObject value;
 
-          if (ctx.operator == TokenType.equals) {
+          if (ctx.operator.type == TokenType.equals) {
             value =
                 await resolveExpression(ctx.right.innermost, function, scope);
           } else {
@@ -297,7 +297,7 @@ class BonoboAnalyzer {
           }
 
           try {
-            symbol.value = value;
+            return symbol.value = value;
           } on StateError catch (e) {
             errors.add(new BonoboError(
                 BonoboErrorSeverity.error, e.message, leftCtx.span));
