@@ -306,6 +306,13 @@ class BonoboAnalyzer {
       }
     }
 
+    if (ctx is BinaryExpressionContext) {
+      var left = await resolveExpression(ctx.left.innermost, function, scope);
+      var right = await resolveExpression(ctx.right.innermost, function, scope);
+      var type = left.type.binaryOp(ctx.operator, right.type, this);
+      return new BonoboObject(type, ctx.span);
+    }
+
     if (ctx is CallExpressionContext) {
       var target = await resolveExpression(ctx.target, function, scope);
 
