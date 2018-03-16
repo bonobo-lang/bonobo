@@ -37,7 +37,16 @@ class BonoboAnalyzer {
         functions.add(function);
         function.usages
             .add(new SymbolUsage(SymbolUsageType.declaration, ctx.name.span));
-        module.scope.create(ctx.name.name, value: function, constant: true);
+
+        var symbol = module.scope.create(ctx.name.name, value: function, constant: true);
+
+        if (ctx.modifiers.contains(TokenType.pub)) {
+          symbol.visibility = Visibility.public;
+        } else if (ctx.modifiers.contains(TokenType.priv)) {
+          symbol.visibility = Visibility.private;
+        } else {
+          symbol.visibility = Visibility.protected;
+        }
 
         if (ctx.signature.parameterList != null) {
           // Create parameters, without types

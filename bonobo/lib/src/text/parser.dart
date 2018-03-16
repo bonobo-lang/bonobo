@@ -36,10 +36,24 @@ class Parser extends _Parser {
 
   FunctionContext parseFunction(bool requireName,
       [Token f, List<Comment> comments]) {
+    var modifiers = <TokenType>[];
+    FileSpan span;
+
+    if (f == null) {
+      var modifier = parseModifier();
+
+      while (modifier != null) {
+        modifiers.add(modifier.type);
+        span = span == null ? modifier.span : span.expand(modifier.span);
+      }
+    }
+
     comments ??= parseComments();
     f ??= nextToken(TokenType.f);
     if (f == null) return null;
-    var span = f?.span, name = parseIdentifier();
+
+    span = span == null ? f.span : span.expand(f.span);
+    var name = parseIdentifier();
 
     if (name == null && requireName) {
       errors.add(new BonoboError(
@@ -60,7 +74,7 @@ class Parser extends _Parser {
     }
 
     return new FunctionContext(
-        name, signature, body, span.expand(body.span), comments);
+        modifiers, name, signature, body, span.expand(body.span), comments);
   }
 
   FunctionSignatureContext parseFunctionSignature(FileSpan currentSpan) {
@@ -384,5 +398,14 @@ class Parser extends _Parser {
     }
 
     return new VariableDeclarationContext(id, expression, isFinal, span, []);
+  }
+
+  Token parseModifier() {
+    for (var type in modifierTypes) {
+      var token = nextToken(type);
+      if (token != null) return token;
+    }
+
+    return null;
   }
 }

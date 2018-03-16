@@ -1,12 +1,13 @@
 part of bonobo.src.ast;
 
 class FunctionContext extends ExpressionContext {
+  final List<TokenType> modifiers;
   final IdentifierContext name;
   final FunctionSignatureContext signature;
   final FunctionBodyContext body;
 
-  FunctionContext(this.name, this.signature, this.body, FileSpan span,
-      List<Comment> comments)
+  FunctionContext(this.modifiers, this.name, this.signature, this.body,
+      FileSpan span, List<Comment> comments)
       : super(span, comments);
 }
 
@@ -29,7 +30,7 @@ abstract class FunctionBodyContext extends AstNode {
 class BlockFunctionBodyContext extends FunctionBodyContext {
   final BlockContext block;
 
-  BlockFunctionBodyContext(this.block):super(block.span, []);
+  BlockFunctionBodyContext(this.block) : super(block.span, []);
 
   @override
   List<StatementContext> get body => block.statements;
@@ -58,7 +59,6 @@ class ParameterContext extends AstNode {
   final IdentifierContext name;
   final TypeContext type;
 
-  ParameterContext(
-      this.name, this.type, FileSpan span, List<Comment> comments)
+  ParameterContext(this.name, this.type, FileSpan span, List<Comment> comments)
       : super(span, comments);
 }

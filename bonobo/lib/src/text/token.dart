@@ -34,6 +34,10 @@ enum TokenType {
   ret,
   v,
 
+  // Modifiers
+  pub,
+  priv,
+
   // Unary operators
   increment,
   decrement,
@@ -73,3 +77,8 @@ enum TokenType {
   string,
   identifier,
 }
+
+const List<TokenType> modifierTypes = const [
+  TokenType.pub,
+  TokenType.priv,
+];

@@ -36,6 +36,10 @@ class Scanner {
     'ret': TokenType.ret,
     'v': TokenType.v,
 
+    // Modifiers
+    'pub': TokenType.pub,
+    'priv': TokenType.priv,
+
     // Unary operators
     '++': TokenType.increment,
     '--': TokenType.decrement,
