@@ -18,8 +18,9 @@ class BonoboAnalyzer {
     var functions = <BonoboFunction>[];
 
     // Figure out which module we're even working in...
-    module = m ?? await moduleSystem.findModuleForFile(
-        sourceUrl, moduleSystem.rootModule);
+    module = m ??
+        await moduleSystem.findModuleForFile(
+            sourceUrl, moduleSystem.rootModule);
     //module = moduleSystem.rootModule;
 
     if (module.compilationUnits[sourceUrl] != null) {
@@ -38,7 +39,8 @@ class BonoboAnalyzer {
         function.usages
             .add(new SymbolUsage(SymbolUsageType.declaration, ctx.name.span));
 
-        var symbol = module.scope.create(ctx.name.name, value: function, constant: true);
+        var symbol =
+            module.scope.create(ctx.name.name, value: function, constant: true);
 
         if (ctx.modifiers.contains(TokenType.pub)) {
           symbol.visibility = Visibility.public;
@@ -386,6 +388,69 @@ class BonoboAnalyzer {
       if (!parametersMatch) return defaultObject;
 
       return new BonoboObject(f.returnType, ctx.span);
+    }
+
+    if (ctx is MemberExpressionContext) {
+      var targetExpression = ctx.target.innermost;
+
+      // If the target expression is neither an ID nor a member expression,
+      // then we should attempt to access a field.
+      if (targetExpression is! IdentifierContext &&
+          targetExpression is! MemberExpressionContext) {
+        // For now, though, Bonobo types do not have fields.
+        // https://github.com/bonobo-lang/bonobo/issues/29
+        errors.add(new BonoboError(
+            BonoboErrorSeverity.error,
+            'Bonobo types currently do not have fields',
+            targetExpression.span));
+        return defaultObject;
+      }
+
+      // In the case of a MemberExpression,
+      // we can either be getting an exported symbol from a child module,
+      // or one from a symbol within this scope.
+
+      // A symbol within this scope will take precedence, so let's look for that first.
+      BonoboObject referencedObject;
+
+      if (targetExpression is IdentifierContext) {
+        referencedObject = scope.resolve(targetExpression.name)?.value;
+      } else if (targetExpression is MemberExpressionContext) {
+        // Again, Bonobo types still do not have fields, so this won't work yet.
+        errors.add(new BonoboError(
+            BonoboErrorSeverity.error,
+            'Bonobo types currently do not have fields',
+            targetExpression.span));
+        return defaultObject;
+      }
+
+      if (referencedObject != null)
+        return referencedObject;
+
+      if (targetExpression is IdentifierContext) {
+        errors.add(new BonoboError(
+            BonoboErrorSeverity.error,
+            "The name '${targetExpression.name}' does not exist in this context.",
+            targetExpression.span));
+      }
+
+      var memberExpression = targetExpression as MemberExpressionContext;
+
+      if (memberExpression.target.innermost is! IdentifierContext) {
+        // TODO: Keep track of the error generated above. Emit it if this condi
+        return defaultObject;
+      }
+
+      // If there is no value with the given name within this scope,
+      // then we should look for a public symbol.
+      //
+      // This symbol will come either from the local submodules, or the
+      // globally-included third-party modules.
+      var modules = new List<BonoboModule>.from(module.children);
+      modules.addAll(moduleSystem.rootModule.parent.children);
+      // TODO: Add aliased imports
+
+      // Find modules
     }
 
     if (ctx is PrintExpressionContext)
