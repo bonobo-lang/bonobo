@@ -5,7 +5,7 @@ class BonoboModuleSystem {
   BonoboModule _rootModule;
 
   BonoboModuleSystem._(this.rootDirectory, BonoboModule coreLibrary) {
-    _rootModule = new BonoboModule._core(rootDirectory, this);
+    _rootModule = new BonoboModule._(rootDirectory, coreLibrary, this);
   }
 
   static Future<BonoboModuleSystem> create(Directory rootDirectory) async {

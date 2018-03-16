@@ -18,10 +18,9 @@ class BonoboAnalyzer {
     var functions = <BonoboFunction>[];
 
     // Figure out which module we're even working in...
-    module =  await moduleSystem.findModuleForFile(
-            sourceUrl, moduleSystem.rootModule);
+    module = await moduleSystem.findModuleForFile(
+        sourceUrl, moduleSystem.rootModule);
     //module = moduleSystem.rootModule;
-
 
     if (module.compilationUnits[sourceUrl] != null) {
       return;
@@ -209,16 +208,19 @@ class BonoboAnalyzer {
     if (ctx == null)
       return BonoboType.Root;
     else if (ctx is IdentifierTypeContext) {
-      var existing = module.types[ctx.identifier.name];
+      BonoboModule m = module;
 
-      if (existing == null) {
-        errors.add(new BonoboError(BonoboErrorSeverity.error,
-            "Unknown type '${ctx.identifier.name}'.", ctx.span));
+      do {
+        var existing = m.types[ctx.identifier.name];
 
-        return BonoboType.Root;
-      }
+        if (existing != null) return existing;
+        m = m.parent;
+      } while (m != null);
 
-      return existing;
+      errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Unknown type '${ctx.identifier.name}'.", ctx.span));
+
+      return BonoboType.Root;
     } else {
       throw new ArgumentError();
     }
