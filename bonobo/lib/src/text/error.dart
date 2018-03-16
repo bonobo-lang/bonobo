@@ -9,6 +9,7 @@ class BonoboError implements Exception {
 
   @override
   String toString() {
+    if (span == null) return message;
     return '${span.start.toolString}: $message';
   }
 }

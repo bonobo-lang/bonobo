@@ -32,7 +32,7 @@ class BonoboCCompiler {
       errors.add(new BonoboError(
         BonoboErrorSeverity.error,
         "A 'main' function is required.",
-        analyzer.parser.scanner.emptySpan,
+        analyzer.module.emptySpan,
       ));
     } else {
       // Insert forward declarations of all functions

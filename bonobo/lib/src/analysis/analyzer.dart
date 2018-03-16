@@ -2,30 +2,33 @@ part of bonobo.src.analysis;
 
 class BonoboAnalyzer {
   final List<BonoboError> errors = [];
-  final CompilationUnitContext compilationUnit;
   final BonoboModuleSystem moduleSystem;
-  final Parser parser;
-  final Uri sourceUrl;
+
+  //final Parser parser;
   BonoboModule module;
 
   final Map<SourceLocation, BonoboObject> expressionCache = {};
 
-  BonoboAnalyzer(this.compilationUnit, this.sourceUrl, this.parser, this.moduleSystem) {
-    errors.addAll(parser.errors);
-  }
+  BonoboAnalyzer(this.moduleSystem);
 
   // TODO: Find unused symbols
-  Future analyze() async {
+  Future analyze(
+      CompilationUnitContext compilationUnit, Uri sourceUrl, Parser parser,
+      [BonoboModule m]) async {
     var functions = <BonoboFunction>[];
 
     // Figure out which module we're even working in...
-    module = await moduleSystem.findModuleForFile(sourceUrl, moduleSystem.rootModule);
+    module =  await moduleSystem.findModuleForFile(
+            sourceUrl, moduleSystem.rootModule);
+    //module = moduleSystem.rootModule;
+
 
     if (module.compilationUnits[sourceUrl] != null) {
       return;
     }
 
     module.compilationUnits[sourceUrl] = compilationUnit;
+    errors.addAll(parser.errors);
 
     // Get the names of all functions
     for (var ctx in compilationUnit.functions) {
@@ -337,7 +340,8 @@ class BonoboAnalyzer {
 
         errors.add(new BonoboError(
             BonoboErrorSeverity.error,
-            "'${f.name} expects ${f.parameters.length} $arguments, but ${ctx.arguments.expressions.length} $were provided.",
+            "'${f.name} expects ${f.parameters.length} $arguments, but ${ctx
+                .arguments.expressions.length} $were provided.",
             ctx.span));
         return defaultObject;
       }
@@ -383,8 +387,11 @@ class BonoboAnalyzer {
       return new BonoboObject(type, ctx.span);
     }
 
-    errors.add(new BonoboError(BonoboErrorSeverity.error,
-        "Cannot resolve type of expression '${ctx.span.text}' (${ctx.runtimeType}).", ctx.span));
+    errors.add(new BonoboError(
+        BonoboErrorSeverity.error,
+        "Cannot resolve type of expression '${ctx.span.text}' (${ctx
+            .runtimeType}).",
+        ctx.span));
     return defaultObject;
   }
 }

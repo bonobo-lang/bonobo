@@ -45,16 +45,20 @@ Future<BonoboAnalyzer> analyze(Command command) async {
   var tuple = await scanAndParse(command);
   if (tuple == null) return null;
   const fs = const LocalFileSystem();
-  var moduleSystem =
-      await BonoboModuleSystem.create(fs.directory(fs.currentDirectory));
+  var directory = fs.directory(fs.currentDirectory);
+  var moduleSystem = await BonoboModuleSystem.create(directory);
+  var module = await moduleSystem.findModuleForFile(
+      tuple.item1.scanner.sourceUrl, moduleSystem.rootModule);
+  await moduleSystem.analyzeModule(module, directory, moduleSystem.rootModule);
+  return module.analyzer;
+  /*
   var analyzer = new BonoboAnalyzer(
     tuple.item3,
     tuple.item2.scanner.scanner.sourceUrl,
     tuple.item2,
     moduleSystem,
   );
-  await analyzer.analyze();
-  return analyzer;
+  await analyzer.analyze();*/
 }
 
 void printErrors(Iterable<BonoboError> errors) {
@@ -62,7 +66,8 @@ void printErrors(Iterable<BonoboError> errors) {
     stderr
       ..write(severityToString(e.severity))
       ..write(': ')
-      ..writeln(e)
-      ..writeln(e.span.highlight());
+      ..writeln(e);
+
+    if (e.span != null) stderr.writeln(e.span.highlight());
   }
 }

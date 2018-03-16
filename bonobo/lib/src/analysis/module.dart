@@ -10,11 +10,13 @@ class BonoboModule {
   final BonoboModuleSystem moduleSystem;
   final BonoboModule parent;
   final SymbolTable<BonoboObject> scope = new SymbolTable();
+  BonoboAnalyzer analyzer;
+  FileSpan emptySpan;
   String _fullName, _name;
 
-  BonoboModule._(this.directory, this.parent)
+  BonoboModule._(this.directory, this.parent, [BonoboModuleSystem system])
       : isCore = false,
-        moduleSystem = parent.moduleSystem;
+        moduleSystem = system ?? parent?.moduleSystem;
 
   BonoboModule._core(this.directory, this.moduleSystem)
       : isCore = true,

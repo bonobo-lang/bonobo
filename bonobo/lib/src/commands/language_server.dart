@@ -200,6 +200,13 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     var fileSystem = findFileSystem(sourceUrl);
     var moduleSystem = _moduleSystems[fileSystem] ??=
         await BonoboModuleSystem.create(fileSystem.file(sourceUrl).parent);
+
+    // Find the existing analyzer
+    var module = await moduleSystem.findModuleForFile(
+        sourceUrl, moduleSystem.rootModule);
+    var analyzer = module.analyzer;
+
+    /*
     var analyzer = new BonoboAnalyzer(
       compilationUnit,
       sourceUrl,
@@ -207,6 +214,8 @@ class BonoboLanguageServer extends lsp.LanguageServer {
       moduleSystem,
     );
     await analyzer.analyze();
+    */
+
     sendErrors(analyzer.errors);
     return analyzer;
   }
@@ -225,7 +234,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
         ..completionProvider = new lsp.CompletionOptions((b) => b
           ..resolveProvider = false
           ..triggerCharacters = const ['.'])
-        ..codeActionProvider = true
+        ..codeActionProvider = false//true
         ..definitionProvider = true
         ..documentHighlightsProvider = true
         ..documentSymbolProvider = true
@@ -261,10 +270,10 @@ class BonoboLanguageServer extends lsp.LanguageServer {
           lsp.TextDocumentIdentifier documentId, lsp.Position position) async {
     var analyzer = await analyze(documentId);
     // TODO: Find current control flow within function?
-    var function =
-        currentFunction(analyzer, convertDocumentId(documentId), position);
+    var sourceUrl = convertDocumentId(documentId);
+    var function = currentFunction(analyzer, sourceUrl, position);
     if (function == null) return null;
-    var contents = await loadText(analyzer.sourceUrl);
+    var contents = await loadText(sourceUrl);
     var name = currentWord(contents, position);
     if (name == null) return null;
     var variable = function.scope.resolve(name);
@@ -328,11 +337,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
       lsp.Range range,
       lsp.CodeActionContext context) async {
     //var analyzer = await analyze(documentId);
-    return [
-      new lsp.Command((b) {
-        b..title = 'wtf';
-      }),
-    ];
+    //return [];
   }
 
   @override

@@ -5,12 +5,19 @@ class BonoboModuleSystem {
   BonoboModule _rootModule;
 
   BonoboModuleSystem._(this.rootDirectory, BonoboModule coreLibrary) {
-    _rootModule = new BonoboModule._(rootDirectory, coreLibrary);
+    _rootModule = new BonoboModule._core(rootDirectory, this);
   }
 
   static Future<BonoboModuleSystem> create(Directory rootDirectory) async {
     var core = await _createCore();
-    return new BonoboModuleSystem._(rootDirectory, core);
+    var system = new BonoboModuleSystem._(rootDirectory, core);
+
+    // Analyze the root module
+    //var analyzer = system._rootModule.analyzer = new BonoboAnalyzer(system);
+    //analyzer.module = system._rootModule;
+    //system._rootModule = await system.createModule(rootDirectory, null);
+
+    return system;
   }
 
   static Future<BonoboModule> _createCore() async {
@@ -34,22 +41,42 @@ class BonoboModuleSystem {
 
   BonoboModule get rootModule => _rootModule;
 
-  Future<BonoboModule> createModule(
-      Directory directory, BonoboModule parent) async {
+  Future analyzeModule(
+      BonoboModule module, Directory directory, BonoboModule parent) async {
     // Find all .bnb files
     var sourceFiles = await directory
         .list()
         .where((e) => e is File && p.extension(e.path) == '.bnb')
         .cast<File>()
         .toList();
-
-    // TODO: Parse files here, instead of on-the-fly in the language server.
-    var module = new BonoboModule._(directory, parent);
+    var analyzer = module.analyzer ??= new BonoboAnalyzer(this);
 
     for (var sourceFile in sourceFiles) {
-      module.compilationUnits[sourceFile.absolute.uri] = null;
-    }
+      //print('Start ${sourceFile.absolute.uri}...');
+      // Parse files here, instead of on-the-fly in the language server.
+      var scanner = new Scanner(await sourceFile.readAsString(),
+          sourceUrl: sourceFile.absolute.uri)
+        ..scan();
+      module.emptySpan ??= scanner.emptySpan;
+      var parser = new Parser(scanner);
+      var compilationUnit = parser.parseCompilationUnit();
 
+      // TODO: Analyze???
+      await analyzer.analyze(
+        compilationUnit,
+        scanner.scanner.sourceUrl,
+        parser,
+        module,
+      );
+
+      module..compilationUnits[sourceFile.absolute.uri] = compilationUnit;
+    }
+  }
+
+  Future<BonoboModule> createModule(
+      Directory directory, BonoboModule parent) async {
+    var module = new BonoboModule._(directory, parent, this);
+    await analyzeModule(module, directory, parent);
     return module;
   }
 
