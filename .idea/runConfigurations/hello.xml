@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="bad_style.bnb" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application" singleton="true">
-    <option name="arguments" value="format bad_style.bnb" />
+  <configuration default="false" name="hello" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application" singleton="true">
+    <option name="arguments" value="compile hello/main.bnb" />
     <option name="filePath" value="$PROJECT_DIR$/bonobo/bin/bonobo.dart" />
     <option name="workingDirectory" value="$PROJECT_DIR$/example" />
     <method />

@@ -49,7 +49,7 @@ Future<BonoboAnalyzer> analyze(Command command) async {
   var moduleSystem = await BonoboModuleSystem.create(directory);
   var module = await moduleSystem.findModuleForFile(
       tuple.item1.scanner.sourceUrl, moduleSystem.rootModule);
-  await moduleSystem.analyzeModule(module, directory, moduleSystem.rootModule);
+  //await moduleSystem.analyzeModule(module, directory, moduleSystem.rootModule);
   return module.analyzer;
   /*
   var analyzer = new BonoboAnalyzer(

@@ -43,6 +43,9 @@ class BonoboModuleSystem {
 
   Future analyzeModule(
       BonoboModule module, Directory directory, BonoboModule parent) async {
+    // TODO: Provide some way to invalidate the module
+    if (module.analyzer != null) return;
+
     // Find all .bnb files
     var sourceFiles = await directory
         .list()

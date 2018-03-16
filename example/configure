@@ -8,6 +8,9 @@ RUNTIME_DIR="../bonobo/runtime"
 RUNTIME_SRCS="$RUNTIME_DIR/error.c $RUNTIME_DIR/string.c"
 TARGETS=""
 
+echo "This configure script is currently obsolete."
+exit 1
+
 if [ -e Makefile ]
 then
     echo "Makefile already exists." >&2

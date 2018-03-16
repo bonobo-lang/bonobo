@@ -17,11 +17,6 @@ class CompileCommand extends BonoboCommand {
   @override
   run() async {
     var analyzer = await analyze(this);
-
-    if (analyzer == null) {
-      throw 'what???';
-    }
-
     var compiler = new BonoboCCompiler(analyzer);
     await compiler.compile();
 

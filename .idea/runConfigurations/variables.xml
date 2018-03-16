@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="variables" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application" singleton="true">
+    <option name="arguments" value="compile variables/main.bnb" />
+    <option name="filePath" value="$PROJECT_DIR$/bonobo/bin/bonobo.dart" />
+    <option name="workingDirectory" value="$PROJECT_DIR$/example" />
+    <method />
+  </configuration>
+</component>

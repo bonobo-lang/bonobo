@@ -12,6 +12,5 @@ CTestTestfile.cmake
 *.o
 *.a
 *.exe
-hello
 .vscode
 build/
