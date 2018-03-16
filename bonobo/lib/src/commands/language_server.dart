@@ -204,6 +204,8 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     // Find the existing analyzer
     var module = await moduleSystem.findModuleForFile(
         sourceUrl, moduleSystem.rootModule);
+    await moduleSystem.analyzeModule(
+        module, module.directory, moduleSystem.rootModule);
     var analyzer = module.analyzer;
 
     /*
@@ -234,7 +236,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
         ..completionProvider = new lsp.CompletionOptions((b) => b
           ..resolveProvider = false
           ..triggerCharacters = const ['.'])
-        ..codeActionProvider = false//true
+        ..codeActionProvider = false //true
         ..definitionProvider = true
         ..documentHighlightsProvider = true
         ..documentSymbolProvider = true
