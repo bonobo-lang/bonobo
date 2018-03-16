@@ -10,23 +10,33 @@ class BonoboFileSystem extends ForwardingFileSystem {
 
     // Start from the directory where the file resides, and go upwards.
     var file = localFileSystem.file(currentFile);
-    var rootPrefix = path.rootPrefix(file.absolute.path);
-    var dir = path.dirname(file.absolute.path);
+    // var logFile = file.parent.childFile('log.txt')..createSync(recursive: true);
+    // var logSink = logFile.openWrite(mode: FileMode.APPEND);
+    var rootPrefix = path.toUri(path.rootPrefix(file.absolute.path));
+    var dir = path.toUri(path.dirname(file.absolute.path));
 
-    while (!path.equals(dir, rootPrefix)) {
-      var bonoboYamlFile = localFileSystem.file(path.join(dir, 'bonobo.yaml'));
+    while (dir != rootPrefix) {
+      try {
+        //logSink.writeln('Hm: $dir');
+        var bonoboYamlFile = localFileSystem.file(dir.resolve('bonobo.yaml'));
 
-      if (bonoboYamlFile.existsSync()) {
-        bonoboYaml = bonoboYamlFile;
+        if (bonoboYamlFile.existsSync()) {
+          bonoboYaml = bonoboYamlFile;
+          break;
+        } else {
+          dir = path.toUri(path.dirname(dir.path));
+        }
+      } catch (_) {
         break;
-      } else {
-        dir = path.dirname(dir);
       }
     }
 
+    //logSink.writeln('DIR: $dir');
+    Uri cDir;
+
     if (bonoboYaml == null) {
       // If no `bonobo.yaml` file was found, default to the current directory.
-      delegate.currentDirectory = file.parent.uri;
+      cDir = file.parent.absolute.uri;
 
       /*
       languageServer._diagnostics.add(new lsp.Diagnostics((b) {
@@ -50,7 +60,31 @@ class BonoboFileSystem extends ForwardingFileSystem {
       }));*/
     } else {
       // Now that we've found our root directory, switch!
-      delegate.currentDirectory = bonoboYaml.parent.uri;
+      cDir = bonoboYaml.parent.absolute.uri;
     }
+
+    //logSink.writeln('CUR: $cDir');
+    directory(cDir).createSync(recursive: true);
+    currentDirectory = cDir.path;
+
+    void copyDirectory(Directory dir) {
+      for (var entity in dir.listSync()) {
+        if (entity is File) {
+          this.file(entity.absolute.path)
+            ..createSync(recursive: true)
+            ..writeAsBytesSync(entity.readAsBytesSync());
+        } else if (entity is Link) {
+          this
+              .link(entity.absolute.path)
+              .createSync(entity.resolveSymbolicLinksSync(), recursive: true);
+        } else if (entity is Directory) {
+          this.directory(entity.absolute.path).createSync(recursive: true);
+          copyDirectory(entity);
+        }
+      }
+    }
+
+    copyDirectory(directory(cDir));
+    //logSink.close();
   }
 }

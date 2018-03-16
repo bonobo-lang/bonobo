@@ -2,7 +2,7 @@ library bonobo.src.commands;
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' hide File;
+import 'dart:io' hide Directory, File, FileMode;
 import 'dart:io' as io show File;
 import 'package:args/command_runner.dart';
 import 'package:c_builder/c_builder.dart' as c;
@@ -15,10 +15,9 @@ import 'package:dart_language_server/src/protocol/language_server/messages.dart'
 import 'package:dart_language_server/src/protocol/language_server/wireformat.dart'
     as lsp;
 import 'package:dart_language_server/dart_language_server.dart' as lsp;
-import 'package:file/file.dart' show File, FileSystem, ForwardingFileSystem;
+import 'package:file/file.dart' show Directory, File, FileSystem, ForwardingFileSystem;
 import 'package:file/local.dart';
 import 'package:file/memory.dart';
-import 'package:path/path.dart' as p;
 import 'package:source_span/source_span.dart';
 import 'package:symbol_table/symbol_table.dart';
 import 'package:tuple/tuple.dart';

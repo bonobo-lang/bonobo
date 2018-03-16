@@ -18,6 +18,11 @@ class BonoboModuleSystem {
     var core = new BonoboModule._core(null, null);
 
     // Within core exist all the "global" libraries.
+    core.types.addAll({
+      BonoboType.Num.name: BonoboType.Num,
+      BonoboType.String$.name: BonoboType.String$,
+    });
+
     // TODO: Third-party libs?
 
     // The local module also exists within the global context.
