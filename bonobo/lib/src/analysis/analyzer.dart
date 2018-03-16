@@ -21,6 +21,12 @@ class BonoboAnalyzer {
     // Figure out which module we're even working in...
     module = await moduleSystem.findModuleForFile(sourceUrl, moduleSystem.rootModule);
 
+    if (module.compilationUnits[sourceUrl] != null) {
+      return;
+    }
+
+    module.compilationUnits[sourceUrl] = compilationUnit;
+
     // Get the names of all functions
     for (var ctx in compilationUnit.functions) {
       try {
