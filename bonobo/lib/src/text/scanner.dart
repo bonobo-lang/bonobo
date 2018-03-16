@@ -69,6 +69,7 @@ class Scanner {
     '>=': TokenType.gte,
     '<<': TokenType.shl,
     '>>': TokenType.shr,
+    '.': TokenType.dot,
 
     // Assignments
     ':=': TokenType.colon_equals,

@@ -9,7 +9,6 @@ Map<TokenType, InfixParselet> createInfixParselets() {
     // Parse tuples
     TokenType.comma: new InfixParselet(precedence++,
         (parser, left, token, comments, inVariableDeclaration) {
-
       if (inVariableDeclaration) {
         return left;
       }
@@ -39,8 +38,8 @@ Map<TokenType, InfixParselet> createInfixParselets() {
     }),
 
     // Parse arg-less calls
-    TokenType.parentheses:
-        new InfixParselet(precedence++, (parser, left, token, comments, inVariableDeclaration) {
+    TokenType.parentheses: new InfixParselet(precedence++,
+        (parser, left, token, comments, inVariableDeclaration) {
       return new CallExpressionContext(
         left,
         new TupleExpressionContext([], token.span, []),
@@ -60,8 +59,8 @@ Map<TokenType, InfixParselet> createInfixParselets() {
   addBinary([TokenType.equals]);
 
   // TODO: Tern
-  infixParselets[TokenType.question] =
-      new InfixParselet(precedence++, (parser, left, token, comments, inVariableDeclaration) {
+  infixParselets[TokenType.question] = new InfixParselet(precedence++,
+      (parser, left, token, comments, inVariableDeclaration) {
     parser.errors.add(new BonoboError(BonoboErrorSeverity.warning,
         'The conditional operator is not supported... YET', token.span));
     return null;
@@ -103,5 +102,22 @@ Map<TokenType, InfixParselet> createInfixParselets() {
   addBinary([TokenType.pow]);
 
   // TODO: [], .
+  infixParselets[TokenType.dot] = new InfixParselet(precedence++,
+      (parser, left, token, comments, inVariableDeclaration) {
+    var identifier = parser.parseIdentifier();
+
+    if (identifier == null) {
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing expression after '.'.", token.span));
+      return null;
+    }
+
+    return new MemberExpressionContext(
+      left,
+      identifier,
+      left.span.expand(token.span).expand(identifier.span),
+      comments,
+    );
+  });
   return infixParselets;
 }

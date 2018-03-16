@@ -67,6 +67,7 @@ enum TokenType {
   gte,
   shl,
   shr,
+  dot,
 
   // Assignment
   colon_equals,
