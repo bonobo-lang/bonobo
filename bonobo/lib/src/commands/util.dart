@@ -44,8 +44,15 @@ Future<Tuple3<Scanner, Parser, CompilationUnitContext>> scanAndParse(
 Future<BonoboAnalyzer> analyze(Command command) async {
   var tuple = await scanAndParse(command);
   if (tuple == null) return null;
+  const fs = const LocalFileSystem();
+  var moduleSystem =
+      await BonoboModuleSystem.create(fs.directory(fs.currentDirectory));
   var analyzer = new BonoboAnalyzer(
-      tuple.item3, tuple.item2.scanner.scanner.sourceUrl, tuple.item2);
+    tuple.item3,
+    tuple.item2.scanner.scanner.sourceUrl,
+    tuple.item2,
+    moduleSystem,
+  );
   await analyzer.analyze();
   return analyzer;
 }

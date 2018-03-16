@@ -9,7 +9,7 @@ class BonoboModule {
   final bool isCore;
   final BonoboModuleSystem moduleSystem;
   final BonoboModule parent;
-  SymbolTable<BonoboObject> scope;
+  SymbolTable<BonoboObject> scope = new SymbolTable();
   String _fullName, _name;
 
   BonoboModule._(this.directory, this.parent)

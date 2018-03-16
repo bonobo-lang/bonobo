@@ -14,12 +14,13 @@ class LanguageServerCommand extends Command {
 
 class BonoboLanguageServer extends lsp.LanguageServer {
   static const Duration queueTime = const Duration(seconds: 10);
-  final FileSystem fileSystem = new MemoryFileSystem();
   final Map<Uri, List<Completer<File>>> _queue = {};
   final StreamController<lsp.Diagnostics> _diagnostics = new StreamController();
+  final Map<BonoboFileSystem, BonoboModuleSystem> _moduleSystems = {};
   final Completer _onDone = new Completer();
   final StreamController<lsp.ApplyWorkspaceEditParams> _workspaceEdits =
       new StreamController();
+  BonoboFileSystem _fileSystem;
 
   static bool isAlphaNumOrUnderscore(int ch) {
     return ch == $underscore ||
@@ -57,11 +58,19 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     });
   }
 
+  BonoboFileSystem findFileSystem(Uri uri) {
+    return _fileSystem ??=
+        new BonoboFileSystem(const LocalFileSystem(), uri, this);
+  }
+
   Uri convertDocumentId(lsp.TextDocumentIdentifier documentId) {
     try {
       return Uri.parse(documentId.uri);
     } on FormatException {
-      return fileSystem.file(documentId.uri).absolute.uri;
+      return findFileSystem(convertDocumentId(documentId))
+          .file(documentId.uri)
+          .absolute
+          .uri;
     }
   }
 
@@ -100,20 +109,21 @@ class BonoboLanguageServer extends lsp.LanguageServer {
       _workspaceEdits.stream;
 
   Future<String> loadText(Uri uri) {
-    return fileSystem.file(uri).readAsString();
+    return findFileSystem(uri).file(uri).readAsString();
   }
 
   Future<Tuple2<Parser, CompilationUnitContext>> parse(
       lsp.TextDocumentIdentifier documentId) async {
     var uri = convertDocumentId(documentId);
-    var file = fileSystem.file(uri);
+    var file = findFileSystem(uri).file(uri);
 
     if (!await file.exists()) {
       var c = new Completer<File>();
       _queue.putIfAbsent(file.uri, () => []).add(c);
       file = await c.future.timeout(queueTime).catchError((_) {
         // TODO: Should this have a timeout? Save resources...
-        throw 'Analysis was requested for file "${file.uri}", but a textDocument/didOpen event was never sent.';
+        throw 'Analysis was requested for file "${file
+            .uri}", but a textDocument/didOpen event was never sent.';
       });
     }
 
@@ -150,7 +160,8 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   Future<BonoboAnalyzer> analyze(lsp.TextDocumentIdentifier documentId) async {
     var tuple = await parse(documentId);
     var sourceUrl = tuple.item1.scanner.scanner.sourceUrl;
-    var contents = await fileSystem.file(sourceUrl).readAsString();
+    var contents =
+        await findFileSystem(sourceUrl).file(sourceUrl).readAsString();
     return await analyzeText(contents, sourceUrl);
   }
 
@@ -186,7 +197,15 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   Future<BonoboAnalyzer> analyzeFromParser(
       Parser parser, CompilationUnitContext compilationUnit) async {
     var sourceUrl = parser.scanner.scanner.sourceUrl;
-    var analyzer = new BonoboAnalyzer(compilationUnit, sourceUrl, parser);
+    var fileSystem = findFileSystem(sourceUrl);
+    var moduleSystem = _moduleSystems[fileSystem] ??=
+        await BonoboModuleSystem.create(fileSystem.file(sourceUrl).parent);
+    var analyzer = new BonoboAnalyzer(
+      compilationUnit,
+      sourceUrl,
+      parser,
+      moduleSystem,
+    );
     await analyzer.analyze();
     sendErrors(analyzer.errors);
     return analyzer;
@@ -224,7 +243,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   /// Figure which function the user is currently typing in.
   BonoboFunction currentFunction(
       BonoboAnalyzer analyzer, Uri sourceUrl, lsp.Position position) {
-    for (var symbol in analyzer.rootScope.allPublicVariables) {
+    for (var symbol in analyzer.module.scope.root.allPublicVariables) {
       if (symbol.value == null) continue;
       if (symbol.value is! BonoboFunction) continue;
       if (symbol.value.span == null) continue;
@@ -309,6 +328,11 @@ class BonoboLanguageServer extends lsp.LanguageServer {
       lsp.Range range,
       lsp.CodeActionContext context) async {
     //var analyzer = await analyze(documentId);
+    return [
+      new lsp.Command((b) {
+        b..title = 'wtf';
+      }),
+    ];
   }
 
   @override
@@ -325,8 +349,9 @@ class BonoboLanguageServer extends lsp.LanguageServer {
           ..contents = '${symbol.name}: $type'
           ..range = convertSpan(value.span);
       });
-    } else if (analyzer?.types?.containsKey(name) == true) {
-      var type = analyzer.types[name];
+    } else if (analyzer?.module?.types?.containsKey(name) == true) {
+      // TODO: Find types with prefixes, etc.
+      var type = analyzer.module.types[name];
 
       return new lsp.Hover((b) {
         b
@@ -347,7 +372,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     var info = <lsp.SymbolInformation>[];
     var analyzer = await analyze(documentId);
 
-    for (var symbol in analyzer.rootScope.allVariables) {
+    for (var symbol in analyzer.module.scope.root.allVariables) {
       if (symbol.value?.span == null) continue;
       var value = symbol.value;
 
@@ -426,9 +451,10 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     // TODO: Snippets?
 
     List<Variable<BonoboObject>> scope =
-        (function?.scope ?? analyzer.rootScope).allVariables;
+        (function?.scope ?? analyzer.module.scope.root).allVariables;
 
-    analyzer.types.forEach((name, type) {
+    analyzer.module.types.forEach((name, type) {
+      // TODO: Get ALL types
       items.add(new lsp.CompletionItem((b) {
         b
           ..label = name
@@ -497,7 +523,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   textDocumentDidOpen(lsp.TextDocumentItem document) async {
     var sourceUrl = Uri.parse(document.uri);
 
-    var file = fileSystem.file(sourceUrl);
+    var file = findFileSystem(sourceUrl).file(sourceUrl);
     if (!await file.exists()) {
       await file.create(recursive: true);
       _queue[file.uri]?.forEach((c) => c.complete(file));
@@ -514,7 +540,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
 
     var sourceUrl = Uri.parse(documentId.uri);
     var textOnly = !changes.any((c) => c.range != null);
-    var file = fileSystem.file(sourceUrl);
+    var file = findFileSystem(sourceUrl).file(sourceUrl);
 
     if (textOnly) {
       parseText(changes.last.text, sourceUrl, analyze: true);
@@ -561,7 +587,8 @@ class BonoboLanguageServer extends lsp.LanguageServer {
 
   @override
   void textDocumentDidClose(lsp.TextDocumentIdentifier documentId) {
-    var file = fileSystem.file(convertDocumentId(documentId));
+    var file = findFileSystem(convertDocumentId(documentId))
+        .file(convertDocumentId(documentId));
     file.delete(recursive: true).catchError((_) => null);
   }
 }

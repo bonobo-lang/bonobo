@@ -20,7 +20,7 @@ class BonoboCCompiler {
     var signatures = <c.FunctionSignature>[];
     BonoboFunction mainFunction;
 
-    for (var symbol in analyzer.rootScope.allPublicVariables) {
+    for (var symbol in analyzer.module.scope.root.allPublicVariables) {
       if (symbol.value is BonoboFunction) {
         var f = symbol.value as BonoboFunction;
         if (f.name == 'main') mainFunction = f;

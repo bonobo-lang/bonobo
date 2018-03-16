@@ -8,7 +8,7 @@ class BonoboModuleSystem {
     _rootModule = new BonoboModule._(rootDirectory, coreLibrary);
   }
 
-  Future<BonoboModuleSystem> create(Directory rootDirectory) async {
+  static Future<BonoboModuleSystem> create(Directory rootDirectory) async {
     var core = await _createCore();
     return new BonoboModuleSystem._(rootDirectory, core);
   }
@@ -48,7 +48,8 @@ class BonoboModuleSystem {
     return module;
   }
 
-  Future<BonoboModule> findModuleForDirectory(Uri sourceUrl) async {
+  Future<BonoboModule> findModuleForDirectory(
+      Uri sourceUrl, BonoboModule parent) async {
     var dirPath = sourceUrl.toString(),
         rootDir = rootDirectory.absolute.uri.toString();
 
@@ -81,7 +82,7 @@ class BonoboModuleSystem {
           return null;
         }
 
-        child = await createModule(dir);
+        child = await createModule(dir, parent);
         module.children.add(child);
       }
 
@@ -91,7 +92,9 @@ class BonoboModuleSystem {
     return module;
   }
 
-  Future<BonoboModule> findModuleForFile(Uri sourceUrl) async {
-    return findModuleForDirectory(Uri.parse(p.dirname(sourceUrl.toString())));
+  Future<BonoboModule> findModuleForFile(
+      Uri sourceUrl, BonoboModule parent) async {
+    return findModuleForDirectory(
+        Uri.parse(p.dirname(sourceUrl.toString())), parent);
   }
 }
