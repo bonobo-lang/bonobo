@@ -130,10 +130,11 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     return await parseFile(file);
   }
 
-  Future<Tuple2<Parser, CompilationUnitContext>> parseFile(File file) async {
+  Future<Tuple2<Parser, CompilationUnitContext>> parseFile(File file,
+      [bool analyze = false]) async {
     // Load the file...
     var contents = await file.readAsString();
-    return parseText(contents, file.uri);
+    return parseText(contents, file.uri, analyze: analyze);
   }
 
   /// Currently the fastest implementation of (re-)parsing text in-memory.
@@ -204,6 +205,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     // Find the existing analyzer
     var module = await moduleSystem.findModuleForFile(
         sourceUrl, moduleSystem.rootModule);
+    //module.compilationUnits.remove(sourceUrl);
     await moduleSystem.analyzeModule(
         module, module.directory, moduleSystem.rootModule);
     var analyzer = module.analyzer;
@@ -583,7 +585,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
         await file.writeAsString(contents);
       }
 
-      parseFile(file);
+      parseFile(file, true);
     });
   }
 
