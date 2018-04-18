@@ -15,8 +15,6 @@ part 'bonobo_command.dart';
 
 part 'compile.dart';
 
-part 'compiler.dart';
-
 part 'document.dart';
 
 part 'file_system.dart';

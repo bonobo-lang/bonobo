@@ -1,20 +1,20 @@
 // A brief explanation of functions in Bonobo...
-f main => print emoji()
+func main => print(emoji())
 
 // You can explicitly declare the return type of functions.
-f one: Num => 1
+func one: Num => 1
 
 // However, you can also omit the declaration.
 //
 // The return type will be inferred.
-f two => 2
+func two => 2
 
 // Functions can also have parameters.
 //
 // Functions can be annotated with types.
-f add(a, b: Num) => b
+func add(a, b: Num) => b
 
 // Functions don't have to be lambdas, of course.
-f emoji(): String {
+func emoji(): String {
     ret '🔥✊🏿💣'
 }

@@ -1,7 +1,7 @@
 // Use the `,` operator to create tuples, which are typed, fixed-size lists of values.
-f main => 1, 2, 3
+func main => 1, 2, 3
 
 // Check out the inferred return type of this function!
-f foo => (1, 2, 3), ('4', 5.0)
+func foo => (1, 2, 3), ('4', 5.0)
 
-f mixedTypes => 1, 2, '3'
+func mixedTypes => 1, 2, '3'

@@ -10,20 +10,8 @@ final Map<TokenType, PrefixParselet> _prefixParselets = {
       new IdentifierContext(token.span, comments),
 
   // Reserved words
-  TokenType.f: (parser, token, comments, __) =>
+  TokenType.func: (parser, token, comments, __) =>
       parser.parseFunction(false, token, comments),
-  TokenType.print: (parser, token, comments, bool inVariableDeclaration) {
-    var expression = parser.parseExpression(0, inVariableDeclaration);
-
-    if (expression == null) {
-      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
-          "Missing expression after 'print'.", token.span));
-      return null;
-    }
-
-    return new PrintExpressionContext(
-        expression, token.span.expand(expression.span), comments);
-  },
 
   // Operators
   TokenType.lParen: (parser, token, comments, _) {

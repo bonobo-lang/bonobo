@@ -304,7 +304,7 @@ class BonoboAnalyzer {
             var binaryExpression = new BinaryExpressionContext(
               leftCtx,
               new Token(
-                Scanner.normalPatterns[rootOperator],
+                normalPatterns[rootOperator],
                 ctx.operator.span,
                 ctx.operator.match,
               ),
@@ -424,8 +424,7 @@ class BonoboAnalyzer {
         return defaultObject;
       }
 
-      if (referencedObject != null)
-        return referencedObject;
+      if (referencedObject != null) return referencedObject;
 
       if (targetExpression is IdentifierContext) {
         errors.add(new BonoboError(
@@ -452,9 +451,6 @@ class BonoboAnalyzer {
 
       // Find modules
     }
-
-    if (ctx is PrintExpressionContext)
-      return await resolveExpression(ctx.expression, function, scope);
 
     if (ctx is TupleExpressionContext) {
       var expressions = await Future.wait(

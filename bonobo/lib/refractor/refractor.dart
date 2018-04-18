@@ -1,4 +1,3 @@
-
 /* TODO
 /// Nit-picks the source code, replacing things like quotes and comments.
 String lintReplace(String string) {

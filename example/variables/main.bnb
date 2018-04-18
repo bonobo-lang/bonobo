@@ -1,9 +1,9 @@
-f main: String {
+func main: String {
     // Immutable variables can be declared with the ':=' operator.
-    v one := 1
+    var one := 1
 
     // Mutable variables just the '=' operator.
-    v two = 2, three = print '3'
+    var two = 2, three = print '3'
 
     // You can't overwrite an immutable variable.
     //

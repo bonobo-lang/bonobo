@@ -17,7 +17,7 @@ class CompilerInput {
     } else {
       var file = new io.File(options.filename);
 
-      if(!await file.exists()) {
+      if (!await file.exists()) {
         throw new Exception('Source file not found: ${options.filename}');
       }
 
@@ -59,7 +59,7 @@ Future<BonoboAnalyzer> analyze(CompileOptions options) async {
   var moduleSystem = await BonoboModuleSystem.create(directory);
   var module = await moduleSystem.findModuleForFile(
       tuple.item1.scanner.sourceUrl, moduleSystem.rootModule);
-  //await moduleSystem.analyzeModule(module, directory, moduleSystem.rootModule);
+  await moduleSystem.analyzeModule(module, directory, moduleSystem.rootModule);
   return module.analyzer;
   /*
   var analyzer = new BonoboAnalyzer(

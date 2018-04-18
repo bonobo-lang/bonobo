@@ -55,10 +55,10 @@ class BonoboCCompiler {
       // Create a simple int main() that just calls _main()
       output.body
           .add(new c.CFunction(new c.FunctionSignature(c.CType.int, 'main'))
-        ..body.addAll([
-          new c.Expression('_main').invoke([]),
-          new c.Expression.value(0).asReturn(),
-        ]));
+            ..body.addAll([
+              new c.Expression('_main').invoke([]),
+              new c.Expression.value(0).asReturn(),
+            ]));
     }
   }
 
@@ -110,7 +110,7 @@ class BonoboCCompiler {
 
       if (stmt is ReturnStatementContext) {
         var expression =
-        await compileExpression(stmt.expression, function, out, scope);
+            await compileExpression(stmt.expression, function, out, scope);
         out.addAll([gdbLineInfo(stmt.span), expression.asReturn()]);
         continue;
       }
@@ -123,7 +123,7 @@ class BonoboCCompiler {
           var value = await analyzer.resolveExpression(
               decl.expression, function, scope);
           var cExpression =
-          await compileExpression(decl.expression, function, out, scope);
+              await compileExpression(decl.expression, function, out, scope);
           var type = await compileType(value.type);
           out.add(new c.Field(type, decl.name.name, cExpression));
         }
@@ -172,16 +172,8 @@ class BonoboCCompiler {
 
     if (ctx is ParenthesizedExpressionContext) {
       var value =
-      await compileExpression(ctx.expression, function, body, scope);
-      return value.parentheses();
-    }
-
-    if (ctx is PrintExpressionContext) {
-      var value =
-      await analyzer.resolveExpression(ctx.expression, function, scope);
-      var cExpression =
-      await compileExpression(ctx.expression, function, body, scope);
-      return new c.Expression('${value.type.name}_print').invoke([cExpression]);
+          await compileExpression(ctx.expression, function, body, scope);
+      return value/*.parentheses()*/;
     }
 
     throw new ArgumentError(

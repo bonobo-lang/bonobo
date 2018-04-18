@@ -9,7 +9,7 @@ class BonoboModuleSystem {
   }
 
   static Future<BonoboModuleSystem> create(Directory rootDirectory) async {
-    var core = await _createCore();
+    BonoboModule core = await _createCore();
     var system = new BonoboModuleSystem._(rootDirectory, core);
 
     // Analyze the root module

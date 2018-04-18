@@ -23,8 +23,7 @@ class ControlFlow {
       if (returnType != null) returnTypes.add(returnType);
     }
 
-    if (_returnType != null)
-      returnTypes.add(_returnType);
+    if (_returnType != null) returnTypes.add(_returnType);
 
     if (returnTypes.isNotEmpty)
       return returnTypes.reduce(BonoboType.findCommonAncestor);

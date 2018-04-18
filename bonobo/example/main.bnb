@@ -1,1 +1,5 @@
-f main => print 'Hello, world!'
+func print(data: String, data1: String) {
+    // Empty function
+}
+
+pub func main => print('Hello, world!', 'Wasup?')

@@ -1,1 +1,1 @@
-f main => print 'Hello, world!'
+pub func main => print('Hello, world!')

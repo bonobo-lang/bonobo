@@ -33,8 +33,8 @@ class VariableDeclarationStatementContext extends StatementContext {
   ControlFlow flow;
   SymbolTable<BonoboObject> scope;
 
-  VariableDeclarationStatementContext(
-      this.declarations, this.context, this.declarationSpan, FileSpan span, List<Comment> comments)
+  VariableDeclarationStatementContext(this.declarations, this.context,
+      this.declarationSpan, FileSpan span, List<Comment> comments)
       : super(span, comments);
 }
 

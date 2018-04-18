@@ -1,7 +1,8 @@
-
 import 'package:string_scanner/string_scanner.dart';
 import 'package:source_span/source_span.dart';
 import 'package:bonobo/error/error.dart';
+
+part 'token.dart';
 
 final RegExp doubleQuotedString = new RegExp(
     r'"((\\(["\\/bfnrt]|(u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F])))|([^"\\]))*"');
@@ -18,72 +19,6 @@ class Scanner {
   FileSpan _emptySpan;
 
   static final RegExp whitespace = new RegExp(r'\s+');
-
-  static final Map<Pattern, TokenType> normalPatterns = {
-    // Misc.
-    new RegExp(r'//([^\n]*)'): TokenType.comment,
-
-    // Symbols
-    '=>': TokenType.arrow,
-    ':': TokenType.colon,
-    ',': TokenType.comma,
-    '{': TokenType.lCurly,
-    '}': TokenType.rCurly,
-    '(': TokenType.lParen,
-    ')': TokenType.rParen,
-    new RegExp(r'\(\s*\)'): TokenType.parentheses,
-
-    // Reserved
-    'f': TokenType.f,
-    'print': TokenType.print,
-    'ret': TokenType.ret,
-    'v': TokenType.v,
-
-    // Modifiers
-    'pub': TokenType.pub,
-    'priv': TokenType.priv,
-
-    // Unary operators
-    '++': TokenType.increment,
-    '--': TokenType.decrement,
-    '!': TokenType.not,
-
-    // Binary Operators
-    '%': TokenType.mod,
-    '~': TokenType.tilde,
-    '**': TokenType.pow,
-    '*': TokenType.times,
-    '/': TokenType.div,
-    '+': TokenType.plus,
-    '-': TokenType.minus,
-    '±': TokenType.plus_minus,
-    '+-': TokenType.plus_minus,
-    '^': TokenType.xor,
-    '&': TokenType.and,
-    '|': TokenType.or,
-    '&&': TokenType.b_and,
-    '||': TokenType.b_or,
-    '==': TokenType.b_equals,
-    '!=': TokenType.b_not_equals,
-    '?': TokenType.question,
-    '<': TokenType.lt,
-    '<=': TokenType.lte,
-    '>': TokenType.gt,
-    '>=': TokenType.gte,
-    '<<': TokenType.shl,
-    '>>': TokenType.shr,
-    '.': TokenType.dot,
-
-    // Assignments
-    ':=': TokenType.colon_equals,
-    '=': TokenType.equals,
-
-    // Data
-    new RegExp(r'[0-9]+(\.[0-9]+)?'): TokenType.number,
-    singleQuotedString: TokenType.string,
-    doubleQuotedString: TokenType.string,
-    new RegExp(r'[A-Za-z_][A-Za-z0-9_]*'): TokenType.identifier,
-  };
 
   Scanner(String string, {sourceUrl})
       : scanner = new SpanScanner(string, sourceUrl: sourceUrl) {
@@ -147,87 +82,3 @@ class Scanner {
 }
 
 enum ScannerState { normal }
-
-class Token {
-  final TokenType type;
-  final FileSpan span;
-  final Match match;
-
-  Token(this.type, this.span, this.match);
-
-  @override
-  String toString() {
-    return '$type: ${span.start.toolString}: "${span.text}"\n${span
-        .highlight()}';
-  }
-}
-
-enum TokenType {
-  // Misc.
-  comment,
-
-  // Symbols
-  arrow,
-  colon,
-  comma,
-  lCurly,
-  rCurly,
-  lParen,
-  rParen,
-  parentheses,
-
-  // Reserved
-  f,
-  print,
-  ret,
-  v,
-
-  // Modifiers
-  pub,
-  priv,
-
-  // Unary operators
-  increment,
-  decrement,
-  not,
-
-  // Binary Operators
-  //elvis,
-  mod,
-  tilde,
-  pow,
-  times,
-  div,
-  plus_minus,
-  plus,
-  minus,
-  xor,
-  and,
-  or,
-  b_and,
-  b_or,
-  b_equals,
-  b_not_equals,
-  question,
-  lt,
-  lte,
-  gt,
-  gte,
-  shl,
-  shr,
-  dot,
-
-  // Assignment
-  colon_equals,
-  equals,
-
-  // Data
-  number,
-  string,
-  identifier,
-}
-
-const List<TokenType> modifierTypes = const [
-  TokenType.pub,
-  TokenType.priv,
-];

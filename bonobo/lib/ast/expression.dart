@@ -43,13 +43,6 @@ class StringLiteralContext extends ExpressionContext {
   }
 }
 
-class PrintExpressionContext extends ExpressionContext {
-  final ExpressionContext expression;
-
-  PrintExpressionContext(this.expression, FileSpan span, List<Comment> comments)
-      : super(span, comments);
-}
-
 class ParenthesizedExpressionContext extends ExpressionContext {
   final ExpressionContext expression;
 
