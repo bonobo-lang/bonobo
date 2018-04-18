@@ -395,8 +395,8 @@ class BonoboAnalyzer {
 
       // If the target expression is neither an ID nor a member expression,
       // then we should attempt to access a field.
-      if (targetExpression is! IdentifierContext &&
-          targetExpression is! MemberExpressionContext) {
+      if (targetExpression is! IdentifierContext) {
+        // TODO: Access fields
         // For now, though, Bonobo types do not have fields.
         // https://github.com/bonobo-lang/bonobo/issues/29
         errors.add(new BonoboError(
@@ -406,51 +406,61 @@ class BonoboAnalyzer {
         return defaultObject;
       }
 
+      // TODO: What if resolving the member expression produces a module?
+      // Probably use a loop to reduce this
+
       // In the case of a MemberExpression,
       // we can either be getting an exported symbol from a child module,
       // or one from a symbol within this scope.
-
       // A symbol within this scope will take precedence, so let's look for that first.
-      BonoboObject referencedObject;
+      var targetId = targetExpression as IdentifierContext;
+      var referencedObject = scope.resolve(targetId.name)?.value;
 
-      if (targetExpression is IdentifierContext) {
-        referencedObject = scope.resolve(targetExpression.name)?.value;
-      } else if (targetExpression is MemberExpressionContext) {
-        // Again, Bonobo types still do not have fields, so this won't work yet.
-        errors.add(new BonoboError(
-            BonoboErrorSeverity.error,
-            'Bonobo types currently do not have fields',
-            targetExpression.span));
-        return defaultObject;
-      }
-
-      if (referencedObject != null)
-        return referencedObject;
-
-      if (targetExpression is IdentifierContext) {
-        errors.add(new BonoboError(
-            BonoboErrorSeverity.error,
-            "The name '${targetExpression.name}' does not exist in this context.",
-            targetExpression.span));
-      }
-
-      var memberExpression = targetExpression as MemberExpressionContext;
-
-      if (memberExpression.target.innermost is! IdentifierContext) {
-        // TODO: Keep track of the error generated above. Emit it if this condi
-        return defaultObject;
-      }
+      if (referencedObject != null) return referencedObject;
 
       // If there is no value with the given name within this scope,
       // then we should look for a public symbol.
       //
       // This symbol will come either from the local submodules, or the
       // globally-included third-party modules.
-      var modules = new List<BonoboModule>.from(module.children);
+      var modules = new List<BonoboModule>.from(this.module.children);
       modules.addAll(moduleSystem.rootModule.parent.children);
-      // TODO: Add aliased imports
 
-      // Find modules
+      // Now that we have the names of the libraries the symbol could potentially
+      // be coming from, let's find the library
+      var module = modules.firstWhere((m) => m.name == targetId.name,
+          orElse: () => null);
+
+      if (module == null) {
+        errors.add(new BonoboError(
+            BonoboErrorSeverity.error,
+            "There is no library or identifier named '${targetId
+                .name}' in this context.",
+            targetExpression.span));
+        return defaultObject;
+      }
+
+      // TODO: Add aliased imports
+      // Now that we've found the module in question,
+      // we need to find the symbol.
+      //
+      // According to Bonobo's module system, this must be a public symbol.
+      var allSymbols = module.scope.allPublicVariables;
+      var symbolName = ctx.identifier.name;
+
+      var correspondingSymbol = allSymbols
+          .firstWhere((v) => v.name == symbolName, orElse: () => null);
+
+      if (correspondingSymbol == null) {
+        errors.add(new BonoboError(
+            BonoboErrorSeverity.error,
+            "The library '${module
+            .name}' has no public symbol named '$symbolName'.",
+            ctx.identifier.span));
+        return defaultObject;
+      }
+
+      return correspondingSymbol.value;
     }
 
     if (ctx is PrintExpressionContext)

@@ -16,7 +16,9 @@ class BonoboModule {
 
   BonoboModule._(this.directory, this.parent, [BonoboModuleSystem system])
       : isCore = false,
-        moduleSystem = system ?? parent?.moduleSystem;
+        moduleSystem = system ?? parent?.moduleSystem {
+    if (parent != null && !parent.children.contains(this)) parent.children.add(this);
+  }
 
   BonoboModule._core(this.directory, this.moduleSystem)
       : isCore = true,
