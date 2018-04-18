@@ -45,6 +45,7 @@ class Parser extends _Parser {
       while (modifier != null) {
         modifiers.add(modifier.type);
         span = span == null ? modifier.span : span.expand(modifier.span);
+        modifier = parseModifier();
       }
     }
 

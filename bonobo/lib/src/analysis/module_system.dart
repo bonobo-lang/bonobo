@@ -85,9 +85,9 @@ class BonoboModuleSystem {
     // Crawl subdirs
     await for (var entity in directory.list(recursive: false)) {
       if (entity is Directory) {
-        //if (entity != module.directory)
-        var child = await createModule(entity, module);
-        module.children.add(child);
+        if (entity != module.directory) {
+          await createModule(entity, module);
+        }
       }
     }
 
@@ -149,7 +149,7 @@ class BonoboModuleSystem {
   }
 
   void dumpTree() {
-    var b = new StringBuffer()..writeln('Module system');
+    var b = new StringBuffer()..writeln('Module system:');
 
     void prinDent(int indent) {
       for (int i = 0; i < indent; i++) b.write('  ');
