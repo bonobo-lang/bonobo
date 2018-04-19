@@ -86,7 +86,7 @@ class Parser extends _Parser {
     if ((colon = nextToken(TokenType.colon)) != null) {
       span = span == null ? colon.span : span.expand(colon.span);
 
-      if ((returnType = parseType()) == null) {
+      if ((returnType = parseType(0, false)) == null) {
         errors.add(new BonoboError(
             BonoboErrorSeverity.error, "Missing type after ':'.", colon.span));
       } else
@@ -143,7 +143,7 @@ class Parser extends _Parser {
     if (colon != null) {
       span = span.expand(colon.span);
 
-      if ((type = parseType()) == null) {
+      if ((type = parseType(0, true)) == null) {
         errors.add(new BonoboError(
             BonoboErrorSeverity.error, "Missing type after ':'.", colon.span));
       } else
@@ -211,15 +211,6 @@ class Parser extends _Parser {
       return null;
   }
 
-  TypeContext parseType() {
-    return parseIdentifierType();
-  }
-
-  IdentifierTypeContext parseIdentifierType() {
-    var id = parseIdentifier();
-    return id == null ? null : new IdentifierTypeContext(id, []);
-  }
-
   IdentifierContext parseSimpleIdentifier() {
     if (peek()?.type == TokenType.identifier)
       return new SimpleIdentifierContext(consume().span, []);
@@ -265,6 +256,27 @@ class Parser extends _Parser {
         .toList();
     return new NamespacedIdentifierContext(parts,
         new SimpleIdentifierContext(identifiers.last.span, []), span, []);
+  }
+
+  TypeContext parseType(int precedence, bool inVariableDeclaration) {
+    Token token = peek();
+
+    if (token == null) return null;
+
+    TypeContext left;
+    PrefixParselet<TypeContext> prefix = _typePrefixParselets[token.type];
+    consume();
+    left = prefix(this, token, [], false);
+
+    while (precedence < getTypePrecedence() && left != null) {
+      if (inVariableDeclaration && peek()?.type == TokenType.comma) return left;
+      token = consume();
+
+      InfixParselet infix = _typeInfixParselets[token.type];
+      left = infix.parse(this, left, token, [], inVariableDeclaration);
+    }
+
+    return left;
   }
 
   ExpressionContext parseExpression(

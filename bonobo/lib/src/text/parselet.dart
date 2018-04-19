@@ -1,18 +1,18 @@
 part of bonobo.src.text;
 
-typedef ExpressionContext PrefixParselet(Parser parser, Token token,
+typedef T PrefixParselet<T>(Parser parser, Token token,
     List<Comment> comments, bool inVariableDeclaration);
 
-class InfixParselet {
+class InfixParselet<T> {
   final int precedence;
 
-  final ExpressionContext Function(Parser parser, ExpressionContext left,
+  final T Function(Parser parser, T left,
       Token token, List<Comment> comments, bool inVariableDeclaration) parse;
 
   const InfixParselet(this.precedence, this.parse);
 }
 
-class BinaryParselet extends InfixParselet {
+class BinaryParselet extends InfixParselet<ExpressionContext> {
   BinaryParselet(int precedence)
       : super(precedence,
             (parser, left, token, comments, inVariableDeclaration) {

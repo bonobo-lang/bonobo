@@ -218,7 +218,7 @@ class BonoboAnalyzer {
   Future<BonoboType> resolveType(TypeContext ctx) async {
     if (ctx == null)
       return BonoboType.Root;
-    else if (ctx is IdentifierTypeContext) {
+    else if (ctx is SimpleIdentifierTypeContext) {
       BonoboModule m = module;
 
       do {
@@ -232,8 +232,15 @@ class BonoboAnalyzer {
           "Unknown type '${ctx.identifier.name}'.", ctx.span));
 
       return BonoboType.Root;
+    } else if (ctx is TupleTypeContext) {
+      var items = await Future.wait(ctx.items.map(resolveType));
+      return new BonoboTupleType(items);
+    } else if (ctx is ParenthesizedTypeContext) {
+      return await resolveType(ctx.innermost);
     } else {
-      throw new ArgumentError();
+      errors.add(new BonoboError(BonoboErrorSeverity.warning,
+          'Unsupported type: ${ctx.runtimeType}', ctx.span));
+      return BonoboType.Root;
     }
   }
 

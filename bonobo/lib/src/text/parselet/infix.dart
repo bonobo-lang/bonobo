@@ -1,6 +1,6 @@
 part of bonobo.src.text;
 
-final Map<TokenType, InfixParselet> _infixParselets = createInfixParselets();
+final Map<TokenType, InfixParselet<ExpressionContext>> _infixParselets = createInfixParselets();
 
 Map<TokenType, InfixParselet> createInfixParselets() {
   int precedence = 1;
@@ -14,7 +14,8 @@ Map<TokenType, InfixParselet> createInfixParselets() {
       }
 
       var span = left.span.expand(token.span);
-      var right = parser.parseExpression(0, inVariableDeclaration).innermost;
+      var right = parser.parseExpression(0, inVariableDeclaration);
+      var innermost = right.innermost;
 
       if (right == null) {
         parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
@@ -24,11 +25,11 @@ Map<TokenType, InfixParselet> createInfixParselets() {
 
       span = span.expand(right.span);
 
-      if (right is TupleExpressionContext) {
+      if (right is! ParenthesizedExpressionContext && innermost is TupleExpressionContext) {
         return new TupleExpressionContext(
           []
             ..add(left)
-            ..addAll(right.expressions),
+            ..addAll(innermost.expressions),
           span,
           []..addAll(left.comments)..addAll(comments),
         );

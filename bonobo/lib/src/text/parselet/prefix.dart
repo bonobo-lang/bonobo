@@ -4,7 +4,7 @@ part of bonobo.src.text;
 // TODO: ++, --
 // TODO: ~
 
-final Map<TokenType, PrefixParselet> _prefixParselets = {
+final Map<TokenType, PrefixParselet<ExpressionContext>> _prefixParselets = {
   // Literals
   TokenType.string: (_, token, comments, __) =>
       new StringLiteralContext(token.span, comments),
@@ -38,7 +38,7 @@ final Map<TokenType, PrefixParselet> _prefixParselets = {
 
     if (expression == null) {
       parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
-          "Missing expression after ')'.", token.span));
+          "Missing expression after '('.", token.span));
       return null;
     }
 

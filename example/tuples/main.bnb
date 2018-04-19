@@ -5,3 +5,8 @@ f main => 1, 2, 3
 f foo => (1, 2, 3), ('4', 5.0)
 
 f mixedTypes => 1, 2, '3'
+
+// You can also create tuple type literals.
+//
+// In practice, though, it's more likely to wrap these in a typedef.
+f myTuple: (Num, Num) => 2, 2

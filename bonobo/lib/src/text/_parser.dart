@@ -18,9 +18,14 @@ class _Parser {
     return scanner.tokens.skip(_index).toList();
   }
 
-  /// Computes the current Pratt parser precedence.
+  /// Computes the current Pratt expression parser precedence.
   int getPrecedence() {
     return _infixParselets[peek()?.type]?.precedence ?? 0;
+  }
+
+  /// Computes the current Pratt type parser precedence.
+  int getTypePrecedence() {
+    return _typeInfixParselets[peek()?.type]?.precedence ?? 0;
   }
 
   /// Joins the [tokens] into a single [FileSpan].
