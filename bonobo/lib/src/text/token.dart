@@ -22,6 +22,7 @@ enum TokenType {
   arrow,
   colon,
   comma,
+  double_colon,
   lCurly,
   rCurly,
   lParen,

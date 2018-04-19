@@ -6,8 +6,8 @@ final Map<TokenType, PrefixParselet> _prefixParselets = {
       new StringLiteralContext(token.span, comments),
   TokenType.number: (_, token, comments, __) =>
       new NumberLiteralContext(token.span, comments),
-  TokenType.identifier: (_, token, comments, __) =>
-      new IdentifierContext(token.span, comments),
+  //TokenType.identifier: (p, token, comments, __) => p.parseIdentifier(token),
+  //new SimpleIdentifierContext(token.span, comments),
 
   // Reserved words
   TokenType.f: (parser, token, comments, __) =>

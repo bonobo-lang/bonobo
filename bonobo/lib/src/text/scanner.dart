@@ -24,6 +24,7 @@ class Scanner {
     '=>': TokenType.arrow,
     ':': TokenType.colon,
     ',': TokenType.comma,
+    '::': TokenType.double_colon,
     '{': TokenType.lCurly,
     '}': TokenType.rCurly,
     '(': TokenType.lParen,

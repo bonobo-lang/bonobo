@@ -240,7 +240,7 @@ class BonoboAnalyzer {
   Future<BonoboObject> resolveExpression(ExpressionContext ctx,
       BonoboFunction function, SymbolTable<BonoboObject> scope) async {
     //return expressionCache[ctx.span.start] ??=
-    return    await _resolveExpression(ctx, function, scope);
+    return await _resolveExpression(ctx, function, scope);
   }
 
   Future<BonoboObject> _resolveExpression(ExpressionContext ctx,
@@ -262,7 +262,7 @@ class BonoboAnalyzer {
       return new BonoboObject(BonoboType.String$, ctx.span);
     }
 
-    if (ctx is IdentifierContext) {
+    if (ctx is SimpleIdentifierContext) {
       var resolved = scope.resolve(ctx.name)?.value;
 
       if (resolved != null) {
@@ -275,6 +275,44 @@ class BonoboAnalyzer {
       return defaultObject;
     }
 
+    if (ctx is NamespacedIdentifierContext) {
+      var m = module;
+
+      for (var part in ctx.namespaces) {
+        var child = m.children
+            .firstWhere((r) => r.name == part.name, orElse: () => null);
+
+        if (child == null) {
+          errors.add(new BonoboError(
+              BonoboErrorSeverity.error,
+              "The module '${m.name}' does not contain a submodule named '${part
+                  .name}'.",
+              part.span));
+          return defaultObject;
+        }
+
+        m = child;
+      }
+
+      var symbol = m.scope.allVariables
+          .firstWhere((v) => v.name == ctx.symbol.name, orElse: () => null);
+
+      if (symbol == null) {
+        errors.add(new BonoboError(
+            BonoboErrorSeverity.error,
+            "The module '${m.name}' does not contain a value named '${ctx.symbol.name}'.",
+            ctx.symbol.span));
+      } else if (symbol.visibility < Visibility.public) {
+
+        errors.add(new BonoboError(
+            BonoboErrorSeverity.error,
+            "The symbol '${ctx.symbol.name}' is not public. Prepend a 'pub' modifier.",
+            ctx.symbol.span));
+      } else {
+        return symbol.value;
+      }
+    }
+
     // Other expressions, lexicographical order
     if (ctx is AssignmentExpressionContext) {
       var leftCtx = ctx.left.innermost;
@@ -283,7 +321,7 @@ class BonoboAnalyzer {
         // TODO: Do this for MemberExpression too
         errors.add(new BonoboError(BonoboErrorSeverity.error,
             'You cannot assign a value here.', leftCtx.span));
-      } else if (leftCtx is IdentifierContext) {
+      } else if (leftCtx is SimpleIdentifierContext) {
         var symbol = scope.resolve(leftCtx.name);
 
         if (symbol == null) {
@@ -455,7 +493,7 @@ class BonoboAnalyzer {
         errors.add(new BonoboError(
             BonoboErrorSeverity.error,
             "The library '${module
-            .name}' has no public symbol named '$symbolName'.",
+                .name}' has no public symbol named '$symbolName'.",
             ctx.identifier.span));
         return defaultObject;
       }
