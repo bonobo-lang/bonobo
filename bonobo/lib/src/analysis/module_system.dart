@@ -26,6 +26,7 @@ class BonoboModuleSystem {
 
     // Within core exist all the "global" libraries.
     core.types.addAll({
+      BonoboType.Byte.name: BonoboType.Byte,
       BonoboType.Num.name: BonoboType.Num,
       BonoboType.String$.name: BonoboType.String$,
     });

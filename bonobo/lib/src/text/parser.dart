@@ -221,8 +221,9 @@ class Parser extends _Parser {
   }
 
   IdentifierContext parseSimpleIdentifier() {
-    var id = nextToken(TokenType.identifier);
-    return id == null ? null : new SimpleIdentifierContext(id.span, []);
+    if (peek()?.type == TokenType.identifier)
+      return new SimpleIdentifierContext(consume().span, []);
+    return null;
   }
 
   IdentifierContext parseIdentifier() {

@@ -38,7 +38,8 @@ class ExploreCommand extends Command {
       var parser = new Parser(scanner);
       var parsed = parser.parseFunction(true) ??
           parser.parseVariableDeclarationStatement() ??
-          parser.parseExpressionStatement()?.expression;
+          parser.parseExpressionStatement()?.expression ??
+          parser.parseSimpleIdentifier();
 
       errors =
           parser.errors.where((e) => e.severity == BonoboErrorSeverity.error);
@@ -48,6 +49,10 @@ class ExploreCommand extends Command {
       printErrors(warnings);
 
       if (errors.isNotEmpty) continue;
+
+      if (parsed == null && parser.peek()?.type == TokenType.identifier) {
+        parsed = parser.parseSimpleIdentifier();
+      }
 
       if (parsed == null) {
         continue;
@@ -81,10 +86,10 @@ class ExploreCommand extends Command {
         var expr = await analyzer.resolveExpression(
             parsed, null, analyzer.module.scope);
 
-        errors =
-            analyzer.errors.where((e) => e.severity == BonoboErrorSeverity.error);
-        warnings =
-            analyzer.errors.where((e) => e.severity == BonoboErrorSeverity.warning);
+        errors = analyzer.errors
+            .where((e) => e.severity == BonoboErrorSeverity.error);
+        warnings = analyzer.errors
+            .where((e) => e.severity == BonoboErrorSeverity.warning);
         printErrors(errors);
         printErrors(warnings);
 
@@ -217,7 +222,8 @@ class _Repl {
 class _ModuleObject extends BonoboObject {
   final BonoboModule module;
 
-  _ModuleObject(this.module, FileSpan span) : super(new _ModuleType(module), span);
+  _ModuleObject(this.module, FileSpan span)
+      : super(new _ModuleType(module), span);
 
   @override
   String toString() {
@@ -230,7 +236,7 @@ class _ModuleObject extends BonoboObject {
 class _ModuleType extends BonoboType {
   final BonoboModule module;
 
-  _ModuleType(this.module)  {
+  _ModuleType(this.module) {
     // Add child modules
     for (var child in module.children) {
       // TODO: Add fields

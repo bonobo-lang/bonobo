@@ -4,6 +4,7 @@ part of bonobo.src.analysis;
 // TODO: fullName getter based on module system.
 abstract class BonoboType {
   static final BonoboType Root = new _BonoboRootType();
+  static final BonoboType Byte = new _BonoboByteType();
   static final BonoboType Function$ = new _BonoboFunctionType();
   static final BonoboType Num = new _BonoboNumType();
   static final BonoboType String$ = new _BonoboStringType();

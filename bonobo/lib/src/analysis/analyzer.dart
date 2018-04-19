@@ -255,7 +255,9 @@ class BonoboAnalyzer {
 
     // Literals
     if (ctx is NumberLiteralContext) {
-      return new BonoboObject(BonoboType.Num, ctx.span);
+      // TODO: Specific number suffixes, also explicit int or double
+      return new BonoboObject(
+          ctx.isByte ? BonoboType.Byte : BonoboType.Num, ctx.span);
     }
 
     if (ctx is StringLiteralContext) {
@@ -300,13 +302,14 @@ class BonoboAnalyzer {
       if (symbol == null) {
         errors.add(new BonoboError(
             BonoboErrorSeverity.error,
-            "The module '${m.name}' does not contain a value named '${ctx.symbol.name}'.",
+            "The module '${m.name}' does not contain a value named '${ctx.symbol
+                .name}'.",
             ctx.symbol.span));
       } else if (symbol.visibility < Visibility.public) {
-
         errors.add(new BonoboError(
             BonoboErrorSeverity.error,
-            "The symbol '${ctx.symbol.name}' is not public. Prepend a 'pub' modifier.",
+            "The symbol '${ctx.symbol
+                .name}' is not public. Prepend a 'pub' modifier.",
             ctx.symbol.span));
       } else {
         return symbol.value;

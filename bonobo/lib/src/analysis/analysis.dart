@@ -12,6 +12,8 @@ import '../text/text.dart';
 
 part 'analyzer.dart';
 
+part 'byte.dart';
+
 part 'control_flow.dart';
 
 part 'context.dart';
