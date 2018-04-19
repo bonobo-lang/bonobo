@@ -35,6 +35,8 @@ part 'compiler.dart';
 
 part 'document.dart';
 
+part 'explore.dart';
+
 part 'file_system.dart';
 
 part 'format.dart';
@@ -47,5 +49,6 @@ final CommandRunner commandRunner =
     new CommandRunner('bonobo', 'Command-line tools for the Bonobo language.')
       ..addCommand(new CompileCommand())
       ..addCommand(new DocumentCommand())
+      ..addCommand(new ExploreCommand())
       ..addCommand(new FormatCommand())
       ..addCommand(new LanguageServerCommand());

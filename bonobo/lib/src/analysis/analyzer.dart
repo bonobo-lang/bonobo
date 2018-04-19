@@ -239,8 +239,8 @@ class BonoboAnalyzer {
 
   Future<BonoboObject> resolveExpression(ExpressionContext ctx,
       BonoboFunction function, SymbolTable<BonoboObject> scope) async {
-    return expressionCache[ctx.span.start] ??=
-        await _resolveExpression(ctx, function, scope);
+    //return expressionCache[ctx.span.start] ??=
+    return    await _resolveExpression(ctx, function, scope);
   }
 
   Future<BonoboObject> _resolveExpression(ExpressionContext ctx,
