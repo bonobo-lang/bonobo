@@ -6,16 +6,14 @@ class FunctionParser {
   FunctionParser(this.state);
 
   FunctionContext parse({List<Comment> comments}) {
-    FileSpan span;
+    // TODO use better way to compute spans
+    FileSpan span = state.peek().span;
 
-    // TODO parse func token?
+    if (state.nextToken(TokenType.func) == null) return null;
 
-    for (Token modifier = parseModifier();
-        modifier != null;
-        modifier = parseModifier()) {
-      modifiers.add(modifier.type);
-      span = span == null ? modifier.span : span.expand(modifier.span);
-    }
+    bool isPub = state.nextToken(TokenType.pub) != null;
+
+    // TODO constexpr
 
     SimpleIdentifierContext name = state.nextSimpleId();
 
@@ -40,16 +38,8 @@ class FunctionParser {
     }
 
     return new FunctionContext(
-        modifiers, name, signature, body, span.expand(body.span), comments);
-  }
-
-  /// Parses function modifier
-  Token parseModifier() {
-    for (var type in modifiers) {
-      var token = state.nextToken(type);
-      if (token != null) return token;
-    }
-    return null;
+        name, signature, body, span.expand(body.span), comments,
+        isPub: isPub);
   }
 
   FunctionSignatureContext parseSignature(FileSpan currentSpan) {
@@ -128,9 +118,9 @@ class FunctionParser {
   }
 
   FunctionBodyContext parseBody() {
-    if (state.nextToken(TokenType.arrow) != null) {
-      return parseLambdaBody();
-    }
+    Token decider = state.peek();
+
+    if (decider.type == TokenType.arrow) return parseLambdaBody();
 
     if (state.nextToken(TokenType.lCurly) != null) {
       // TODO return parseBlockFunctionBody();
@@ -141,29 +131,20 @@ class FunctionParser {
   }
 
   LambdaFunctionBodyContext parseLambdaBody() {
-    var arrow = state.nextToken(TokenType.arrow);
+    Token arrow = state.nextToken(TokenType.arrow);
+    if (arrow == null) return null;
 
-    if (arrow != null) {
-      ExpressionContext expression =
-          new ExpressionParser(state).parse(0, false);
+    ExpressionContext expression = new ExpressionParser(state).parse(0, false);
 
-      if (expression == null) {
-        state.errors.add(new BonoboError(BonoboErrorSeverity.error,
-            "Missing expression after '=>'.", arrow.span));
-        return null;
-      } else {
-        return new LambdaFunctionBodyContext(
-            expression, arrow.span.expand(expression.span), []);
-      }
-    } else
+    if (expression == null) {
+      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing expression after '=>'.", arrow.span));
       return null;
-  }
+    }
 
-  /// Function modifiers
-  static const List<TokenType> modifiers = const [
-    TokenType.pub,
-    // TODO constexpr
-  ];
+    return new LambdaFunctionBodyContext(
+        expression, arrow.span.expand(expression.span), []);
+  }
 }
 
 class IdentifierParser {

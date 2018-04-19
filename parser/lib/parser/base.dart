@@ -69,6 +69,17 @@ class ParserState {
     //return peek()?.type == type ? consume() : null;
   }
 
+  Token nextIfOneOf(Iterable<TokenType> token) {
+    Token t = peek();
+    for(TokenType ch in token) {
+      if(t.type == ch) {
+        consume();
+        return t;
+      }
+    }
+    return null;
+  }
+
   /// Runs [callback]. If the [callback] returns `null`, then the parser's
   /// position will be preserved, and any parse errors will be removed.
   T lookAhead<T>(T callback()) {

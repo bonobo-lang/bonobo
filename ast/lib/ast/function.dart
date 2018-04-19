@@ -1,14 +1,18 @@
 part of bonobo.src.ast;
 
 class FunctionContext extends ExpressionContext {
-  final List<TokenType> modifiers;
+  final bool isPub;
+
   final IdentifierContext name;
   final FunctionSignatureContext signature;
   final FunctionBodyContext body;
 
-  FunctionContext(this.modifiers, this.name, this.signature, this.body,
-      FileSpan span, List<Comment> comments)
+  FunctionContext(this.name, this.signature, this.body, FileSpan span,
+      List<Comment> comments,
+      {this.isPub: false})
       : super(span, comments);
+
+  String toString() => name.name;
 }
 
 class FunctionSignatureContext extends AstNode {
