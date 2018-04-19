@@ -1,5 +1,9 @@
 part of bonobo.src.text;
 
+// TODO: +, -
+// TODO: ++, --
+// TODO: ~
+
 final Map<TokenType, PrefixParselet> _prefixParselets = {
   // Literals
   TokenType.string: (_, token, comments, __) =>
