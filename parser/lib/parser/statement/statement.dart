@@ -1,153 +1,118 @@
 part of '../parser.dart';
 
-/*
-  BlockFunctionBodyContext parseBlockFunctionBody() {
-    var block = parseBlock();
-    return block == null ? null : new BlockFunctionBodyContext(block);
-  }
+class StatementParser {
+  final BonoboParseState state;
 
-  BlockContext parseBlock() {
-    var span = nextToken(TokenType.lCurly)?.span, lastSpan = span;
-    if (span == null) return null;
-    var statements = <StatementContext>[];
-    var statement = parseStatement();
+  StatementParser(this.state);
 
-    while (!done) {
-      if (statement != null) {
-        statements.add(statement);
-        span = span.expand(lastSpan = statement.span);
-      }
-
-      if ((statement = parseStatement()) == null) {
-        if (peek()?.type == TokenType.rCurly)
-          break;
-        else
-          statement = parseStatement();
-      }
-    }
-
-    var rCurly = consume();
-
-    if (rCurly?.type != TokenType.rCurly) {
-      errors.add(new BonoboError(BonoboErrorSeverity.error,
-          "Missing '}' in function body.", lastSpan));
-      return null;
-    }
-
-    return new BlockContext(statements, span.expand(rCurly.span), []);
-  }
-
-  StatementContext parseStatement() {
+  StatementContext parse() {
     return parseVariableDeclarationStatement() ??
-        parseReturnStatement() ??
-        parseExpressionStatement();
+        parseExpressionStatement() ??
+        parseReturnStatement();
+  }
+
+  ExpressionStatementContext parseExpressionStatement() {
+    ExpressionContext exp = state.nextExp(0, false);
+    if (exp == null) return null;
+    return new ExpressionStatementContext(exp.innermost);
   }
 
   ReturnStatementContext parseReturnStatement() {
     var comments = <Comment>[];
-    var span = lookAhead(() {
-      comments.addAll(parseComments());
-      return nextToken(TokenType.ret)?.span;
+
+    FileSpan span = state.lookAhead(() {
+      comments.addAll(state.nextComments());
+      return state.nextToken(TokenType.ret)?.span;
     });
-
     if (span == null) return null;
-    var expression = parseExpression(0, false);
 
-    if (expression == null) {
-      errors.add(new BonoboError(BonoboErrorSeverity.error,
+    ExpressionContext exp = state.nextExp(0, false);
+
+    if (exp == null) {
+      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Missing expression in return statement.", span));
       return null;
     }
 
-    return new ReturnStatementContext(
-        expression, span.expand(expression.span), comments);
-  }
+    // TODO comments on same line also belong to this statement
 
-  ExpressionStatementContext parseExpressionStatement() {
-    var expression = parseExpression(0, false);
-    return expression == null
-        ? null
-        : new ExpressionStatementContext(expression.innermost);
+    return new ReturnStatementContext(exp, span.expand(exp.span), comments);
   }
 
   VariableDeclarationStatementContext parseVariableDeclarationStatement() {
-    /*
     var comments = <Comment>[];
-    var span = lookAhead(() {
-      comments.addAll(parseComments());
-      return nextToken(TokenType.v)?.span;
-    });*/
-    var comments = parseComments(), span = nextToken(TokenType.v)?.span;
+    FileSpan span = state.lookAhead(() {
+      comments.addAll(state.nextComments());
+      return state.nextToken(TokenType.v)?.span;
+    });
 
-    //var lastSpan = span;
     if (span == null) return null;
 
     var declarations = <VariableDeclarationContext>[];
-    var declaration = parseVariableDeclaration();
 
-    while (declaration != null) {
+    for (VariableDeclarationContext declaration = parseVariableDeclaration();
+        declaration != null;
+        declaration = parseVariableDeclaration()) {
       declarations.add(declaration);
-      span = span.expand(declaration.span);
-
-      if (nextToken(TokenType.comma) == null)
-        break;
-      else
-        declaration = parseVariableDeclaration();
+      if (state.nextToken(TokenType.comma) == null) break;
     }
 
     if (declarations.isEmpty) {
-      errors.add(new BonoboError(
+      state.errors.add(new BonoboError(
           BonoboErrorSeverity.error, 'Expected an identifier.', span));
       return null;
     }
 
-    var declSpan = span;
+    /*
+    FileSpan declSpan = span;
 
     // Parse any statements after this one.
     // They all share a scope.
     var statements = <StatementContext>[];
-    StatementContext statement = parseStatement();
+    StatementContext statement = parse();
 
-    while (!done) {
+    while (!state.done) {
       if (statement != null) {
         statements.add(statement);
-        span = span.expand(statement.span);
       }
 
-      if (peek()?.type == TokenType.rCurly) break;
-      statement = parseStatement();
+      if (state.peek()?.type == TokenType.rCurly) break;
+      statement = parse();
     }
+    */
 
     return new VariableDeclarationStatementContext(
-        declarations, statements, declSpan, span, comments);
+        declarations, span, comments);
   }
 
   VariableDeclarationContext parseVariableDeclaration() {
-    var id = parseIdentifier();
+    SimpleIdentifierContext id = state.nextSimpleId();
     if (id == null) return null;
-    var span = id.span;
-    var op = nextToken(TokenType.equals) ?? nextToken(TokenType.colon_equals);
+
+    // TODO type annotation?
+
+    Token op = state.nextIfOneOf([TokenType.equals, TokenType.colon_equals]);
 
     if (op == null) {
-      errors.add(new BonoboError(
+      state.errors.add(new BonoboError(
           BonoboErrorSeverity.error,
           "Missing '=' or ':=' after identifier in variable declaration.",
           id.span));
       return null;
     }
 
-    span = span.expand(op.span);
     bool isFinal = op.type == TokenType.colon_equals;
-    var expression = parseExpression(0, true);
+    ExpressionContext expression = state.nextExp(0, true);
 
     if (expression == null) {
-      errors.add(new BonoboError(
+      state.errors.add(new BonoboError(
           BonoboErrorSeverity.error,
           "Missing expression after '${op.span.text}' in variable declaration.",
           op.span));
       return null;
     }
 
-    return new VariableDeclarationContext(id, expression, isFinal, span, []);
+    return new VariableDeclarationContext(
+        id, expression, isFinal, id.span.expand(expression.span), []);
   }
- */
+}

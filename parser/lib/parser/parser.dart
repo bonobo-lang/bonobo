@@ -8,6 +8,7 @@ part 'infix.dart';
 part 'prefix.dart';
 part 'function.dart';
 part 'expression.dart';
+part 'identifier.dart';
 
 part 'statement/statement.dart';
 
@@ -56,6 +57,8 @@ class BonoboParseState extends ParserState {
     return id == null ? null : new IdentifierTypeContext(id, []);
   }
 
+  StatementContext nextStatement() => statParser.parse();
+
   /// Parses function name
   SimpleIdentifierContext nextSimpleId() {
     Token id = nextToken(TokenType.identifier);
@@ -76,9 +79,11 @@ class BonoboParseState extends ParserState {
   ExpressionParser _expParser;
   ExpressionParser get expParser => _expParser ?? new ExpressionParser(this);
 
-  /*
+  StatementParser _statParser;
+  StatementParser get statParser => _statParser ?? new StatementParser(this);
+
   /// Parses available comments.
-  List<Comment> parseComments() {
+  List<Comment> nextComments() {
     var comments = <Comment>[];
     Token token;
 
@@ -91,7 +96,6 @@ class BonoboParseState extends ParserState {
 
     return comments;
   }
-  */
 }
 
 typedef ExpressionContext PrefixParselet(BonoboParseState parser, Token token,

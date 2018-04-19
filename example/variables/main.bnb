@@ -1,4 +1,4 @@
-func main: String {
+func pub main: String {
     // Immutable variables can be declared with the ':=' operator.
     var one := 1
 
@@ -12,8 +12,8 @@ func main: String {
     // one = 1.0
 
     // ... But you CAN overwrite mutable variables.
-    two = three += 4.0
-    
+    // two = three += 4.0
+
     // The type of variables is automatically inferred, so you don't
     // have to manually declare them.
     //

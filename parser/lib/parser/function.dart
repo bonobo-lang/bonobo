@@ -6,8 +6,7 @@ class FunctionParser {
   FunctionParser(this.state);
 
   FunctionContext parse({List<Comment> comments}) {
-    // TODO use better way to compute spans
-    FileSpan span = state.peek().span;
+    FileSpan startSpan = state.peek().span;
 
     if (state.nextToken(TokenType.func) == null) return null;
 
@@ -21,14 +20,12 @@ class FunctionParser {
       state.errors.add(new BonoboError(
           BonoboErrorSeverity.error,
           "Expected function name.",
-          state.peek().span /* What if there is no token? */));
+          state.peek().span /* TODO What if there is no token? */));
       return null;
     }
 
-    span = span == null ? span : span.expand(name.span);
     FunctionSignatureContext signature = parseSignature(name.span);
 
-    span = span.expand(signature.span);
     var body = parseBody();
 
     if (body == null) {
@@ -38,12 +35,12 @@ class FunctionParser {
     }
 
     return new FunctionContext(
-        name, signature, body, span.expand(body.span), comments,
+        name, signature, body, startSpan.expand(body.span), comments,
         isPub: isPub);
   }
 
   FunctionSignatureContext parseSignature(FileSpan currentSpan) {
-    var parameterList = parseParameterList();
+    var parameterList = parseParameterList(); // TODO sometimes this is null!
     var span = parameterList?.span, colon;
     TypeContext returnType;
 
@@ -121,11 +118,7 @@ class FunctionParser {
     Token decider = state.peek();
 
     if (decider.type == TokenType.arrow) return parseLambdaBody();
-
-    if (state.nextToken(TokenType.lCurly) != null) {
-      // TODO return parseBlockFunctionBody();
-      throw new UnimplementedError('Block functions');
-    }
+    if (decider.type == TokenType.lCurly) return parseBlockFunctionBody();
 
     throw new Exception('Add error!');
   }
@@ -145,51 +138,39 @@ class FunctionParser {
     return new LambdaFunctionBodyContext(
         expression, arrow.span.expand(expression.span), []);
   }
-}
 
-class IdentifierParser {
-  final ParserState state;
+  BlockFunctionBodyContext parseBlockFunctionBody() {
+    var block = parseBlock();
+    return block == null ? null : new BlockFunctionBodyContext(block);
+  }
 
-  IdentifierParser(this.state);
+  BlockContext parseBlock() {
+    Token lCurly = state.nextToken(TokenType.lCurly);
+    if (lCurly == null) return null;
 
-  IdentifierContext parse() {
-    var id = state.nextToken(TokenType.identifier);
+    FileSpan lastSpan = lCurly.span;
 
-    if (id == null) return null;
+    var statements = <StatementContext>[];
 
-    var identifiers = <Token>[id];
-    var span = id.span;
-
-    while (state.peek()?.type == TokenType.double_colon) {
-      var doubleColon = state.nextToken(TokenType.double_colon);
-      span = span.expand(doubleColon.span);
-
-      if (state.peek()?.type == TokenType.identifier) {
-        id = state.consume();
-      } else {
-        id = null;
-      }
-
-      if (id == null) {
-        if (span == null) return null;
-        state.errors.add(new BonoboError(
-            BonoboErrorSeverity.error, "Missing identifier after '::'.", span));
-        return null;
-      } else {
-        span = span.expand(id.span);
-        identifiers.add(id);
-      }
+    for (StatementContext statement = state.nextStatement();
+        statement != null;
+        statement = state.nextStatement()) {
+      statements.add(statement);
+      lastSpan = statement.span;
     }
 
-    if (identifiers.length == 1) {
-      return new SimpleIdentifierContext(span, []);
+    Token rCurly = state.consume();
+
+    if (rCurly?.type != TokenType.rCurly) {
+      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing '}' in function body.", lastSpan));
+      return null;
     }
 
-    var parts = identifiers
-        .take(identifiers.length - 1)
-        .map((t) => new SimpleIdentifierContext(t.span, []))
-        .toList();
-    return new NamespacedIdentifierContext(parts,
-        new SimpleIdentifierContext(identifiers.last.span, []), span, []);
+    return new BlockContext(statements, lCurly.span.expand(rCurly.span), []);
+  }
+
+  parseStatement() {
+    // TODO
   }
 }
