@@ -12,7 +12,7 @@ class FunctionParser {
 
     bool isPub = state.nextToken(TokenType.pub) != null;
 
-    // TODO constexpr
+    // TODO constexpr modifier
 
     SimpleIdentifierContext name = state.nextSimpleId();
 

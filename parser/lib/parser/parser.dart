@@ -9,6 +9,7 @@ part 'prefix.dart';
 part 'function.dart';
 part 'expression.dart';
 part 'identifier.dart';
+part 'class.dart';
 
 part 'statement/statement.dart';
 
@@ -20,7 +21,8 @@ class BonoboParseState extends ParserState {
   UnitContext parse() {
     // TODO reset?
 
-    FileSpan span;
+    FileSpan startSpan = peek().span;
+    FileSpan lastSpan = startSpan;
     final functions = <FunctionContext>[];
 
     while (!done) {
@@ -30,7 +32,14 @@ class BonoboParseState extends ParserState {
           FunctionContext f = nextFunc();
           if (f != null) {
             functions.add(f);
-            span == null ? span = f.span : span = span.expand(f.span);
+            lastSpan = f.span;
+          }
+          break;
+        case TokenType.clazz:
+          var /* TODO FunctionContext */ c = nextClass();
+          if (c != null) {
+            // TODO functions.add(c);
+            lastSpan = c.span;
           }
           break;
         default:
@@ -44,12 +53,17 @@ class BonoboParseState extends ParserState {
       }
     }
 
-    return new UnitContext(span ?? scanner.emptySpan, functions);
+    return new UnitContext(startSpan.expand(lastSpan), functions);
   }
 
   FunctionContext nextFunc() {
     // TODO comments
     return funcParser.parse();
+  }
+
+   nextClass() {
+    // TODO comments
+    return classParser.parse();
   }
 
   TypeContext nextType() {
@@ -69,6 +83,9 @@ class BonoboParseState extends ParserState {
 
   ExpressionContext nextExp(int precedence, bool inVariableDeclaration) =>
       expParser.parse(precedence, inVariableDeclaration);
+
+  ClassParser _classParser;
+  ClassParser get classParser => _classParser ?? new ClassParser(this);
 
   FunctionParser _funcParser;
   FunctionParser get funcParser => _funcParser ?? new FunctionParser(this);
