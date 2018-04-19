@@ -104,7 +104,7 @@ Map<TokenType, InfixParselet> createInfixParselets() {
   // TODO: [], .
   infixParselets[TokenType.dot] = new InfixParselet(precedence++,
       (parser, left, token, comments, inVariableDeclaration) {
-    var identifier = parser.parseIdentifier();
+    var identifier = parser.parseSimpleIdentifier();
 
     if (identifier == null) {
       parser.errors.add(new BonoboError(BonoboErrorSeverity.error,

@@ -9,7 +9,7 @@ class BonoboModuleSystem {
   }
 
   static Future<BonoboModuleSystem> create(Directory rootDirectory) async {
-    BonoboModule core = await _createCore();
+    var core = await _createCore();
     var system = new BonoboModuleSystem._(rootDirectory, core);
 
     // Analyze the root module
@@ -78,7 +78,19 @@ class BonoboModuleSystem {
 
   Future<BonoboModule> createModule(
       Directory directory, BonoboModule parent) async {
+    if (directory == parent?.directory) return parent;
+
     var module = new BonoboModule._(directory, parent, this);
+
+    // Crawl subdirs
+    await for (var entity in directory.list(recursive: false)) {
+      if (entity is Directory) {
+        if (entity != module.directory) {
+          await createModule(entity, module);
+        }
+      }
+    }
+
     await analyzeModule(module, directory, parent);
     return module;
   }
@@ -88,7 +100,10 @@ class BonoboModuleSystem {
     var dirPath = sourceUrl.toString(),
         rootDir = rootDirectory.absolute.uri.toString();
 
-    if (p.equals(rootDir, dirPath)) return rootModule;
+    if (p.equals(rootDir, dirPath)) {
+      if (_rootModule.analyzer != null) return _rootModule;
+      return _rootModule = await createModule(rootDirectory, null);
+    }
 
     if (!p.isWithin(rootDir, dirPath)) {
       return null;
@@ -105,7 +120,7 @@ class BonoboModuleSystem {
     for (var part in parts) {
       var name = p.basenameWithoutExtension(part);
       var child =
-          module.children.firstWhere((m) => m.name == name, orElse: () => null);
+      module.children.firstWhere((m) => m.name == name, orElse: () => null);
 
       if (child == null) {
         // If no such module exists, then first resolve a directory.
@@ -131,5 +146,22 @@ class BonoboModuleSystem {
       Uri sourceUrl, BonoboModule parent) async {
     return findModuleForDirectory(
         Uri.parse(p.dirname(sourceUrl.toString())), parent);
+  }
+
+  void dumpTree() {
+    var b = new StringBuffer()..writeln('Module system:');
+
+    void prinDent(int indent) {
+      for (int i = 0; i < indent; i++) b.write('  ');
+    }
+
+    void dump(BonoboModule module, int indent) {
+      prinDent(indent);
+      b.writeln('* ${module.name} (${module.directory.path})');
+      module.children.forEach((m) => dump(m, indent + 1));
+    }
+
+    dump(rootModule, 0);
+    print(b);
   }
 }

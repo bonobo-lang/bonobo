@@ -2,6 +2,7 @@ part of bonobo.src.analysis;
 
 /// Represents a standalone unit of Bonobo code.
 class BonoboModule {
+  static Map<Uri, BonoboModule> _singletons = {};
   final List<BonoboModule> children = [];
   final Map<Uri, CompilationUnitContext> compilationUnits = {};
   final Map<String, BonoboType> types = {};
@@ -14,9 +15,19 @@ class BonoboModule {
   FileSpan emptySpan;
   String _fullName, _name;
 
-  BonoboModule._(this.directory, this.parent, [BonoboModuleSystem system])
+  BonoboModule.__(this.directory, this.parent, [BonoboModuleSystem system])
       : isCore = false,
-        moduleSystem = system ?? parent?.moduleSystem;
+        moduleSystem = system ?? parent?.moduleSystem {
+    if (parent != null && !parent.children.contains(this))
+      parent.children.add(this);
+  }
+
+  factory BonoboModule._(Directory directory, BonoboModule parent,
+      [BonoboModuleSystem system]) {
+    return _singletons.putIfAbsent(directory.absolute.uri, () {
+      return new BonoboModule.__(directory, parent, system);
+    });
+  }
 
   BonoboModule._core(this.directory, this.moduleSystem)
       : isCore = true,
@@ -37,5 +48,11 @@ class BonoboModule {
     }
 
     return _fullName = names.join('.');
+  }
+
+  @override
+  bool operator ==(other) {
+    return other is BonoboModule &&
+        other.directory.absolute.path == directory.absolute.path;
   }
 }

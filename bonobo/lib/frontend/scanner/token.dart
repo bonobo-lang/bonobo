@@ -8,6 +8,7 @@ final Map<Pattern, TokenType> normalPatterns = {
   '=>': TokenType.arrow,
   ':': TokenType.colon,
   ',': TokenType.comma,
+  '::': TokenType.double_colon,
   '{': TokenType.lCurly,
   '}': TokenType.rCurly,
   '(': TokenType.lParen,
@@ -18,6 +19,8 @@ final Map<Pattern, TokenType> normalPatterns = {
   'func': TokenType.func,
   'ret': TokenType.ret,
   'var': TokenType.v,
+
+  'extern': TokenType.extern,
 
   // Modifiers
   'pub': TokenType.pub,
@@ -73,6 +76,7 @@ enum TokenType {
   arrow,
   colon,
   comma,
+  double_colon,
   lCurly,
   rCurly,
   lParen,
@@ -83,6 +87,8 @@ enum TokenType {
   func,
   ret,
   v,
+
+  extern,
 
   // Modifiers
   pub,

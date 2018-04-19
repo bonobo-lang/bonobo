@@ -1,1 +1,1 @@
-func main => print foo.bar()
+func main => print foo::bar()

@@ -47,6 +47,11 @@ class BonoboFunction extends BonoboObject {
 
     return b.toString();
   }
+
+  @override
+  String toString() {
+    return signature;
+  }
 }
 
 class BonoboFunctionParameter {

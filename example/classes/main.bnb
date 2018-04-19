@@ -1,0 +1,31 @@
+class Point {
+    var pub x: Int;
+
+    var pub y: Int;
+
+    func pub Point(x: Int, y: Int) {
+        this.x = x
+        this.y = y
+    }
+
+    func pub add(other: Point) {
+        x += other.x;
+        y += other.y;
+    }
+
+    func pub toString: String {
+        var str = String()
+        str += "("
+        str += x.toString
+        str += ", "
+        str += y.toString
+        str += ")"
+        ret str
+    }
+}
+
+func pub main {
+    var p1 = Point(5, 5)
+    var p2 = Point(20, 20)
+    p1.add(p2)
+}

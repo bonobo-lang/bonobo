@@ -23,12 +23,17 @@ class BonoboCCompiler {
 
   Future compile() async {
     var signatures = <c.FunctionSignature>[];
-    BonoboFunction mainFunction;
+    BonoboFunction mainFunction, privateMainFunction;
 
-    for (var symbol in analyzer.module.scope.root.allPublicVariables) {
+    for (var symbol in analyzer.module.scope.root.allVariables) {
       if (symbol.value is BonoboFunction) {
         var f = symbol.value as BonoboFunction;
-        if (f.name == 'main') mainFunction = f;
+        if (f.name == 'main' && mainFunction != null) {
+          if (symbol.visibility >= Visibility.public)
+            mainFunction = f;
+          else
+            privateMainFunction = f;
+        }
         await compileFunction(f, signatures);
       }
     }
@@ -37,7 +42,7 @@ class BonoboCCompiler {
       errors.add(new BonoboError(
         BonoboErrorSeverity.error,
         "A 'main' function is required.",
-        analyzer.module.emptySpan,
+        privateMainFunction?.span ?? analyzer.module.emptySpan,
       ));
     } else {
       // Insert forward declarations of all functions
@@ -145,7 +150,7 @@ class BonoboCCompiler {
       BonoboFunction function, List<c.Code> body, SymbolTable scope) async {
     //print('${ctx.runtimeType}\n${ctx.span.highlight()}');
     // Literals
-    if (ctx is IdentifierContext) {
+    if (ctx is SimpleIdentifierContext) {
       return new c.Expression(ctx.name);
     }
 
@@ -173,11 +178,24 @@ class BonoboCCompiler {
     if (ctx is ParenthesizedExpressionContext) {
       var value =
           await compileExpression(ctx.expression, function, body, scope);
-      return value/*.parentheses()*/;
+      return value /*.parentheses()*/;
+    }
+
+    if (ctx is MemberExpressionContext) {
+      // TODO: better handle this
+      var value = await analyzer.resolveExpression(ctx, function, scope);
+      return await compileObject(value, function, body, scope);
     }
 
     throw new ArgumentError(
-        'Cannot compile ${ctx.runtimeType} to C yet!!!\n${ctx.span.highlight()}');
+        'Cannot compile ${ctx.runtimeType} to C yet!!!\n${ctx.span
+            .highlight()}');
+  }
+
+  Future<c.Expression> compileObject(BonoboObject object,
+      BonoboFunction function, List<c.Code> body, SymbolTable scope) async {
+    throw new ArgumentError(
+        'Cannot compile ${object.type.name} to C yet!!!\n${object.span.highlight()}');
   }
 }
 

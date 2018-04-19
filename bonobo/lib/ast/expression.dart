@@ -7,11 +7,27 @@ class ExpressionContext extends AstNode {
   ExpressionContext get innermost => this;
 }
 
-class IdentifierContext extends ExpressionContext {
+abstract class IdentifierContext extends ExpressionContext {
   IdentifierContext(FileSpan span, List<Comment> comments)
       : super(span, comments);
 
   String get name => span.text;
+}
+
+class SimpleIdentifierContext extends IdentifierContext {
+  SimpleIdentifierContext(FileSpan span, List<Comment> comments)
+      : super(span, comments);
+
+  String get name => span.text;
+}
+
+class NamespacedIdentifierContext extends IdentifierContext {
+  final List<IdentifierContext> namespaces;
+  final IdentifierContext symbol;
+
+  NamespacedIdentifierContext(
+      this.namespaces, this.symbol, FileSpan span, List<Comment> comments)
+      : super(span, comments);
 }
 
 class NumberLiteralContext extends ExpressionContext {

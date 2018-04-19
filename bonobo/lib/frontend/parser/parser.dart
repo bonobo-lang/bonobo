@@ -161,7 +161,7 @@ class Parser extends _Parser {
     if (f == null) return null;
 
     span = span == null ? f.span : span.expand(f.span);
-    var name = parseIdentifier();
+    var name = parseSimpleIdentifier();
 
     if (name == null && requireName) {
       errors.add(new BonoboError(
@@ -327,9 +327,50 @@ class Parser extends _Parser {
     return id == null ? null : new IdentifierTypeContext(id, []);
   }
 
+  IdentifierContext parseSimpleIdentifier() {
+    var id = nextToken(TokenType.identifier);
+    return id == null ? null : new SimpleIdentifierContext(id.span, []);
+  }
+
   IdentifierContext parseIdentifier() {
     var id = nextToken(TokenType.identifier);
-    return id == null ? null : new IdentifierContext(id.span, []);
+
+    if (id == null) return null;
+
+    var identifiers = <Token>[id];
+    var span = id.span;
+
+    while (peek()?.type == TokenType.double_colon) {
+      var doubleColon = nextToken(TokenType.double_colon);
+      span = span.expand(doubleColon.span);
+
+      if (peek()?.type == TokenType.identifier) {
+        id = consume();
+      } else {
+        id = null;
+      }
+
+      if (id == null) {
+        if (span == null) return null;
+        errors.add(new BonoboError(
+            BonoboErrorSeverity.error, "Missing identifier after '::'.", span));
+        return null;
+      } else {
+        span = span.expand(id.span);
+        identifiers.add(id);
+      }
+    }
+
+    if (identifiers.length == 1) {
+      return new SimpleIdentifierContext(span, []);
+    }
+
+    var parts = identifiers
+        .take(identifiers.length - 1)
+        .map((t) => new SimpleIdentifierContext(t.span, []))
+        .toList();
+    return new NamespacedIdentifierContext(parts,
+        new SimpleIdentifierContext(identifiers.last.span, []), span, []);
   }
 
   ExpressionContext parseExpression(
@@ -339,6 +380,7 @@ class Parser extends _Parser {
 
     if (token == null) return null;
 
+    ExpressionContext left;
     PrefixParselet prefix = _prefixParselets[token.type];
 
     if (prefix == null) {
@@ -346,12 +388,13 @@ class Parser extends _Parser {
       errors.add(new BonoboError(BonoboErrorSeverity.error,
           'Expected expression, found "${token.span.text}".', token.span));
           */
-      return null;
+
+      left = lookAhead(parseIdentifier);
+      if (left == null) return null;
+    } else {
+      consume();
+      left = prefix(this, token, [], false);
     }
-
-    consume();
-
-    var left = prefix(this, token, [], false);
 
     while (precedence < getPrecedence() && left != null) {
       if (inVariableDeclaration && peek()?.type == TokenType.comma) return left;
@@ -362,7 +405,7 @@ class Parser extends _Parser {
     }
 
     // TODO: Support this logic for MemberExpression
-    if (left is IdentifierContext) {
+    if (left is SimpleIdentifierContext) {
       // See https://github.com/bonobo-lang/bonobo/issues/9.
       var arg = parseExpression(0, false);
 
