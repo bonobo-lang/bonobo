@@ -33,6 +33,18 @@ class NamespacedIdentifierContext extends IdentifierContext {
 class NumberLiteralContext extends ExpressionContext {
   NumberLiteralContext(FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  bool get isByte => span.text.endsWith('b');
+
+  bool get hasDecimal => span.text.contains('.');
+
+  double get doubleValue => double.parse(span.text);
+
+  int get intValue {
+    if (span.text.endsWith('b'))
+      return int.parse(span.text.substring(0, span.length - 1));
+    return int.parse(span.text);
+  }
 }
 
 class StringLiteralContext extends ExpressionContext {

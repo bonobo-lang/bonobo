@@ -6,4 +6,9 @@ class BonoboObject {
   final FileSpan span;
 
   BonoboObject(this.type, this.span);
+
+  @override
+  String toString() {
+    return '[Instance of ${type.name}]';
+  }
 }
