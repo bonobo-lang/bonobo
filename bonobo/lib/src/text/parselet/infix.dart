@@ -14,7 +14,7 @@ Map<TokenType, InfixParselet> createInfixParselets() {
       }
 
       var span = left.span.expand(token.span);
-      var right = parser.parseExpression(1, inVariableDeclaration);
+      var right = parser.parseExpression(0, inVariableDeclaration).innermost;
 
       if (right == null) {
         parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
