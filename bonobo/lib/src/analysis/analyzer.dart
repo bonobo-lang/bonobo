@@ -33,8 +33,8 @@ class BonoboAnalyzer {
     // Get the names of all functions
     for (var ctx in compilationUnit.functions) {
       try {
-        var function =
-            new BonoboFunction(ctx.name.name, module.scope.createChild(), ctx);
+        var function = new BonoboFunction(
+            ctx.name.name, module.scope.createChild(), ctx, module);
         functions.add(function);
         function.usages
             .add(new SymbolUsage(SymbolUsageType.declaration, ctx.name.span));

@@ -16,11 +16,19 @@ class BonoboFunction extends BonoboObject {
   final String name;
   final SymbolTable<BonoboObject> scope;
   final FunctionContext declaration;
+  final BonoboModule declaringModule;
   ControlFlow body;
   BonoboType returnType;
 
-  BonoboFunction(this.name, this.scope, this.declaration)
+  BonoboFunction(this.name, this.scope, this.declaration, this.declaringModule)
       : super(new _BonoboFunctionType(), declaration.span);
+
+  /// The fully-qualified name of this function.
+  String get fullName {
+    if (declaringModule.isRoot)
+      return name;
+    return declaringModule.fullName + '.$name';
+  }
 
   String get documentation {
     if (declaration == null) return '';
