@@ -67,6 +67,13 @@ abstract class BonoboType {
   /// Returns the type of the result of applying the given binary [operator].
   BonoboType binaryOp(
       Token operator, BonoboType other, BonoboAnalyzer analyzer) {
+    // Booleans should return bool
+    // TODO: Bool type
+    var booleanOps = [];
+
+    if (booleanOps.contains(operator.type))
+      return BonoboType.Byte;
+
     analyzer.errors.add(new BonoboError(BonoboErrorSeverity.error,
         "Invalid binary operator '${operator.span.text}'.", operator.span));
     return Root;
