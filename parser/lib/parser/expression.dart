@@ -34,7 +34,7 @@ class ExpressionParser {
         break;
       case TokenType.identifier:
         IdentifierContext id = state.nextId();
-        switch (state.peek().type) {
+        switch (state.peek()?.type) {
           case TokenType.dot:
             // TODO: Support this logic for MemberExpression
             throw new UnimplementedError('Member expressions');
@@ -50,7 +50,7 @@ class ExpressionParser {
             );
             break;
           default:
-            throw new UnimplementedError('Super cool features');
+            left = id;
             break;
         }
         break;
@@ -62,6 +62,7 @@ class ExpressionParser {
 
     if(state.done) return left;
 
+    // TODO move to infix?
     while(state.peek().type == TokenType.lParen) {
       // TODO repeated calls
     }
