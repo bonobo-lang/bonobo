@@ -76,6 +76,12 @@ final Map<TokenType, PrefixParselet<TypeContext>> _typePrefixParselets = {
       span = lastSpan = type.span;
     }
 
+    // Check for ()
+    var paren = parser.nextToken(TokenType.parentheses);
+    if (paren != null) {
+      span = span.expand(lastSpan = paren.span);
+    }
+
     // Check for colon and return type
     var colon = parser.nextToken(TokenType.colon);
 
