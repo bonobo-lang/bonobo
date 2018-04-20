@@ -30,6 +30,13 @@ class BonoboAnalyzer {
     module.compilationUnits[sourceUrl] = compilationUnit;
     errors.addAll(parser.errors);
 
+    // Get the names of all types that are not typedefs.
+    // TODO: Custom classes, etc.
+
+    // Next, find the names of all typedefs.
+
+    // Populate any typedefs.
+
     // Get the names of all functions
     for (var ctx in compilationUnit.functions) {
       try {

@@ -38,4 +38,6 @@ part 'tuple.dart';
 
 part 'type.dart';
 
+part 'typedef.dart';
+
 part 'usage.dart';
