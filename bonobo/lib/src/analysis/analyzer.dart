@@ -34,8 +34,27 @@ class BonoboAnalyzer {
     // TODO: Custom classes, etc.
 
     // Next, find the names of all typedefs.
+    for (var typedef in compilationUnit.typedefs) {
+      // For each typedef, create an empty one in the module's
+      // type dictionary.
+      //
+      // This will be populated, but this allows for forward references, etc.
+      var existing = module.types[typedef.name.name];
+
+      if (existing != null &&
+          existing is! BonoboTypedef) {} else if (existing == null) {
+        module.types[typedef.name.name] =
+            new BonoboTypedef(typedef.name.name, typedef.span);
+      }
+    }
 
     // Populate any typedefs.
+    for (var typedef in compilationUnit.typedefs) {
+      var type = module.types[typedef.name.name];
+      if (type is BonoboTypedef) {
+        type.type = await resolveType(typedef.type);
+      }
+    }
 
     // Get the names of all functions
     for (var ctx in compilationUnit.functions) {

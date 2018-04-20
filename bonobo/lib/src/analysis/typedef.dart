@@ -3,10 +3,12 @@ part of bonobo.src.analysis;
 class BonoboTypedef extends BonoboType {
   @override
   final String name;
+
+  final FileSpan span;
   
   BonoboType _type;
 
-  BonoboTypedef(this.name);
+  BonoboTypedef(this.name, this.span);
 
   BonoboType get type => _type ?? BonoboType.Root;
 
