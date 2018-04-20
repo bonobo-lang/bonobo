@@ -322,6 +322,10 @@ class Parser extends _Parser {
 
     TypeContext left;
     PrefixParselet<TypeContext> prefix = _typePrefixParselets[token.type];
+
+    if (prefix == null)
+      return null;
+
     consume();
     left = prefix(this, token, [], false);
 
@@ -353,6 +357,10 @@ class Parser extends _Parser {
           */
 
       left = lookAhead(parseIdentifier);
+
+      if (left == null && peek()?.type == TokenType.identifier) {
+        left = new SimpleIdentifierContext(consume().span, []);
+      }
 
       if (left == null) return null;
     } else {

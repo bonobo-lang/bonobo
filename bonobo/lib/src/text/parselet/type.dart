@@ -63,7 +63,7 @@ final Map<TokenType, PrefixParselet<TypeContext>> _typePrefixParselets = {
     var parameters = <TypeContext>[];
     FileSpan span, lastSpan;
 
-    var type = parser.parseType(0, true).innermost;
+    var type = parser.parseType(0, true)?.innermost;
 
     if (type is TupleTypeContext) {
       for (var parameter in type.items) {
@@ -71,7 +71,7 @@ final Map<TokenType, PrefixParselet<TypeContext>> _typePrefixParselets = {
         lastSpan = parameter.span;
         span = span == null ? parameter.span : span.expand(parameter.span);
       }
-    } else {
+    } else if (type != null) {
       parameters.add(type);
       span = lastSpan = type.span;
     }
@@ -79,7 +79,8 @@ final Map<TokenType, PrefixParselet<TypeContext>> _typePrefixParselets = {
     // Check for ()
     var paren = parser.nextToken(TokenType.parentheses);
     if (paren != null) {
-      span = span.expand(lastSpan = paren.span);
+      lastSpan = paren.span;
+      span = span == null ? lastSpan : span.expand(lastSpan);
     }
 
     // Check for colon and return type
@@ -91,7 +92,8 @@ final Map<TokenType, PrefixParselet<TypeContext>> _typePrefixParselets = {
       return null;
     }
 
-    span = span.expand(lastSpan = colon.span);
+    lastSpan = colon.span;
+    span = span == null ? lastSpan : span.expand(lastSpan);
 
     var returnType = parser.parseType(0, false);
 
