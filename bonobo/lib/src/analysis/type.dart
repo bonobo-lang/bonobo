@@ -126,4 +126,26 @@ class BonoboInheritedType extends BonoboType {
   c.CType get ctype => null;
 
   bool get isRoot => false;
+
+  @override
+  BonoboType unsupportedBinaryOperator(
+      Token operator, BonoboType other, BonoboAnalyzer analyzer) {
+    return parent.unsupportedBinaryOperator(operator, other, analyzer);
+  }
+
+  @override
+  BonoboType postfixOp(Token operator, BonoboAnalyzer analyzer) {
+    return parent.postfixOp(operator, analyzer);
+  }
+
+  @override
+  BonoboType binaryOp(
+      Token operator, BonoboType other, BonoboAnalyzer analyzer) {
+    return parent.binaryOp(operator, other, analyzer);
+  }
+
+  @override
+  BonoboType prefixOp(Token operator, BonoboAnalyzer analyzer) {
+    return parent.prefixOp(operator, analyzer);
+  }
 }
