@@ -8,9 +8,10 @@ part 'infix.dart';
 part 'function.dart';
 part 'expression.dart';
 part 'identifier.dart';
-part 'class.dart';
+part 'type_decl.dart';
 part 'type.dart';
 part 'statement/statement.dart';
+part 'statement/var_decl.dart';
 part 'parselet.dart';
 
 UnitContext parseUnit(Scanner scanner) => new BonoboParseState(scanner).parse();

@@ -2,4 +2,4 @@ type Point (x: Int, y: Int) {
   fn length: Double => x + y
 }
 
-type Rect(left: Int, top: Int, width: Int, height: Int)
+type Rect (let left: Int, top: Int, width: Int, height: Int)

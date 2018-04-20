@@ -1,5 +1,5 @@
 type Point {
-  let x: Int, y: Int
+  x: Int, y: Int
 
   fn length: Double => x + y
 }

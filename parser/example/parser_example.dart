@@ -3,7 +3,7 @@ import 'package:parser/parser.dart';
 import 'package:ast/ast.dart';
 
 main() async {
-  Source src = await Source.fromPath('../example/types/simple.bnb');
+  Source src = await Source.fromPath('../example/types/tuples.bnb');
   var scanner = new Scanner(src.contents, sourceUrl: src.uri);
   scanner.scan();
   // print(scanner.errors);

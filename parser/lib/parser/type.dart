@@ -6,6 +6,10 @@ class TypeParser {
   TypeParser(this.state);
 
   TypeContext parse() {
+    // TODO parse special Tuple syntax
+    // TODO parse special List syntax
+    // TODO parse special Map syntax
+
     IdentifierContext name = state.nextId();
     FileSpan lastSpan = name.span;
     if (name == null) return null;
