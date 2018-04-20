@@ -64,7 +64,7 @@ final Map<Pattern, TokenType> normalPatterns = {
   '=': TokenType.equals,
 
   // Data
-  new RegExp(r'[0-9]+(\.[0-9]+)?'): TokenType.number,
+  new RegExp(r'[0-9]+((\.[0-9]+)|b)?'): TokenType.number,
   singleQuotedString: TokenType.string,
   doubleQuotedString: TokenType.string,
   new RegExp(r'[A-Za-z_][A-Za-z0-9_]*'): TokenType.identifier,
