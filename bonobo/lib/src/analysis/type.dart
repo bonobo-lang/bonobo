@@ -50,7 +50,7 @@ abstract class BonoboType {
       return false;
     else {
       var o = other as BonoboType;
-      return o.name == name;
+      return o.parent == parent && o.name == name && o.span == span;
     }
   }
 
@@ -73,8 +73,7 @@ abstract class BonoboType {
     // TODO: Bool type
     var booleanOps = [];
 
-    if (booleanOps.contains(operator.type))
-      return BonoboType.Byte;
+    if (booleanOps.contains(operator.type)) return BonoboType.Byte;
 
     analyzer.errors.add(new BonoboError(BonoboErrorSeverity.error,
         "Invalid binary operator '${operator.span.text}'.", operator.span));
@@ -92,7 +91,8 @@ abstract class BonoboType {
       Token operator, BonoboType other, BonoboAnalyzer analyzer) {
     analyzer.errors.add(new BonoboError(
         BonoboErrorSeverity.error,
-        "$name does not support running the '${operator.span.text}' operator against ${other.name}.",
+        "$name does not support running the '${operator.span
+            .text}' operator against ${other.name}.",
         operator.span));
     return Root;
   }
