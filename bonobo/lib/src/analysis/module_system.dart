@@ -49,6 +49,7 @@ class BonoboModuleSystem {
       // Invalidate existing module
       module._scope = new SymbolTable();
       module.analyzer?.errors?.clear();
+      module.types.clear();
     }
 
     // Find all .bnb files
@@ -106,7 +107,12 @@ class BonoboModuleSystem {
         rootDir = rootDirectory.absolute.uri.toString();
 
     if (p.equals(rootDir, dirPath)) {
-      if (_rootModule.analyzer != null) return _rootModule;
+      // TODO: Is the right way click invalidation?
+      if (_rootModule.analyzer != null &&
+          _rootModule.compilationUnits[sourceUrl] != null) {
+        print('old root $rootDir');
+        return _rootModule;
+      }
       return _rootModule = await createModule(rootDirectory, null);
     }
 
@@ -155,8 +161,8 @@ class BonoboModuleSystem {
         Uri.parse(p.dirname(sourceUrl.toString())), parent);
   }
 
-  void dumpTree() {
-    var b = new StringBuffer()..writeln('Module system:');
+  void dumpTree([BonoboModule module]) {
+    var b = new StringBuffer()..writeln('Dump of module "${module.fullName}":');
 
     void prinDent(int indent) {
       for (int i = 0; i < indent; i++) b.write('  ');
@@ -168,7 +174,7 @@ class BonoboModuleSystem {
       module.children.forEach((m) => dump(m, indent + 1));
     }
 
-    dump(rootModule, 0);
+    dump(module ?? rootModule, 0);
     print(b);
   }
 }

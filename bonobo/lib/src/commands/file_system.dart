@@ -69,24 +69,27 @@ class BonoboFileSystem extends ForwardingFileSystem {
     directory(cDir).createSync(recursive: true);
     currentDirectory = cDir.path;
 
-    void copyDirectory(Directory dir) {
-      for (var entity in dir.listSync()) {
+    void copyDirectory(Directory from, Directory to) {
+      for (var entity in from.listSync()) {
         if (entity is File) {
-          this.file(entity.absolute.path)
+          var outFile = to.childFile(path.basename(entity.path))
             ..createSync(recursive: true)
             ..writeAsBytesSync(entity.readAsBytesSync());
+          logger.fine('Copied file to $outFile');
         } else if (entity is Link) {
-          this
-              .link(entity.absolute.path)
-              .createSync(entity.resolveSymbolicLinksSync(), recursive: true);
+          var outLink = to.childLink(path.basename(entity.path))
+            ..createSync(entity.resolveSymbolicLinksSync(), recursive: true);
+          logger.fine('Copied file to $outLink');
         } else if (entity is Directory) {
-          this.directory(entity.absolute.path).createSync(recursive: true);
-          copyDirectory(entity);
+          var outDir = to.childDirectory(path.basename(entity.path))
+            ..createSync(recursive: true);
+          copyDirectory(entity, outDir);
+          logger.fine('Copied dir to $outDir');
         }
       }
     }
 
-    copyDirectory(localFileSystem.directory(cDir));
+    copyDirectory(localFileSystem.directory(cDir), directory(dir));
     //logSink.close();
   }
 }
