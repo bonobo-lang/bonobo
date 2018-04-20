@@ -92,7 +92,9 @@ class BonoboModuleSystem {
     await for (var entity in directory.list(recursive: false)) {
       if (entity is Directory) {
         if (entity != module.directory) {
-          await createModule(entity, module);
+          var name = p.basename(entity.path);
+          if (!module.children.any((m) => m.name == name))
+            await createModule(entity, module);
         }
       }
     }
@@ -146,7 +148,7 @@ class BonoboModuleSystem {
         }
 
         child = await createModule(dir, parent);
-        module.children.add(child);
+        //module.children.add(child);
       }
 
       module = child;

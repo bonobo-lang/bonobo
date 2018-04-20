@@ -2,7 +2,7 @@ part of bonobo.src.analysis;
 
 /// Represents a standalone unit of Bonobo code.
 class BonoboModule {
-  static Map<Uri, BonoboModule> _singletons = {};
+  static Map<String, BonoboModule> _singletons = {};
   final List<BonoboModule> children = [];
   final Map<Uri, CompilationUnitContext> compilationUnits = {};
   final Map<String, BonoboType> types = {};
@@ -18,13 +18,14 @@ class BonoboModule {
   BonoboModule.__(this.directory, this.parent, [BonoboModuleSystem system])
       : isCore = false,
         moduleSystem = system ?? parent?.moduleSystem {
-    if (parent != null && !parent.children.contains(this))
-      parent.children.add(this);
+    if (parent != null &&
+        !parent.children.contains(this) &&
+        !parent.children.any((m) => m.name == name)) parent.children.add(this);
   }
 
   factory BonoboModule._(Directory directory, BonoboModule parent,
       [BonoboModuleSystem system]) {
-    return _singletons.putIfAbsent(directory.absolute.uri, () {
+    return _singletons.putIfAbsent(directory.absolute.uri.toString(), () {
       return new BonoboModule.__(directory, parent, system);
     });
   }
