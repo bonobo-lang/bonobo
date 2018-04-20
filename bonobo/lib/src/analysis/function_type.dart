@@ -15,8 +15,9 @@ class BonoboFunctionType extends BonoboInheritedType {
 
     // Compare parameters
     for (int i = 0; i < parameters.length; i++) {
-      if (o.parameters.length < i + 1 || o.parameters[i] != parameters[i])
+      if (o.parameters.length < i + 1 || o.parameters[i] != parameters[i]) {
         return false;
+      }
     }
 
     // Compare return type
@@ -42,4 +43,23 @@ class BonoboFunctionType extends BonoboInheritedType {
 
   @override
   String toString() => signature;
+
+  @override
+  bool isAssignableTo(BonoboType other) {
+    if (other is BonoboTypedef) return isAssignableTo(other.type);
+    if (other is! BonoboFunctionType) return false;
+
+    var o = other as BonoboFunctionType;
+
+    if (o.parameters.length != parameters.length) return false;
+
+    // Compare parameters
+    for (int i = 0; i < parameters.length; i++) {
+      if (!parameters[i].isAssignableTo(o.parameters[i])) {
+        return false;
+      }
+    }
+
+    return returnType.isAssignableTo(o.returnType);
+  }
 }

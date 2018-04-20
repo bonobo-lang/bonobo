@@ -15,6 +15,8 @@ abstract class BonoboType {
   FileSpan get span => null;
 
   static BonoboType findCommonAncestor(BonoboType a, BonoboType b) {
+    if (a == b) return a;
+
     BonoboType compare = b;
 
     // Try comparisons, left to right
@@ -50,12 +52,14 @@ abstract class BonoboType {
       return false;
     else {
       var o = other as BonoboType;
-      return /*o.parent == parent &&*/ o.name == name && o.span == span;
+      if (o.hashCode == hashCode) return true;
+      return o.parent == parent && o.name == name && o.span == span;
     }
   }
 
   /// Returns `true` if the two types share a common ancestor that is **not** the [Root] type.
   bool isAssignableTo(BonoboType other) {
+    if (other is BonoboTypedef) return isAssignableTo(other.type);
     return other == Root || findCommonAncestor(this, other) != Root;
   }
 

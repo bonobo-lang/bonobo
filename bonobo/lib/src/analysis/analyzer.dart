@@ -198,11 +198,13 @@ class BonoboAnalyzer {
           if (value.type.isAssignableTo(function.returnType))
             flow.returnType = value.type;
           else {
+            //print('Declared: ${function.returnType}');
+            //print('Returned: ${value.type}');
             errors.add(new BonoboError(
                 BonoboErrorSeverity.error,
                 "'${function.name}' is declared to return a value of type "
-                "'${function.returnType.name}', but it "
-                "returns a value of type '${value.type.name}'.",
+                "'${function.returnType}', but it "
+                "returns a value of type '${value.type}'.",
                 stmt.expression.span));
             flow.returnType = BonoboType.Root;
           }
