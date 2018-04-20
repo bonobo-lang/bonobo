@@ -32,11 +32,11 @@ class Scanner {
     new RegExp(r'\(\s*\)'): TokenType.parentheses,
 
     // Reserved
-    'f': TokenType.f,
+    'fn': TokenType.fn,
+    'let': TokenType.let,
     'print': TokenType.print,
     'type': TokenType.type,
     'ret': TokenType.ret,
-    'v': TokenType.v,
 
     // Modifiers
     'pub': TokenType.pub,

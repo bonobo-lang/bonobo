@@ -1,1 +1,1 @@
-pub f bar => 'baz'
+pub fn bar => 'baz'

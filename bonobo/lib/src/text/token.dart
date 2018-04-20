@@ -30,11 +30,11 @@ enum TokenType {
   parentheses,
 
   // Reserved
-  f,
+  fn,
+  let,
   print,
   type,
   ret,
-  v,
 
   // Modifiers
   pub,

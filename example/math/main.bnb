@@ -1,4 +1,4 @@
-f main {
+fn main {
     // Bonobo supports a wide array of binary operators.
     //ret 1 ~ 1 ** 1 * 1 / 1 % 1 + 1 - 1 && 1 || 1 ^ 1 & 1 | 1 ±=
 }

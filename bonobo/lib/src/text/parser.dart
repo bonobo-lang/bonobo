@@ -104,7 +104,7 @@ class Parser extends _Parser {
     }
 
     comments ??= parseComments();
-    f ??= nextToken(TokenType.f);
+    f ??= nextToken(TokenType.fn);
     if (f == null) return null;
 
     span = span == null ? f.span : span.expand(f.span);
@@ -438,7 +438,7 @@ class Parser extends _Parser {
       comments.addAll(parseComments());
       return nextToken(TokenType.v)?.span;
     });*/
-    var comments = parseComments(), span = nextToken(TokenType.v)?.span;
+    var comments = parseComments(), span = nextToken(TokenType.let)?.span;
 
     //var lastSpan = span;
     if (span == null) return null;
