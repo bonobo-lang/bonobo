@@ -1,2 +1,4 @@
 type TupleOfTwoBytes := (Byte, Byte)
 
+f main : TupleOfTwoBytes => (0b, 1b)
+
