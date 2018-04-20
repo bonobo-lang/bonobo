@@ -20,6 +20,8 @@ part 'context.dart';
 
 part 'function.dart';
 
+part 'function_type.dart';
+
 part 'num.dart';
 
 part 'object.dart';
