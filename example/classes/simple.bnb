@@ -1,0 +1,5 @@
+class Point {
+  let x: Int, y: Int
+}
+
+fn pub main => 'Hello!'

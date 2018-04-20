@@ -26,25 +26,31 @@ class ReturnStatementContext extends StatementContext {
       : super(span, comments);
 }
 
-class VariableDeclarationStatementContext extends StatementContext {
-  final List<VariableDeclarationContext> declarations;
+class VarDeclStContext extends StatementContext {
+  final List<VarDeclContext> declarations;
   // final FileSpan declarationSpan;
   /* TODO
   ControlFlow flow;
   SymbolTable<BonoboObject> scope;
   */
 
-  VariableDeclarationStatementContext(this.declarations,
-      FileSpan span, List<Comment> comments)
+  VarDeclStContext(FileSpan span, this.declarations, List<Comment> comments)
       : super(span, comments);
 }
 
-class VariableDeclarationContext extends AstNode {
-  final IdentifierContext name;
-  final ExpressionContext expression;
-  final bool isFinal;
+enum VarMut {
+  const_,
+  final_,
+  var_,
+}
 
-  VariableDeclarationContext(this.name, this.expression, this.isFinal,
-      FileSpan span, List<Comment> comments)
+class VarDeclContext extends AstNode {
+  final SimpleIdentifierContext name;
+  final TypeContext type;
+  final ExpressionContext initializer;
+  final VarMut mutability;
+
+  VarDeclContext(FileSpan span, this.name, this.type,
+      this.initializer, this.mutability, List<Comment> comments)
       : super(span, comments);
 }

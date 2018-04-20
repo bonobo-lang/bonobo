@@ -1,0 +1,5 @@
+class Point (x: Int, y: Int) {
+  func length: Double => x + y
+}
+
+class Rect(left: Int, top: Int, width: Int, height: Int)

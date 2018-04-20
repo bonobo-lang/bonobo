@@ -17,11 +17,16 @@ final Map<Pattern, TokenType> normalPatterns = {
 
   // Reserved
   'ret': TokenType.ret,
-  'fn': TokenType.fn,
   'let': TokenType.let,
+  'var': TokenType.var_,
+  'const': TokenType.const_,
+  'fn': TokenType.fn,
   'class': TokenType.clazz,
   'mixin': TokenType.mixin,
   'interface': TokenType.interface,
+
+  'mixes': TokenType.mixes,
+  'implements': TokenType.implements,
 
   'extern': TokenType.extern,
 
@@ -60,7 +65,6 @@ final Map<Pattern, TokenType> normalPatterns = {
   '.': TokenType.dot,
 
   // Assignments
-  ':=': TokenType.imAssign,
   '=': TokenType.assign,
 
   // Data
@@ -86,13 +90,17 @@ enum TokenType {
   // parentheses,
 
   // Reserved
+  let,
+  var_,
+  const_,
   fn,
   ret,
-  let,
   clazz,
   mixin,
   interface,
 
+  mixes,
+  implements,
 
   import,
   extern,
@@ -132,7 +140,6 @@ enum TokenType {
   dot,
 
   // Assignment
-  imAssign,
   assign,
 
   // Data

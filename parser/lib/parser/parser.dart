@@ -23,7 +23,9 @@ class BonoboParseState extends ParserState {
 
     FileSpan startSpan = peek().span;
     FileSpan lastSpan = startSpan;
+
     final functions = <FunctionContext>[];
+    final classes = <ClassDeclContext>[];
 
     while (!done) {
       Token t = peek();
@@ -36,9 +38,9 @@ class BonoboParseState extends ParserState {
           }
           break;
         case TokenType.clazz:
-          var /* TODO FunctionContext */ c = nextClass();
+          ClassDeclContext c = nextClass();
           if (c != null) {
-            // TODO functions.add(c);
+            classes.add(c);
             lastSpan = c.span;
           }
           break;
@@ -47,13 +49,14 @@ class BonoboParseState extends ParserState {
           throw new UnimplementedError();
           break;
       }
-      if (errors.length != null) {
+      if (errors.length != 0) {
         // TODO what do we do here?
         break;
       }
     }
 
-    return new UnitContext(startSpan.expand(lastSpan), functions);
+    return new UnitContext(startSpan.expand(lastSpan),
+        functions: functions, classes: classes);
   }
 
   FunctionContext nextFunc() {
@@ -98,8 +101,8 @@ class BonoboParseState extends ParserState {
 
   ExpressionContext nextExp(int precedence) => expParser.parse(precedence);
 
-  ClassParser _classParser;
-  ClassParser get classParser => _classParser ?? new ClassParser(this);
+  ClassDeclParser _classParser;
+  ClassDeclParser get classParser => _classParser ?? new ClassDeclParser(this);
 
   FunctionParser _funcParser;
   FunctionParser get funcParser => _funcParser ?? new FunctionParser(this);
