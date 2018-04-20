@@ -271,8 +271,12 @@ class BonoboAnalyzer {
 
       return BonoboType.Root;
     } else if (ctx is TupleTypeContext) {
-      var items = await Future.wait(ctx.items.map(resolveType));
-      return new BonoboTupleType(items);
+      var types = await Future.wait(ctx.items.map(resolveType));
+      return new BonoboTupleType(types);
+    } else if (ctx is FunctionTypeContext) {
+      var parameters = await Future.wait(ctx.parameters.map(resolveType));
+      var returnType = await resolveType(ctx.returnType);
+      return new BonoboFunctionType(parameters, returnType);
     } else if (ctx is ParenthesizedTypeContext) {
       return await resolveType(ctx.innermost);
     } else {
