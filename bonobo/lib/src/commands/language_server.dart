@@ -22,18 +22,17 @@ class LanguageServerCommand extends Command {
   run() {
     var zone = Zone.current.fork(
         specification: new ZoneSpecification(
-          print: (self, parent, zone, line) {
-            logger.info(line);
-          },
-          handleUncaughtError: (self, parent, zone, error, stackTrace) {
-            if (error is! UnimplementedError)
-              logger.severe('FATAL ERROR', error, stackTrace);
-          },
-          errorCallback: (self, parent, zone, error, stackTrace) {
-            self.handleUncaughtError
-            (error, null;
-            },
-        ));
+      print: (self, parent, zone, line) {
+        logger.info(line);
+      },
+      handleUncaughtError: (self, parent, zone, error, stackTrace) {
+        if (error is! UnimplementedError)
+          logger.severe('FATAL ERROR', error, stackTrace);
+      },
+      errorCallback: (self, parent, zone, error, stackTrace) {
+        self.handleUncaughtError(error, null);
+      },
+    ));
 
     return zone.run(() {
       var server = new BonoboLanguageServer(logger);
@@ -51,7 +50,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   final Map<BonoboFileSystem, BonoboModuleSystem> _moduleSystems = {};
   final Completer _onDone = new Completer();
   final StreamController<lsp.ApplyWorkspaceEditParams> _workspaceEdits =
-  new StreamController();
+      new StreamController();
   final Logger logger;
 
   BonoboLanguageServer(this.logger);
@@ -125,8 +124,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   static String currentWord(String text, lsp.Position position) {
     var lines = text.split('\n');
     var line = lines[position.line];
-    int start = position.character.clamp(0, line.length - 1),
-        end = start;
+    int start = position.character.clamp(0, line.length - 1), end = start;
     var ch = line.codeUnitAt(start);
     if (!isAlphaNumOrUnderscore(ch)) return null;
 
@@ -203,8 +201,8 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   /// Currently the fastest implementation of (re-)parsing text in-memory.
   ///
   /// i.e. It guarantees only **one** pass over the text+AST.
-  Tuple2<Parser, CompilationUnitContext> parseText(String contents,
-      Uri sourceUrl,
+  Tuple2<Parser, CompilationUnitContext> parseText(
+      String contents, Uri sourceUrl,
       {bool analyze: false}) {
     // Clear existing diagnostics
     _diagnostics.add(new lsp.Diagnostics((b) {
@@ -216,8 +214,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     logger.fine('Re-parsing contents from $sourceUrl');
 
     // Load the file...
-    var scanner = new Scanner(contents, sourceUrl: sourceUrl)
-      ..scan();
+    var scanner = new Scanner(contents, sourceUrl: sourceUrl)..scan();
     var parser = new Parser(scanner),
         compilationUnit = parser.parseCompilationUnit();
     if (analyze == true) analyzeFromParser(parser, compilationUnit);
@@ -228,7 +225,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     var tuple = await parse(documentId);
     var sourceUrl = tuple.item1.scanner.scanner.sourceUrl;
     var contents =
-    await findFileSystem(sourceUrl).file(sourceUrl).readAsString();
+        await findFileSystem(sourceUrl).file(sourceUrl).readAsString();
     return await analyzeText(contents, sourceUrl);
   }
 
@@ -261,14 +258,12 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     return await analyzeFromParser(tuple.item1, tuple.item2);
   }
 
-  Future<BonoboAnalyzer> analyzeFromParser(Parser parser,
-      CompilationUnitContext compilationUnit) async {
+  Future<BonoboAnalyzer> analyzeFromParser(
+      Parser parser, CompilationUnitContext compilationUnit) async {
     var sourceUrl = parser.scanner.scanner.sourceUrl;
     var fileSystem = findFileSystem(sourceUrl);
     var moduleSystem = _moduleSystems[fileSystem] ??=
-    await BonoboModuleSystem.create(fileSystem
-        .file(sourceUrl)
-        .parent);
+        await BonoboModuleSystem.create(fileSystem.file(sourceUrl).parent);
     moduleSystem?.rootModule?.compilationUnits?.remove(sourceUrl);
 
     // Find the existing analyzer
@@ -300,17 +295,14 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   Future<lsp.ServerCapabilities> initialize(int clientPid, String rootUri,
       lsp.ClientCapabilities clientCapabilities, String trace) async {
     return new lsp.ServerCapabilities(
-          (b) =>
-      b
-        ..textDocumentSync = new lsp.TextDocumentSyncOptions((b) =>
-        b
+      (b) => b
+        ..textDocumentSync = new lsp.TextDocumentSyncOptions((b) => b
           ..openClose = true
           ..change = lsp.TextDocumentSyncKind.full
           ..willSave = false
           ..willSaveWaitUntil = false
           ..save = false)
-        ..completionProvider = new lsp.CompletionOptions((b) =>
-        b
+        ..completionProvider = new lsp.CompletionOptions((b) => b
           ..resolveProvider = false
           ..triggerCharacters = const ['.'])
         ..codeActionProvider = false //true
@@ -329,8 +321,8 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   }
 
   /// Figure which function the user is currently typing in.
-  BonoboFunction currentFunction(BonoboAnalyzer analyzer, Uri sourceUrl,
-      lsp.Position position) {
+  BonoboFunction currentFunction(
+      BonoboAnalyzer analyzer, Uri sourceUrl, lsp.Position position) {
     for (var symbol in analyzer.module.scope.root.allPublicVariables) {
       if (symbol.value == null) continue;
       if (symbol.value is! BonoboFunction) continue;
@@ -345,8 +337,8 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   }
 
   Future<Tuple3<BonoboAnalyzer, Variable<BonoboObject>, String>>
-  currentSymbolAndAnalyzer(lsp.TextDocumentIdentifier documentId,
-      lsp.Position position) async {
+      currentSymbolAndAnalyzer(
+          lsp.TextDocumentIdentifier documentId, lsp.Position position) async {
     var analyzer = await analyze(documentId);
     // TODO: Find current control flow within function?
     var sourceUrl = convertDocumentId(documentId);
@@ -367,14 +359,14 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   }
 
   /// Fetch all usages of the current symbol, or an empty `List` (`[]`).
-  Future<List<SymbolUsage>> currentUsages(lsp.TextDocumentIdentifier documentId,
-      lsp.Position position) async {
+  Future<List<SymbolUsage>> currentUsages(
+      lsp.TextDocumentIdentifier documentId, lsp.Position position) async {
     var symbol = await currentSymbol(documentId, position);
     return symbol?.value?.usages ?? [];
   }
 
-  lsp.Location currentLocation(lsp.TextDocumentIdentifier documentId,
-      lsp.Position position) {
+  lsp.Location currentLocation(
+      lsp.TextDocumentIdentifier documentId, lsp.Position position) {
     return new lsp.Location((b) {
       b
         ..uri = convertDocumentId(documentId).toString()
@@ -420,18 +412,16 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   }
 
   @override
-  Future<lsp.Hover> textDocumentHover(lsp.TextDocumentIdentifier documentId,
-      lsp.Position position) async {
+  Future<lsp.Hover> textDocumentHover(
+      lsp.TextDocumentIdentifier documentId, lsp.Position position) async {
     var tuple = await currentSymbolAndAnalyzer(documentId, position);
-    var analyzer = tuple?.item1,
-        symbol = tuple?.item2,
-        name = tuple?.item3;
+    var analyzer = tuple?.item1, symbol = tuple?.item2, name = tuple?.item3;
 
     if (symbol?.value?.span != null) {
       var value = symbol.value;
       return new lsp.Hover((b) {
         var type =
-        value is BonoboFunction ? value.type.signature : value.type.name;
+            value is BonoboFunction ? value.type.signature : value.type.name;
         b
           ..contents = '${symbol.name}: $type'
           ..range = convertSpan(value.span);
@@ -528,8 +518,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
       }
 
       var subInfo = <lsp.SymbolInformation>[];
-      for (var child in module.children)
-        listModule(child, subInfo);
+      for (var child in module.children) listModule(child, subInfo);
       info.addAll(subInfo);
 
       logger.fine('Info from ${module.name}');
