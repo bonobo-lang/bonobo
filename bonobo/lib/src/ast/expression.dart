@@ -1,6 +1,6 @@
 part of bonobo.src.ast;
 
-class ExpressionContext extends AstNode {
+abstract class ExpressionContext extends AstNode {
   ExpressionContext(FileSpan span, List<Comment> comments)
       : super(span, comments);
 
@@ -19,6 +19,9 @@ class SimpleIdentifierContext extends IdentifierContext {
       : super(span, comments);
 
   String get name => span.text;
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitSimpleIdentifier(this);
 }
 
 class NamespacedIdentifierContext extends IdentifierContext {
@@ -28,6 +31,9 @@ class NamespacedIdentifierContext extends IdentifierContext {
   NamespacedIdentifierContext(
       this.namespaces, this.symbol, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitNamespacedIdentifier(this);
 }
 
 class NumberLiteralContext extends ExpressionContext {
@@ -45,6 +51,9 @@ class NumberLiteralContext extends ExpressionContext {
       return int.parse(span.text.substring(0, span.length - 1));
     return int.parse(span.text);
   }
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitNumberLiteral(this);
 }
 
 class StringLiteralContext extends ExpressionContext {
@@ -69,6 +78,9 @@ class StringLiteralContext extends ExpressionContext {
     });
     return _value = t;
   }
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitStringliteral(this);
 }
 
 class PrintExpressionContext extends ExpressionContext {
@@ -76,6 +88,9 @@ class PrintExpressionContext extends ExpressionContext {
 
   PrintExpressionContext(this.expression, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitPrintExpression(this);
 }
 
 class ParenthesizedExpressionContext extends ExpressionContext {
@@ -87,6 +102,9 @@ class ParenthesizedExpressionContext extends ExpressionContext {
 
   @override
   ExpressionContext get innermost => expression.innermost;
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitParenthesizedExpression(this);
 }
 
 class PrefixExpressionContext extends ExpressionContext {
@@ -96,6 +114,9 @@ class PrefixExpressionContext extends ExpressionContext {
   PrefixExpressionContext(
       this.operator, this.expression, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitPrefixExpression(this);
 }
 
 class PostfixExpressionContext extends ExpressionContext {
@@ -105,6 +126,9 @@ class PostfixExpressionContext extends ExpressionContext {
   PostfixExpressionContext(
       this.expression, this.operator, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitPostfixExpression(this);
 }
 
 class AssignmentExpressionContext extends ExpressionContext {
@@ -114,6 +138,9 @@ class AssignmentExpressionContext extends ExpressionContext {
   AssignmentExpressionContext(this.left, this.operator, this.right,
       FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitAssignmentExpression(this);
 }
 
 class BinaryExpressionContext extends ExpressionContext {
@@ -123,6 +150,9 @@ class BinaryExpressionContext extends ExpressionContext {
   BinaryExpressionContext(this.left, this.operator, this.right, FileSpan span,
       List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitBinaryExpression(this);
 }
 
 class ConditionalExpressionContext extends ExpressionContext {
@@ -131,6 +161,9 @@ class ConditionalExpressionContext extends ExpressionContext {
   ConditionalExpressionContext(this.condition, this.ifTrue, this.ifFalse,
       FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitConditionalExpression(this);
 }
 
 class TupleExpressionContext extends ExpressionContext {
@@ -139,6 +172,9 @@ class TupleExpressionContext extends ExpressionContext {
   TupleExpressionContext(
       this.expressions, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitTupleExpression(this);
 }
 
 class CallExpressionContext extends ExpressionContext {
@@ -148,6 +184,9 @@ class CallExpressionContext extends ExpressionContext {
   CallExpressionContext(
       this.target, this.arguments, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitCallExpression(this);
 }
 
 class MemberExpressionContext extends ExpressionContext {
@@ -157,4 +196,7 @@ class MemberExpressionContext extends ExpressionContext {
   MemberExpressionContext(
       this.target, this.identifier, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitMemberExpression(this);
 }

@@ -11,6 +11,9 @@ class SimpleIdentifierTypeContext extends TypeContext {
 
   SimpleIdentifierTypeContext(this.identifier, List<Comment> comments)
       : super(identifier.span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitSimpleIdentifierType(this);
 }
 
 class NamespacedIdentifierTypeContext extends TypeContext {
@@ -18,6 +21,9 @@ class NamespacedIdentifierTypeContext extends TypeContext {
 
   NamespacedIdentifierTypeContext(this.identifier, List<Comment> comments)
       : super(identifier.span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitNamespacedIdentifierType(this);
 }
 
 class TupleTypeContext extends TypeContext {
@@ -25,6 +31,9 @@ class TupleTypeContext extends TypeContext {
 
   TupleTypeContext(this.items, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitTupleType(this);
 }
 
 class ParenthesizedTypeContext extends TypeContext {
@@ -34,6 +43,9 @@ class ParenthesizedTypeContext extends TypeContext {
   ParenthesizedTypeContext(
       this.innermost, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitParenthesizedType(this);
 }
 
 class TypedefContext extends AstNode {
@@ -42,6 +54,9 @@ class TypedefContext extends AstNode {
 
   TypedefContext(this.name, this.type, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitTypedef(this);
 }
 
 class FunctionTypeContext extends TypeContext {
@@ -51,4 +66,7 @@ class FunctionTypeContext extends TypeContext {
   FunctionTypeContext(
       this.parameters, this.returnType, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitFunctionType(this);
 }

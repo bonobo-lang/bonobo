@@ -9,6 +9,9 @@ class FunctionContext extends ExpressionContext {
   FunctionContext(this.modifiers, this.name, this.signature, this.body,
       FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitFunction(this);
 }
 
 class FunctionSignatureContext extends AstNode {
@@ -18,6 +21,9 @@ class FunctionSignatureContext extends AstNode {
   FunctionSignatureContext(this.parameterList, this.returnType, FileSpan span,
       List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitFunctionSignature(this);
 }
 
 abstract class FunctionBodyContext extends AstNode {
@@ -34,6 +40,9 @@ class BlockFunctionBodyContext extends FunctionBodyContext {
 
   @override
   List<StatementContext> get body => block.statements;
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitBlockFunctionBody(this);
 }
 
 class LambdaFunctionBodyContext extends FunctionBodyContext {
@@ -46,6 +55,9 @@ class LambdaFunctionBodyContext extends FunctionBodyContext {
   @override
   List<StatementContext> get body =>
       [new ReturnStatementContext(expression, span, comments)];
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitLambdaFunctionBody(this);
 }
 
 class ParameterListContext extends AstNode {
@@ -53,6 +65,9 @@ class ParameterListContext extends AstNode {
 
   ParameterListContext(this.parameters, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitParameterList(this);
 }
 
 class ParameterContext extends AstNode {
@@ -61,4 +76,7 @@ class ParameterContext extends AstNode {
 
   ParameterContext(this.name, this.type, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitParameter(this);
 }

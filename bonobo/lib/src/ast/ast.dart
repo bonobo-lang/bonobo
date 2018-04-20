@@ -10,3 +10,4 @@ part 'expression.dart';
 part 'function.dart';
 part 'statement.dart';
 part 'type.dart';
+part 'visitor.dart';

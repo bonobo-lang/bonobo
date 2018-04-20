@@ -5,6 +5,8 @@ abstract class AstNode {
   final List<Comment> comments;
 
   AstNode(this.span, this.comments);
+
+  T accept<T>(BonoboAstVisitor<T> visitor);
 }
 
 class Comment {
