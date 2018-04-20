@@ -6,3 +6,4 @@ fn main : TupleOfTwoBytes => (0b, 1b)
 
 fn returnMain : FunctionOfTupleOfTwoBytes => main
 
+fn tupleOfTuples => main, main, main

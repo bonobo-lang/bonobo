@@ -100,6 +100,9 @@ abstract class BonoboType {
         operator.span));
     return Root;
   }
+
+  @override
+  String toString() => name;
 }
 
 class _BonoboRootType extends BonoboType {
