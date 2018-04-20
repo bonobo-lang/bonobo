@@ -4,6 +4,7 @@ part of bonobo.src.analysis;
 // TODO: fullName getter based on module system.
 abstract class BonoboType {
   static final BonoboType Root = new _BonoboRootType();
+  static final BonoboType Byte = new _BonoboByteType();
   static final BonoboType Function$ = new _BonoboFunctionType();
   static final BonoboType Num = new _BonoboNumType();
   static final BonoboType String$ = new _BonoboStringType();
@@ -47,7 +48,7 @@ abstract class BonoboType {
       return false;
     else {
       var o = other as BonoboType;
-      return o.name == name;
+      return o.parent == parent && o.name == name /* TODO && o.span == span */;
     }
   }
 
@@ -66,6 +67,12 @@ abstract class BonoboType {
   /// Returns the type of the result of applying the given binary [operator].
   BonoboType binaryOp(
       Token operator, BonoboType other, BonoboAnalyzer analyzer) {
+    // Booleans should return bool
+    // TODO: Bool type
+    var booleanOps = [];
+
+    if (booleanOps.contains(operator.type)) return BonoboType.Byte;
+
     analyzer.errors.add(new BonoboError(BonoboErrorSeverity.error,
         "Invalid binary operator '${operator.span.text}'.", operator.span));
     return Root;
@@ -82,7 +89,8 @@ abstract class BonoboType {
       Token operator, BonoboType other, BonoboAnalyzer analyzer) {
     analyzer.errors.add(new BonoboError(
         BonoboErrorSeverity.error,
-        "$name does not support running the '${operator.span.text}' operator against ${other.name}.",
+        "$name does not support running the '${operator.span.
+          text}' operator against ${other.name}.",
         operator.span));
     return Root;
   }
@@ -116,4 +124,26 @@ class BonoboInheritedType extends BonoboType {
   c.CType get ctype => null;
 
   bool get isRoot => false;
+
+  @override
+  BonoboType unsupportedBinaryOperator(
+      Token operator, BonoboType other, BonoboAnalyzer analyzer) {
+    return parent.unsupportedBinaryOperator(operator, other, analyzer);
+  }
+
+  @override
+  BonoboType postfixOp(Token operator, BonoboAnalyzer analyzer) {
+    return parent.postfixOp(operator, analyzer);
+  }
+
+  @override
+  BonoboType binaryOp(
+      Token operator, BonoboType other, BonoboAnalyzer analyzer) {
+    return parent.binaryOp(operator, other, analyzer);
+  }
+
+  @override
+  BonoboType prefixOp(Token operator, BonoboAnalyzer analyzer) {
+    return parent.prefixOp(operator, analyzer);
+  }
 }

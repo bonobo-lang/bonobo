@@ -8,7 +8,7 @@ class ClassParser {
   parse() {
     FileSpan startSpan = state.peek().span;
 
-    if (state.nextToken(TokenType.func) == null) return null;
+    if (state.nextToken(TokenType.fn) == null) return null;
 
     bool isPub = state.nextToken(TokenType.pub) != null;
 

@@ -3,8 +3,8 @@ import 'package:parser/parser.dart';
 import 'package:ast/ast.dart';
 
 main() async {
-  Source src = await Source.fromPath('../example/hello/main.bnb');
-  var scanner = new Scanner(src.contents, sourceUrl: src.uri);
+  var scanner = new Scanner("fn pub main => 5 + 5",
+      sourceUrl: 'main.bnb');
   scanner.scan();
   // print(scanner.errors);
   // print(scanner.tokens.join('\n\n'));

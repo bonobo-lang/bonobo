@@ -18,9 +18,14 @@ class ParserState {
     return scanner.tokens.skip(_index).toList();
   }
 
-  /// Computes the current Pratt parser precedence.
+  /// Computes the current Pratt expression parser precedence.
   int getPrecedence() {
     return _infixParselets[peek()?.type]?.precedence ?? 0;
+  }
+
+  /// Computes the current Pratt type parser precedence.
+  int getTypePrecedence() {
+    return _typeInfixParselets[peek()?.type]?.precedence ?? 0;
   }
 
   /// Joins the [tokens] into a single [FileSpan].
@@ -47,7 +52,7 @@ class ParserState {
   ///
   /// Returns a [Queue] (LIFO), or `null`.
   Queue<Token> next(Iterable<TokenType> types) {
-    if (_index >= scanner.tokens.length - types.length - 1) return null;
+    if (_index > scanner.tokens.length - types.length - 1) return null;
 
     var tokens = new Queue<Token>();
 
@@ -71,8 +76,8 @@ class ParserState {
 
   Token nextIfOneOf(Iterable<TokenType> token) {
     Token t = peek();
-    for(TokenType ch in token) {
-      if(t.type == ch) {
+    for (TokenType ch in token) {
+      if (t.type == ch) {
         consume();
         return t;
       }

@@ -12,7 +12,15 @@ class FunctionContext extends ExpressionContext {
       {this.isPub: false})
       : super(span, comments);
 
-  String toString() => name.name;
+  String toString() {
+    var sb = new StringBuffer();
+    sb.write('fn');
+    if(isPub) sb.write(' pub');
+    sb.write(' $name');
+    if (signature != null) sb.write(signature);
+    sb.write(body);
+    return sb.toString();
+  }
 }
 
 class FunctionSignatureContext extends AstNode {
@@ -22,6 +30,13 @@ class FunctionSignatureContext extends AstNode {
   FunctionSignatureContext(this.parameterList, this.returnType, FileSpan span,
       List<Comment> comments)
       : super(span, comments);
+
+  String toString() {
+    var sb = new StringBuffer();
+    if (parameterList != null) sb.write(parameterList);
+    if (returnType != null) sb.write(': $returnType ');
+    return sb.toString();
+  }
 }
 
 abstract class FunctionBodyContext extends AstNode {
@@ -38,18 +53,28 @@ class BlockFunctionBodyContext extends FunctionBodyContext {
 
   @override
   List<StatementContext> get body => block.statements;
+
+  String toString() {
+    var sb = new StringBuffer();
+    throw new UnimplementedError();
+    // TODO
+    return sb.toString();
+  }
 }
 
-class LambdaFunctionBodyContext extends FunctionBodyContext {
+class SameLineFnBodyContext extends FunctionBodyContext {
   final ExpressionContext expression;
 
-  LambdaFunctionBodyContext(
-      this.expression, FileSpan span, List<Comment> comments)
+  SameLineFnBodyContext(this.expression, FileSpan span, List<Comment> comments)
       : super(span, comments);
 
   @override
   List<StatementContext> get body =>
       [new ReturnStatementContext(expression, span, comments)];
+
+  String toString() {
+    return ' => $expression';
+  }
 }
 
 class ParameterListContext extends AstNode {
@@ -57,6 +82,9 @@ class ParameterListContext extends AstNode {
 
   ParameterListContext(this.parameters, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  String toString() =>
+      '(' + parameters.map((p) => p.toString()).join(', ') + ')';
 }
 
 class ParameterContext extends AstNode {
@@ -65,4 +93,6 @@ class ParameterContext extends AstNode {
 
   ParameterContext(this.name, this.type, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  String toString() => '$name: $type';
 }

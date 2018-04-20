@@ -1,53 +1,12 @@
 part of 'parser.dart';
 
-final Map<TokenType, InfixParselet> _infixParselets = createInfixParselets();
+final Map<TokenType, InfixParselet<ExpressionContext>> _infixParselets =
+    createInfixParselets();
 
 Map<TokenType, InfixParselet> createInfixParselets() {
   int precedence = 1;
 
-  var infixParselets = {
-    // Parse tuples
-    TokenType.comma: new InfixParselet(precedence++,
-        (parser, left, token, comments, inVariableDeclaration) {
-      if (inVariableDeclaration) {
-        return left;
-      }
-
-      var span = left.span.expand(token.span);
-      var right = parser.nextExp(1, inVariableDeclaration);
-
-      if (right == null) {
-        parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
-            "Missing expression after ','", token.span));
-        return null;
-      }
-
-      span = span.expand(right.span);
-
-      if (right is TupleExpressionContext) {
-        return new TupleExpressionContext(
-          []
-            ..add(left)
-            ..addAll(right.expressions),
-          span,
-          []..addAll(left.comments)..addAll(comments),
-        );
-      }
-
-      return new TupleExpressionContext([left, right], span, comments);
-    }),
-
-    // Parse arg-less calls
-    TokenType.parentheses: new InfixParselet(precedence++,
-        (parser, left, token, comments, inVariableDeclaration) {
-      return new CallExpressionContext(
-        left,
-        new TupleExpressionContext([], token.span, []),
-        left.span.expand(token.span),
-        []..addAll(left.comments)..addAll(comments),
-      );
-    }),
-  };
+  var infixParselets = <TokenType, InfixParselet>{};
 
   addBinary(List<TokenType> types) {
     var p = precedence++;
@@ -56,21 +15,21 @@ Map<TokenType, InfixParselet> createInfixParselets() {
     }
   }
 
-  addBinary([TokenType.equals]);
+  addBinary([TokenType.assign]);
 
   // TODO: Tern
-  infixParselets[TokenType.question] = new InfixParselet(precedence++,
-      (parser, left, token, comments, inVariableDeclaration) {
+  infixParselets[TokenType.question] =
+      new InfixParselet(precedence++, (parser, left, token, comments) {
     parser.errors.add(new BonoboError(BonoboErrorSeverity.warning,
         'The conditional operator is not supported... YET', token.span));
     return null;
   });
 
   // TODO: B_OR
-  addBinary([TokenType.b_or]);
+  addBinary([TokenType.l_or]);
 
   // TODO: B_AND
-  addBinary([TokenType.b_and]);
+  addBinary([TokenType.l_and]);
 
   // TODO: OR
   addBinary([TokenType.or]);
@@ -79,7 +38,7 @@ Map<TokenType, InfixParselet> createInfixParselets() {
   addBinary([TokenType.and]);
 
   // TODO: B_EQU, B_NOT_EQU
-  addBinary([TokenType.b_equals, TokenType.b_not_equals]);
+  addBinary([TokenType.equals, TokenType.notEquals]);
 
   // TODO: LT, LTE, GT, GTE
   addBinary([
@@ -102,8 +61,8 @@ Map<TokenType, InfixParselet> createInfixParselets() {
   addBinary([TokenType.pow]);
 
   // TODO: [], .
-  infixParselets[TokenType.dot] = new InfixParselet(precedence++,
-      (parser, left, token, comments, inVariableDeclaration) {
+  infixParselets[TokenType.dot] =
+      new InfixParselet(precedence++, (parser, left, token, comments) {
     var identifier = parser.nextSimpleId();
 
     if (identifier == null) {

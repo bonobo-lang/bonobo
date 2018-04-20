@@ -1,0 +1,14 @@
+pygmy() {
+ name = 'foo'
+ description = '...'
+
+ dependsOn([
+  bar ^ '1.0.0',
+  baz >= '1.0.0' && baz < '2.0.0-dev',
+  quux >= '^1.0.0'
+ ])
+
+ devDependsOn([
+  // ...
+ ])
+}

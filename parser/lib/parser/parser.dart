@@ -5,13 +5,13 @@ import 'package:ast/ast.dart';
 
 part 'base.dart';
 part 'infix.dart';
-part 'prefix.dart';
 part 'function.dart';
 part 'expression.dart';
 part 'identifier.dart';
 part 'class.dart';
-
+part 'type.dart';
 part 'statement/statement.dart';
+part 'parselet.dart';
 
 UnitContext parseUnit(Scanner scanner) => new BonoboParseState(scanner).parse();
 
@@ -28,7 +28,7 @@ class BonoboParseState extends ParserState {
     while (!done) {
       Token t = peek();
       switch (t.type) {
-        case TokenType.func:
+        case TokenType.fn:
           FunctionContext f = nextFunc();
           if (f != null) {
             functions.add(f);
@@ -61,28 +61,42 @@ class BonoboParseState extends ParserState {
     return funcParser.parse();
   }
 
-   nextClass() {
+  nextClass() {
     // TODO comments
     return classParser.parse();
   }
 
-  TypeContext nextType() {
-    IdentifierContext id = idParser.parse();
-    return id == null ? null : new IdentifierTypeContext(id, []);
+  TypeContext nextType(int precedence) {
+    Token token = peek();
+
+    if (token == null) return null;
+
+    TypeContext left;
+    PrefixParselet<TypeContext> prefix = _typePrefixParselets[token.type];
+    consume();
+    left = prefix(this, token, [], false);
+
+    while (precedence < getTypePrecedence() && left != null) {
+      token = consume();
+      InfixParselet infix = _typeInfixParselets[token.type];
+      left = infix.parse(this, left, token, []);
+    }
+
+    return left;
   }
 
   StatementContext nextStatement() => statParser.parse();
 
   /// Parses function name
   SimpleIdentifierContext nextSimpleId() {
-    Token id = nextToken(TokenType.identifier);
-    return id == null ? null : new SimpleIdentifierContext(id.span, []);
+    if (peek()?.type == TokenType.identifier)
+      return new SimpleIdentifierContext(consume().span, []);
+    return null;
   }
 
   IdentifierContext nextId() => idParser.parse();
 
-  ExpressionContext nextExp(int precedence, bool inVariableDeclaration) =>
-      expParser.parse(precedence, inVariableDeclaration);
+  ExpressionContext nextExp(int precedence) => expParser.parse(precedence);
 
   ClassParser _classParser;
   ClassParser get classParser => _classParser ?? new ClassParser(this);
@@ -113,63 +127,4 @@ class BonoboParseState extends ParserState {
 
     return comments;
   }
-}
-
-typedef ExpressionContext PrefixParselet(BonoboParseState parser, Token token,
-    List<Comment> comments, bool inVariableDeclaration);
-
-class InfixParselet {
-  final int precedence;
-
-  final ExpressionContext Function(
-      BonoboParseState parser,
-      ExpressionContext left,
-      Token token,
-      List<Comment> comments,
-      bool inVariableDeclaration) parse;
-
-  const InfixParselet(this.precedence, this.parse);
-}
-
-class BinaryParselet extends InfixParselet {
-  BinaryParselet(int precedence)
-      : super(precedence,
-            (parser, left, token, comments, inVariableDeclaration) {
-          var span = left.span.expand(token.span), lastSpan = span;
-          var equals = token.type == TokenType.equals
-              ? null
-              : parser.nextToken(TokenType.equals)?.span;
-
-          if (equals != null) {
-            span = span.expand(lastSpan = equals);
-          }
-
-          ExpressionContext right = parser.nextExp(0, inVariableDeclaration);
-
-          if (right == null) {
-            parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
-                "Missing expression after '${lastSpan.text}'.", lastSpan));
-            return null;
-          }
-
-          span = span.expand(right.span);
-
-          if (equals != null || token.type == TokenType.equals) {
-            return new AssignmentExpressionContext(
-              left,
-              token,
-              right,
-              span,
-              []..addAll(comments)..addAll(right.comments),
-            );
-          }
-
-          return new BinaryExpressionContext(
-            left,
-            token,
-            right,
-            span,
-            []..addAll(comments)..addAll(right.comments),
-          );
-        });
 }

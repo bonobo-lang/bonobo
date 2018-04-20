@@ -12,7 +12,7 @@ class StatementParser {
   }
 
   ExpressionStatementContext parseExpressionStatement() {
-    ExpressionContext exp = state.nextExp(0, false);
+    ExpressionContext exp = state.nextExp(0);
     if (exp == null) return null;
     return new ExpressionStatementContext(exp.innermost);
   }
@@ -26,7 +26,7 @@ class StatementParser {
     });
     if (span == null) return null;
 
-    ExpressionContext exp = state.nextExp(0, false);
+    ExpressionContext exp = state.nextExp(0);
 
     if (exp == null) {
       state.errors.add(new BonoboError(BonoboErrorSeverity.error,
@@ -43,7 +43,7 @@ class StatementParser {
     var comments = <Comment>[];
     FileSpan span = state.lookAhead(() {
       comments.addAll(state.nextComments());
-      return state.nextToken(TokenType.v)?.span;
+      return state.nextToken(TokenType.let)?.span;
     });
 
     if (span == null) return null;
@@ -91,7 +91,7 @@ class StatementParser {
 
     // TODO type annotation?
 
-    Token op = state.nextIfOneOf([TokenType.equals, TokenType.colon_equals]);
+    Token op = state.nextIfOneOf([TokenType.assign, TokenType.imAssign]);
 
     if (op == null) {
       state.errors.add(new BonoboError(
@@ -101,8 +101,8 @@ class StatementParser {
       return null;
     }
 
-    bool isFinal = op.type == TokenType.colon_equals;
-    ExpressionContext expression = state.nextExp(0, true);
+    bool isFinal = op.type == TokenType.imAssign;
+    ExpressionContext expression = state.nextExp(0);
 
     if (expression == null) {
       state.errors.add(new BonoboError(

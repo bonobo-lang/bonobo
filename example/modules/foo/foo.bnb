@@ -1,1 +1,1 @@
-func bar => 'baz'
+fn bar => 'baz'

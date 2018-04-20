@@ -13,7 +13,7 @@ class BonoboAnalyzer {
 
   // TODO: Find unused symbols
   Future analyze(
-      CompilationUnitContext compilationUnit, Uri sourceUrl, Parser parser,
+      UnitContext compilationUnit, Uri sourceUrl, BonoboParseState parser,
       [BonoboModule m]) async {
     var functions = <BonoboFunction>[];
 
@@ -33,8 +33,8 @@ class BonoboAnalyzer {
     // Get the names of all functions
     for (var ctx in compilationUnit.functions) {
       try {
-        var function =
-            new BonoboFunction(ctx.name.name, module.scope.createChild(), ctx);
+        var function = new BonoboFunction(
+            ctx.name.name, module.scope.createChild(), ctx, module);
         functions.add(function);
         function.usages
             .add(new SymbolUsage(SymbolUsageType.declaration, ctx.name.span));
@@ -42,12 +42,10 @@ class BonoboAnalyzer {
         var symbol =
             module.scope.create(ctx.name.name, value: function, constant: true);
 
-        if (ctx.modifiers.contains(TokenType.pub)) {
+        if (ctx.isPub) {
           symbol.visibility = Visibility.public;
-        } else if (ctx.modifiers.contains(TokenType.priv)) {
-          symbol.visibility = Visibility.private;
         } else {
-          symbol.visibility = Visibility.protected;
+          symbol.visibility = Visibility.private;
         }
 
         if (ctx.signature.parameterList != null) {
@@ -218,7 +216,7 @@ class BonoboAnalyzer {
   Future<BonoboType> resolveType(TypeContext ctx) async {
     if (ctx == null)
       return BonoboType.Root;
-    else if (ctx is IdentifierTypeContext) {
+    else if (ctx is SimpleIdentifierTypeContext) {
       BonoboModule m = module;
 
       do {
@@ -232,8 +230,15 @@ class BonoboAnalyzer {
           "Unknown type '${ctx.identifier.name}'.", ctx.span));
 
       return BonoboType.Root;
+    } else if (ctx is TupleTypeContext) {
+      var items = await Future.wait(ctx.items.map(resolveType));
+      return new BonoboTupleType(items);
+    } else if (ctx is ParenthesizedTypeContext) {
+      return await resolveType(ctx.innermost);
     } else {
-      throw new ArgumentError();
+      errors.add(new BonoboError(BonoboErrorSeverity.warning,
+          'Unsupported type: ${ctx.runtimeType}', ctx.span));
+      return BonoboType.Root;
     }
   }
 
@@ -255,7 +260,9 @@ class BonoboAnalyzer {
 
     // Literals
     if (ctx is NumberLiteralContext) {
-      return new BonoboObject(BonoboType.Num, ctx.span);
+      // TODO: Specific number suffixes, also explicit int or double
+      return new BonoboObject(
+          ctx.isByte ? BonoboType.Byte : BonoboType.Num, ctx.span);
     }
 
     if (ctx is StringLiteralContext) {
@@ -286,7 +293,7 @@ class BonoboAnalyzer {
           errors.add(new BonoboError(
               BonoboErrorSeverity.error,
               "The module '${m.name}' does not contain a submodule named '${part
-                     .name}'.",
+                  .name}'.",
               part.span));
           return defaultObject;
         }
@@ -300,12 +307,14 @@ class BonoboAnalyzer {
       if (symbol == null) {
         errors.add(new BonoboError(
             BonoboErrorSeverity.error,
-            "The module '${m.name}' does not contain a value named '${ctx.symbol.name}'.",
+            "The module '${m.name}' does not contain a value named '${ctx.symbol
+                .name}'.",
             ctx.symbol.span));
       } else if (symbol.visibility < Visibility.public) {
         errors.add(new BonoboError(
             BonoboErrorSeverity.error,
-            "The symbol '${ctx.symbol.name}' is not public. Prepend a 'pub' modifier.",
+            "The symbol '${ctx.symbol
+                .name}' is not public. Prepend a 'pub' modifier.",
             ctx.symbol.span));
       } else {
         return symbol.value;

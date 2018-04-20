@@ -1,1 +1,1 @@
-func pub main => print('Hello, world!')
+fn pub main => print('Hello, world!')

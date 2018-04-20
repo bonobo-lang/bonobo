@@ -13,12 +13,12 @@ final Map<Pattern, TokenType> normalPatterns = {
   '}': TokenType.rCurly,
   '(': TokenType.lParen,
   ')': TokenType.rParen,
-  new RegExp(r'\(\s*\)'): TokenType.parentheses,
+  // new RegExp(r'\(\s*\)'): TokenType.parentheses,
 
   // Reserved
   'ret': TokenType.ret,
-  'func': TokenType.func,
-  'var': TokenType.v,
+  'fn': TokenType.fn,
+  'let': TokenType.let,
   'class': TokenType.clazz,
   'mixin': TokenType.mixin,
   'interface': TokenType.interface,
@@ -46,10 +46,10 @@ final Map<Pattern, TokenType> normalPatterns = {
   '^': TokenType.xor,
   '&': TokenType.and,
   '|': TokenType.or,
-  '&&': TokenType.b_and,
-  '||': TokenType.b_or,
-  '==': TokenType.b_equals,
-  '!=': TokenType.b_not_equals,
+  '&&': TokenType.l_and,
+  '||': TokenType.l_or,
+  '==': TokenType.equals,
+  '!=': TokenType.notEquals,
   '?': TokenType.question,
   '<': TokenType.lt,
   '<=': TokenType.lte,
@@ -60,8 +60,8 @@ final Map<Pattern, TokenType> normalPatterns = {
   '.': TokenType.dot,
 
   // Assignments
-  ':=': TokenType.colon_equals,
-  '=': TokenType.equals,
+  ':=': TokenType.imAssign,
+  '=': TokenType.assign,
 
   // Data
   new RegExp(r'[0-9]+((\.[0-9]+)|b)?'): TokenType.number,
@@ -83,12 +83,12 @@ enum TokenType {
   rCurly,
   lParen,
   rParen,
-  parentheses,
+  // parentheses,
 
   // Reserved
-  func,
+  fn,
   ret,
-  v,
+  let,
   clazz,
   mixin,
   interface,
@@ -118,10 +118,10 @@ enum TokenType {
   xor,
   and,
   or,
-  b_and,
-  b_or,
-  b_equals,
-  b_not_equals,
+  l_and,
+  l_or,
+  equals,
+  notEquals,
   question,
   lt,
   lte,
@@ -132,8 +132,8 @@ enum TokenType {
   dot,
 
   // Assignment
-  colon_equals,
-  equals,
+  imAssign,
+  assign,
 
   // Data
   number,

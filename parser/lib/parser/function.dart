@@ -8,7 +8,7 @@ class FunctionParser {
   FunctionContext parse({List<Comment> comments}) {
     FileSpan startSpan = state.peek().span;
 
-    if (state.nextToken(TokenType.func) == null) return null;
+    if (state.nextToken(TokenType.fn) == null) return null;
 
     bool isPub = state.nextToken(TokenType.pub) != null;
 
@@ -47,7 +47,7 @@ class FunctionParser {
     if ((colon = state.nextToken(TokenType.colon)) != null) {
       span = span == null ? colon.span : span.expand(colon.span);
 
-      if ((returnType = state.nextType()) == null) {
+      if ((returnType = state.nextType(0)) == null) {
         state.errors.add(new BonoboError(
             BonoboErrorSeverity.error, "Missing type after ':'.", colon.span));
       } else
@@ -59,10 +59,6 @@ class FunctionParser {
   }
 
   ParameterListContext parseParameterList() {
-    var closedParen = state.nextToken(TokenType.parentheses);
-    if (closedParen != null)
-      return new ParameterListContext([], closedParen.span, []);
-
     Token lParen = state.nextToken(TokenType.lParen);
     if (lParen == null) return null;
 
@@ -101,7 +97,7 @@ class FunctionParser {
       return new ParameterContext(id, null, span, []);
     }
 
-    TypeContext type = state.nextType();
+    TypeContext type = state.nextType(0);
 
     span = span.expand(colon.span);
 
@@ -123,11 +119,11 @@ class FunctionParser {
     throw new Exception('Add error!');
   }
 
-  LambdaFunctionBodyContext parseLambdaBody() {
+  SameLineFnBodyContext parseLambdaBody() {
     Token arrow = state.nextToken(TokenType.arrow);
     if (arrow == null) return null;
 
-    ExpressionContext expression = new ExpressionParser(state).parse(0, false);
+    ExpressionContext expression = state.nextExp(0);
 
     if (expression == null) {
       state.errors.add(new BonoboError(BonoboErrorSeverity.error,
@@ -135,7 +131,9 @@ class FunctionParser {
       return null;
     }
 
-    return new LambdaFunctionBodyContext(
+    // TODO parse tuple
+
+    return new SameLineFnBodyContext(
         expression, arrow.span.expand(expression.span), []);
   }
 
@@ -168,9 +166,5 @@ class FunctionParser {
     }
 
     return new BlockContext(statements, lCurly.span.expand(rCurly.span), []);
-  }
-
-  parseStatement() {
-    // TODO
   }
 }

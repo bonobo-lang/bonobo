@@ -28,6 +28,7 @@ class BonoboModuleSystem {
     core.types.addAll({
       BonoboType.Num.name: BonoboType.Num,
       BonoboType.String$.name: BonoboType.String$,
+      BonoboType.Byte.name: BonoboType.Byte,
     });
 
     // TODO: Third-party libs?
@@ -61,8 +62,8 @@ class BonoboModuleSystem {
           sourceUrl: sourceFile.absolute.uri)
         ..scan();
       module.emptySpan ??= scanner.emptySpan;
-      var parser = new Parser(scanner);
-      var compilationUnit = parser.parseCompilationUnit();
+      var parser = new BonoboParseState(scanner);
+      var compilationUnit = parser.parse();
 
       // TODO: Analyze???
       await analyzer.analyze(

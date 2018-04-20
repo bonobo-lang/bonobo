@@ -1,7 +1,12 @@
 // Use the `,` operator to create tuples, which are typed, fixed-size lists of values.
-func main => 1, 2, 3
+f main => 1, 2, 3
 
 // Check out the inferred return type of this function!
-func foo => (1, 2, 3), ('4', 5.0)
+f foo => (1, 2, 3), ('4', 5.0)
 
-func mixedTypes => 1, 2, '3'
+f mixedTypes => 1, 2, '3'
+
+// You can also create tuple type literals.
+//
+// In practice, though, it's more likely to wrap these in a typedef.
+f myTuple: (Num, Num) => 2, 2

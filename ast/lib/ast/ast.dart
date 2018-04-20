@@ -4,7 +4,7 @@ import 'package:source_span/source_span.dart';
 import 'package:symbol_table/symbol_table.dart';
 import 'package:scanner/scanner.dart';
 
-part 'compilation_unit.dart';
+part 'unit.dart';
 part 'expression.dart';
 part 'function.dart';
 part 'statement.dart';

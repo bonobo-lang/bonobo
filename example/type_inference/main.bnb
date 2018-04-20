@@ -4,12 +4,12 @@
 //
 // In practice, you will usually not have to even provide
 // type annotations.
-func main => 0
+fn main => 0
 
 // Bonobo automatically recognizes the return type to be `Num`.
-func someNum(a: Num, b: Num) => 24.0
+fn someNum(a: Num, b: Num) => 24.0
 
 // Bonobo can also infer the types of parameters.
 //
 // `a` is recognized to be a `Num`.
-func someOtherNum(a) => someNum(a, 35)
+fn someOtherNum(a) => someNum(a, 35)
