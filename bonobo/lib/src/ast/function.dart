@@ -2,7 +2,7 @@ part of bonobo.src.ast;
 
 class FunctionContext extends ExpressionContext {
   final List<TokenType> modifiers;
-  final IdentifierContext name;
+  final SimpleIdentifierContext name;
   final FunctionSignatureContext signature;
   final FunctionBodyContext body;
 
@@ -71,7 +71,7 @@ class ParameterListContext extends AstNode {
 }
 
 class ParameterContext extends AstNode {
-  final IdentifierContext name;
+  final SimpleIdentifierContext name;
   final TypeContext type;
 
   ParameterContext(this.name, this.type, FileSpan span, List<Comment> comments)

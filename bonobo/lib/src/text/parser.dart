@@ -192,7 +192,7 @@ class Parser extends _Parser {
   }
 
   ParameterContext parseParameter() {
-    var id = parseIdentifier();
+    var id = parseSimpleIdentifier();
     if (id == null) return null;
     var span = id.span, colon = nextToken(TokenType.colon);
     TypeContext type;
@@ -495,7 +495,7 @@ class Parser extends _Parser {
   }
 
   VariableDeclarationContext parseVariableDeclaration() {
-    var id = parseIdentifier();
+    var id = parseSimpleIdentifier();
     if (id == null) return null;
     var span = id.span;
     var op = nextToken(TokenType.equals) ?? nextToken(TokenType.colon_equals);

@@ -53,7 +53,7 @@ class VariableDeclarationStatementContext extends StatementContext {
 }
 
 class VariableDeclarationContext extends AstNode {
-  final IdentifierContext name;
+  final SimpleIdentifierContext name;
   final ExpressionContext expression;
   final bool isFinal;
 

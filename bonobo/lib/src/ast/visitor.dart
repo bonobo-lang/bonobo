@@ -10,73 +10,61 @@ abstract class BonoboAstVisitor<T> {
 
   T visitFunction(FunctionContext ctx);
 
-  T visitType(TypeContext ctx);
+  T visitSimpleIdentifierType(SimpleIdentifierTypeContext ctx);
 
-  T visitSimpleIdentifierType(
-      SimpleIdentifierTypeContext simpleIdentifierTypeContext);
+  T visitNamespacedIdentifierType(NamespacedIdentifierTypeContext ctx);
 
-  T visitNamespacedIdentifierType(
-      NamespacedIdentifierTypeContext namespacedIdentifierTypeContext);
+  T visitTupleType(TupleTypeContext ctx);
 
-  T visitTupleType(TupleTypeContext tupleTypeContext);
+  T visitParenthesizedType(ParenthesizedTypeContext ctx);
 
-  T visitParenthesizedType(ParenthesizedTypeContext parenthesizedTypeContext);
+  T visitFunctionType(FunctionTypeContext ctx);
 
-  T visitFunctionType(FunctionTypeContext functionTypeContext);
+  T visitSimpleIdentifier(SimpleIdentifierContext ctx);
 
-  T visitSimpleIdentifier(SimpleIdentifierContext simpleIdentifierContext);
+  T visitNamespacedIdentifier(NamespacedIdentifierContext ctx);
 
-  T visitNamespacedIdentifier(
-      NamespacedIdentifierContext namespacedIdentifierContext);
+  T visitNumberLiteral(NumberLiteralContext ctx);
 
-  T visitNumberLiteral(NumberLiteralContext numberLiteralContext);
+  T visitStringLiteral(StringLiteralContext ctx);
 
-  T visitStringliteral(StringLiteralContext stringLiteralContext);
+  T visitPrintExpression(PrintExpressionContext ctx);
 
-  T visitPrintExpression(PrintExpressionContext printExpressionContext);
+  T visitParenthesizedExpression(ParenthesizedExpressionContext ctx);
 
-  T visitParenthesizedExpression(
-      ParenthesizedExpressionContext parenthesizedExpressionContext);
+  T visitPrefixExpression(PrefixExpressionContext ctx);
 
-  T visitPrefixExpression(PrefixExpressionContext prefixExpressionContext);
+  T visitPostfixExpression(PostfixExpressionContext ctx);
 
-  T visitPostfixExpression(PostfixExpressionContext postfixExpressionContext);
+  T visitAssignmentExpression(AssignmentExpressionContext ctx);
 
-  T visitAssignmentExpression(
-      AssignmentExpressionContext assignmentExpressionContext);
+  T visitBinaryExpression(BinaryExpressionContext ctx);
 
-  T visitBinaryExpression(BinaryExpressionContext binaryExpressionContext);
+  T visitConditionalExpression(ConditionalExpressionContext ctx);
 
-  T visitConditionalExpression(
-      ConditionalExpressionContext conditionalExpressionContext);
+  T visitTupleExpression(TupleExpressionContext ctx);
 
-  T visitTupleExpression(TupleExpressionContext tupleExpressionContext);
+  T visitCallExpression(CallExpressionContext ctx);
 
-  T visitCallExpression(CallExpressionContext callExpressionContext);
+  T visitMemberExpression(MemberExpressionContext ctx);
 
-  T visitMemberExpression(MemberExpressionContext memberExpressionContext);
+  T visitBlock(BlockContext ctx);
 
-  T visitBlock(BlockContext blockContext);
+  T visitExpressionStatement(ExpressionStatementContext ctx);
 
-  T visitExpressionStatement(
-      ExpressionStatementContext expressionStatementContext);
+  T visitReturnStatement(ReturnStatementContext ctx);
 
-  T visitReturnStatement(ReturnStatementContext returnStatementContext);
+  T visitVariableDeclarationStatement(VariableDeclarationStatementContext ctx);
 
-  T visitVariableDeclarationStatement(
-      VariableDeclarationStatementContext variableDeclarationStatementContext);
+  T visitVariableDeclaration(VariableDeclarationContext ctx);
 
-  T visitVariableDeclaration(
-      VariableDeclarationContext variableDeclarationContext);
+  T visitFunctionSignature(FunctionSignatureContext ctx);
 
-  T visitFunctionSignature(FunctionSignatureContext functionSignatureContext);
+  T visitBlockFunctionBody(BlockFunctionBodyContext ctx);
 
-  T visitBlockFunctionBody(BlockFunctionBodyContext blockFunctionBodyContext);
+  T visitLambdaFunctionBody(LambdaFunctionBodyContext ctx);
 
-  T visitLambdaFunctionBody(
-      LambdaFunctionBodyContext lambdaFunctionBodyContext);
+  T visitParameterList(ParameterListContext ctx);
 
-  T visitParameterList(ParameterListContext parameterListContext);
-
-  T visitParameter(ParameterContext parameterContext);
+  T visitParameter(ParameterContext ctx);
 }

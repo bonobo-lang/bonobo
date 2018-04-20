@@ -8,6 +8,7 @@ part 'ast_node.dart';
 part 'compilation_unit.dart';
 part 'expression.dart';
 part 'function.dart';
+part 'recursive_visitor.dart';
 part 'statement.dart';
 part 'type.dart';
 part 'visitor.dart';

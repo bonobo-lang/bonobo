@@ -25,8 +25,8 @@ class SimpleIdentifierContext extends IdentifierContext {
 }
 
 class NamespacedIdentifierContext extends IdentifierContext {
-  final List<IdentifierContext> namespaces;
-  final IdentifierContext symbol;
+  final List<SimpleIdentifierContext> namespaces;
+  final SimpleIdentifierContext symbol;
 
   NamespacedIdentifierContext(
       this.namespaces, this.symbol, FileSpan span, List<Comment> comments)
@@ -80,7 +80,7 @@ class StringLiteralContext extends ExpressionContext {
   }
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitStringliteral(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitStringLiteral(this);
 }
 
 class PrintExpressionContext extends ExpressionContext {
@@ -191,7 +191,7 @@ class CallExpressionContext extends ExpressionContext {
 
 class MemberExpressionContext extends ExpressionContext {
   final ExpressionContext target;
-  final IdentifierContext identifier;
+  final SimpleIdentifierContext identifier;
 
   MemberExpressionContext(
       this.target, this.identifier, FileSpan span, List<Comment> comments)
