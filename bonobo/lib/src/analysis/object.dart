@@ -9,6 +9,6 @@ class BonoboObject {
 
   @override
   String toString() {
-    return '[Instance of ${type.name}]';
+    return '[$type]';
   }
 }

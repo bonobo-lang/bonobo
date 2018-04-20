@@ -353,7 +353,8 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     if (symbol?.value?.span != null) {
       var value = symbol.value;
       return new lsp.Hover((b) {
-        var type = value is BonoboFunction ? value.signature : value.type.name;
+        var type =
+            value is BonoboFunction ? value.type.signature : value.type.name;
         b
           ..contents = '${symbol.name}: $type'
           ..range = convertSpan(value.span);
@@ -494,7 +495,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
 
             b
               ..kind = lsp.CompletionItemKind.function
-              ..detail = f.signature
+              ..detail = f.type.signature
               ..documentation = f.documentation
               ..insertTextFormat = lsp.InsertTextFormat.snippet
               ..textEdit = new lsp.TextEdit((b) {

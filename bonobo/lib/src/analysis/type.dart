@@ -50,7 +50,7 @@ abstract class BonoboType {
       return false;
     else {
       var o = other as BonoboType;
-      return o.parent == parent && o.name == name && o.span == span;
+      return /*o.parent == parent &&*/ o.name == name && o.span == span;
     }
   }
 

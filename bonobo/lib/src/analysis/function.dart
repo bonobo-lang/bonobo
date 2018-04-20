@@ -42,27 +42,6 @@ class BonoboFunction extends BonoboObject {
     if (declaration == null) return '';
     return declaration.comments.map((c) => c.text).join('\n');
   }
-
-  String get signature {
-    var b = new StringBuffer('f (');
-
-    for (int i = 0; i < parameters.length; i++) {
-      var p = parameters[i];
-
-      if (i > 0) b.write(', ');
-      b.write(p.name);
-
-      if (p.type != null) {
-        b.write(': ${p.type.name}');
-      }
-    }
-
-    b.write(')');
-
-    if (returnType != null) b.write(' => ${returnType.name}');
-
-    return b.toString();
-  }
 }
 
 class BonoboFunctionParameter {

@@ -22,4 +22,24 @@ class BonoboFunctionType extends BonoboInheritedType {
     // Compare return type
     return o.returnType == returnType;
   }
+
+  String get signature {
+    var b = new StringBuffer('f (');
+
+    for (int i = 0; i < parameters.length; i++) {
+      var p = parameters[i];
+
+      if (i > 0) b.write(', ');
+      b.write(': $p');
+    }
+
+    b.write(')');
+
+    if (returnType != null) b.write(' => ${returnType.name}');
+
+    return b.toString();
+  }
+
+  @override
+  String toString() => signature;
 }
