@@ -33,6 +33,7 @@ class Scanner {
 
     // Reserved
     'fn': TokenType.fn,
+    'lambda': TokenType.lambda,
     'let': TokenType.let,
     'print': TokenType.print,
     'type': TokenType.type,

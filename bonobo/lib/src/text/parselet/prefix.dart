@@ -14,7 +14,7 @@ final Map<TokenType, PrefixParselet<ExpressionContext>> _prefixParselets = {
   //new SimpleIdentifierContext(token.span, comments),
 
   // Reserved words
-  TokenType.fn: (parser, token, comments, __) =>
+  TokenType.lambda: (parser, token, comments, __) =>
       parser.parseFunction(false, token, comments),
   TokenType.print: (parser, token, comments, bool inVariableDeclaration) {
     var expression = parser.parseExpression(0, inVariableDeclaration);
