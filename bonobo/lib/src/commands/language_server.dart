@@ -491,7 +491,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
             ..kind = lsp.SymbolKind.package
             ..containerName = module.parent?.fullName?.isNotEmpty == true
                 ? module.parent.fullName
-                : null
+                : '<root>'
             ..location = new lsp.Location((b) {
               b
                 ..uri = span.sourceUrl.toString()
@@ -507,7 +507,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
         info.add(new lsp.SymbolInformation((b) {
           b
             ..name = name
-            ..kind = lsp.SymbolKind.struct
+            ..kind = lsp.SymbolKind.interface
             ..containerName = module.fullName
             ..location = new lsp.Location((b) {
               b
