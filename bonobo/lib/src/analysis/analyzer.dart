@@ -114,14 +114,6 @@ class BonoboAnalyzer {
     // Now, analyze them fully.
     for (var ctx in functions) {
       await analyzeFunction(ctx);
-
-      if (ctx.returnType.isAssignableTo(BonoboType.Function$)) {
-        errors.add(new BonoboError(
-            BonoboErrorSeverity.error,
-            'Higher-order functions are not (yet) supported in Bonobo.',
-            ctx.declaration.name.span));
-        ctx.returnType = BonoboType.Root;
-      }
     }
   }
 
