@@ -41,8 +41,20 @@ class BonoboAnalyzer {
       // This will be populated, but this allows for forward references, etc.
       var existing = module.types[typedef.name.name];
 
-      if (existing != null &&
-          existing is! BonoboTypedef) {} else if (existing == null) {
+      if (existing != null) {
+        errors.add(new BonoboError(
+            BonoboErrorSeverity.error,
+            "Typedef '${typedef.name
+                .name}' conflicts with the name of an existing type.",
+            typedef.span));
+
+        if (existing.span != null) {
+          errors.add(new BonoboError(
+              BonoboErrorSeverity.warning,
+              "A typedef declared elsewhere conflicts with this type.",
+              existing.span));
+        }
+      } else if (existing == null) {
         module.types[typedef.name.name] =
             new BonoboTypedef(typedef.name.name, typedef.span);
       }

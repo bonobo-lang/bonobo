@@ -12,6 +12,8 @@ abstract class BonoboType {
 
   String get documentation => null;
 
+  FileSpan get span => null;
+
   static BonoboType findCommonAncestor(BonoboType a, BonoboType b) {
     BonoboType compare = b;
 
