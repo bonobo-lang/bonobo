@@ -78,7 +78,7 @@ class VarDeclParser {
       return null;
     }
 
-    return new VarDeclStContext(what.span, declarations, comments);
+    return new VarDeclStContext(what.span, mut, declarations, comments);
   }
 
   VarDeclContext parseADecl(VarMut mut) {
@@ -91,7 +91,7 @@ class VarDeclParser {
     TypeContext type;
     if (state.peek().type == TokenType.colon) {
       state.consume();
-      type = state.nextType(0);
+      type = state.nextType();
       // TODO error message
       if (type == null) return null;
       lastSpan = type.span;

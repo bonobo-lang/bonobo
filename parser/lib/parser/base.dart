@@ -23,11 +23,6 @@ class ParserState {
     return _infixParselets[peek()?.type]?.precedence ?? 0;
   }
 
-  /// Computes the current Pratt type parser precedence.
-  int getTypePrecedence() {
-    return _typeInfixParselets[peek()?.type]?.precedence ?? 0;
-  }
-
   /// Joins the [tokens] into a single [FileSpan].
   FileSpan spanFrom(Iterable<Token> tokens) {
     return tokens.map((t) => t.span).reduce((a, b) => a.expand(b));

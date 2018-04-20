@@ -64,29 +64,12 @@ class BonoboParseState extends ParserState {
     return funcParser.parse();
   }
 
-  nextClass() {
+  ClassDeclContext nextClass() {
     // TODO comments
     return classParser.parse();
   }
 
-  TypeContext nextType(int precedence) {
-    Token token = peek();
-
-    if (token == null) return null;
-
-    TypeContext left;
-    PrefixParselet<TypeContext> prefix = _typePrefixParselets[token.type];
-    consume();
-    left = prefix(this, token, [], false);
-
-    while (precedence < getTypePrecedence() && left != null) {
-      token = consume();
-      InfixParselet infix = _typeInfixParselets[token.type];
-      left = infix.parse(this, left, token, []);
-    }
-
-    return left;
-  }
+  TypeContext nextType() => typeParser.parse();
 
   StatementContext nextStatement() => statParser.parse();
 
@@ -115,6 +98,9 @@ class BonoboParseState extends ParserState {
 
   StatementParser _statParser;
   StatementParser get statParser => _statParser ?? new StatementParser(this);
+
+  TypeParser _typeParser;
+  TypeParser get typeParser => _typeParser ?? new TypeParser(this);
 
   /// Parses available comments.
   List<Comment> nextComments() {

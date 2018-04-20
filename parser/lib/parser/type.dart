@@ -6,7 +6,21 @@ class TypeParser {
   TypeParser(this.state);
 
   TypeContext parse() {
-    IdentifierContext id = state.nextId();
-    if(id == null) return null;
+    IdentifierContext name = state.nextId();
+    FileSpan lastSpan = name.span;
+    if (name == null) return null;
+
+    var namespaces = <IdentifierContext>[];
+
+    if (name is NamespacedIdentifierContext) {
+      NamespacedIdentifierContext tn = name as NamespacedIdentifierContext;
+      namespaces = tn.namespaces;
+      name = tn.symbol;
+    }
+
+    // TODO parse generics
+
+    return new TypeContext(name.span.expand(lastSpan), [], name,
+        namespaces: namespaces);
   }
 }

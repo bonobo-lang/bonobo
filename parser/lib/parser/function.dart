@@ -47,7 +47,7 @@ class FunctionParser {
     if ((colon = state.nextToken(TokenType.colon)) != null) {
       span = span == null ? colon.span : span.expand(colon.span);
 
-      if ((returnType = state.nextType(0)) == null) {
+      if ((returnType = state.nextType()) == null) {
         state.errors.add(new BonoboError(
             BonoboErrorSeverity.error, "Missing type after ':'.", colon.span));
       } else
@@ -97,7 +97,7 @@ class FunctionParser {
       return new ParameterContext(id, null, span, []);
     }
 
-    TypeContext type = state.nextType(0);
+    TypeContext type = state.nextType();
 
     span = span.expand(colon.span);
 
