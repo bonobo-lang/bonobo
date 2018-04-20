@@ -19,14 +19,22 @@ class BonoboFunction extends BonoboObject {
   final BonoboModule declaringModule;
   ControlFlow body;
   BonoboType returnType;
+  BonoboFunctionType _type;
 
   BonoboFunction(this.name, this.scope, this.declaration, this.declaringModule)
       : super(new _BonoboFunctionType(), declaration.span);
 
+  @override
+  BonoboFunctionType get type {
+    if (_type != null) return _type;
+
+    var parameters = this.parameters.map((p) => p.type).toList();
+    return _type = new BonoboFunctionType(parameters, returnType);
+  }
+
   /// The fully-qualified name of this function.
   String get fullName {
-    if (declaringModule.isRoot)
-      return name;
+    if (declaringModule.isRoot) return name;
     return declaringModule.fullName + '.$name';
   }
 
@@ -54,11 +62,6 @@ class BonoboFunction extends BonoboObject {
     if (returnType != null) b.write(' => ${returnType.name}');
 
     return b.toString();
-  }
-
-  @override
-  String toString() {
-    return signature;
   }
 }
 

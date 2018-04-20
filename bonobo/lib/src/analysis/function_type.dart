@@ -11,14 +11,7 @@ class BonoboFunctionType extends BonoboInheritedType {
   @override
   bool operator ==(other) {
     if (other is! BonoboFunctionType) return false;
-
     var o = other as BonoboFunctionType;
-
-    // Compare name
-    if (o.name != name) return false;
-
-    // Compare span
-    if (o.span != span) return false;
 
     // Compare parameters
     for (int i = 0; i < parameters.length; i++) {
