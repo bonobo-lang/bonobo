@@ -6,30 +6,29 @@ class Parser extends _Parser {
   CompilationUnitContext parseCompilationUnit() {
     FileSpan span;
     var typedefs = <TypedefContext>[];
-    TypedefContext typedef = parseTypedef();
+    var functions = <FunctionContext>[];
 
-    while (typedef != null) {
-      typedefs.add(typedef);
-      span == null ? span = typedef.span : span = span.expand(typedef.span);
-      typedef = parseTypedef();
+    var node = parseTopLevel();
+
+    void addNode() {
+      if (node is FunctionContext)
+        functions.add(node);
+      else if (node is TypedefContext) typedefs.add(node);
+      span == null ? span = node.span : span = span.expand(node.span);
     }
 
-    var functions = <FunctionContext>[];
-    FunctionContext function = parseFunction(true);
-
     while (!done) {
-      if (function != null) {
-        functions.add(function);
-        span == null ? span = function.span : span = span.expand(function.span);
+      if (node != null) {
+        addNode();
       } else
         consume();
 
-      function = parseFunction(true);
+      node = parseTopLevel();
     }
 
-    if (function != null) {
-      functions.add(function);
-      span == null ? span = function.span : span = span.expand(function.span);
+    if (node != null) {
+      addNode();
+      span == null ? span = node.span : span = span.expand(node.span);
     }
 
     var rest = computeRest();
@@ -42,6 +41,10 @@ class Parser extends _Parser {
 
     return new CompilationUnitContext(
         span ?? scanner.emptySpan, typedefs, functions);
+  }
+
+  AstNode parseTopLevel() {
+    return parseFunction(true) ?? parseTypedef();
   }
 
   TypedefContext parseTypedef() {
