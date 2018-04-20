@@ -35,3 +35,11 @@ class ParenthesizedTypeContext extends TypeContext {
       this.innermost, FileSpan span, List<Comment> comments)
       : super(span, comments);
 }
+
+class TypedefContext extends AstNode {
+  final SimpleIdentifierContext name;
+  final TypeContext type;
+
+  TypedefContext(this.name, this.type, FileSpan span, List<Comment> comments)
+      : super(span, comments);
+}
