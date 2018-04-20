@@ -5,6 +5,15 @@ class Parser extends _Parser {
 
   CompilationUnitContext parseCompilationUnit() {
     FileSpan span;
+    var typedefs = <TypedefContext>[];
+    TypedefContext typedef = parseTypedef();
+
+    while (typedef != null) {
+      typedefs.add(typedef);
+      span == null ? span = typedef.span : span = span.expand(typedef.span);
+      typedef = parseTypedef();
+    }
+
     var functions = <FunctionContext>[];
     FunctionContext function = parseFunction(true);
 
@@ -31,7 +40,40 @@ class Parser extends _Parser {
           BonoboErrorSeverity.warning, "Extraneous text.", extraneous));
     }
 
-    return new CompilationUnitContext(span ?? scanner.emptySpan, functions);
+    return new CompilationUnitContext(
+        span ?? scanner.emptySpan, typedefs, functions);
+  }
+
+  TypedefContext parseTypedef() {
+    var comments = <Comment>[];
+
+    var kw = lookAhead<Token>(() {
+      comments.addAll(parseComments());
+      return nextToken(TokenType.type);
+    });
+    var span = kw?.span;
+
+    if (kw == null) return null;
+
+    var id = parseSimpleIdentifier();
+
+    if (id == null) {
+      errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing identifier after keyword 'type' in typedef.", span));
+      return null;
+    }
+
+    span = span.expand(id.span);
+
+    var type = parseType(0, false);
+
+    if (type == null) {
+      errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing type after identifier '${id.span.text}' in typedef.", span));
+      return null;
+    }
+
+    return new TypedefContext(id, type, span.expand(type.span), comments);
   }
 
   FunctionContext parseFunction(bool requireName,

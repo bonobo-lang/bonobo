@@ -34,6 +34,7 @@ class Scanner {
     // Reserved
     'f': TokenType.f,
     'print': TokenType.print,
+    'type': TokenType.type,
     'ret': TokenType.ret,
     'v': TokenType.v,
 

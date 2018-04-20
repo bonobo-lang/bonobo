@@ -32,6 +32,7 @@ enum TokenType {
   // Reserved
   f,
   print,
+  type,
   ret,
   v,
 
