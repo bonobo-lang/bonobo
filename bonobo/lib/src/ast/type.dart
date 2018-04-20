@@ -43,3 +43,12 @@ class TypedefContext extends AstNode {
   TypedefContext(this.name, this.type, FileSpan span, List<Comment> comments)
       : super(span, comments);
 }
+
+class FunctionTypeContext extends TypeContext {
+  final List<TypeContext> parameters;
+  final TypeContext returnType;
+
+  FunctionTypeContext(
+      this.parameters, this.returnType, FileSpan span, List<Comment> comments)
+      : super(span, comments);
+}

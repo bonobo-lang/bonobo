@@ -58,6 +58,47 @@ final Map<TokenType, PrefixParselet<TypeContext>> _typePrefixParselets = {
 
     return new ParenthesizedTypeContext(type, span.expand(rParen), comments);
   },
+  TokenType.fn: (parser, token, comments, inVariableDeclaration) {
+    // Look for parameter list. This might appear as a tuple.
+    var parameters = <TypeContext>[];
+    FileSpan span, lastSpan;
+
+    var type = parser.parseType(0, true).innermost;
+
+    if (type is TupleTypeContext) {
+      for (var parameter in type.items) {
+        parameters.add(parameter);
+        lastSpan = parameter.span;
+        span = span == null ? parameter.span : span.expand(parameter.span);
+      }
+    } else {
+      parameters.add(type);
+      span = lastSpan = type.span;
+    }
+
+    // Check for colon and return type
+    var colon = parser.nextToken(TokenType.colon);
+
+    if (colon == null) {
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing ':' in function type literal.", lastSpan));
+      return null;
+    }
+
+    span = span.expand(lastSpan = colon.span);
+
+    var returnType = parser.parseType(0, false);
+
+    if (returnType == null) {
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          'Missing return type in function type literal.', lastSpan));
+      return null;
+    }
+
+    span = span.expand(lastSpan = returnType.span);
+
+    return new FunctionTypeContext(parameters, returnType, span, comments);
+  },
 };
 
 final Map<TokenType, InfixParselet<TypeContext>> _typeInfixParselets =
@@ -79,15 +120,14 @@ Map<TokenType, InfixParselet<TypeContext>> createTypeInfixParselets() {
       var innermost = right.innermost;
 
       if (right == null) {
-        parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
-            "Missing type after ','", token.span));
+        parser.errors.add(new BonoboError(
+            BonoboErrorSeverity.error, "Missing type after ','", token.span));
         return null;
       }
 
       span = span.expand(right.span);
 
-      if (right is! ParenthesizedTypeContext &&
-          innermost is TupleTypeContext) {
+      if (right is! ParenthesizedTypeContext && innermost is TupleTypeContext) {
         return new TupleTypeContext(
           []
             ..add(left)
