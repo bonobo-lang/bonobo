@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="typedefs" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application" singleton="true">
-    <option name="arguments" value="explore typedefs/main.bnb" />
+    <option name="arguments" value="explore" />
     <option name="filePath" value="$PROJECT_DIR$/bonobo/bin/bonobo.dart" />
-    <option name="workingDirectory" value="$PROJECT_DIR$/example" />
+    <option name="workingDirectory" value="$PROJECT_DIR$/example/typedefs" />
     <method />
   </configuration>
 </component>

@@ -4,17 +4,31 @@ Future<Tuple2<String, Uri>> getInput(Command command) async {
   String contents;
   Uri sourceUrl;
 
+  /*
   if (command.argResults.rest.isEmpty) {
     stderr.writeln('fatal error: no input file');
     exitCode = 1;
     return null;
-  }
+  }*/
 
-  if (command.argResults.rest[0] == '-') {
+  if (command.argResults.rest.isNotEmpty && command.argResults.rest[0] == '-') {
     contents = await stdin.transform(UTF8.decoder).join();
     sourceUrl = Uri.parse('<stdin>');
   } else {
-    var file = new io.File(command.argResults.rest[0]);
+    // Find the first available Bonobo file
+    io.File file;
+
+    await for (var entity in io.Directory.current.list()) {
+      if (entity is io.File && p.extension(entity.path) == '.bnb') {
+        file = entity;
+        break;
+      }
+    }
+
+    if (file == null) {
+      throw "No file in the current directory matches the glob '*.bnb'.";
+    }
+
     contents = await file.readAsString();
     sourceUrl = file.absolute.uri;
   }
