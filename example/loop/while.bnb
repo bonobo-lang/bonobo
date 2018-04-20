@@ -5,6 +5,6 @@ fn g {
   return a < 10
 }
 
-fn pub main {
+fn main {
   while g => print a
 }

@@ -1,7 +1,7 @@
 part of bonobo.src.ast;
 
 class FunctionContext extends ExpressionContext {
-  final bool isPub;
+  final bool isPriv;
 
   final IdentifierContext name;
   final FunctionSignatureContext signature;
@@ -9,13 +9,13 @@ class FunctionContext extends ExpressionContext {
 
   FunctionContext(this.name, this.signature, this.body, FileSpan span,
       List<Comment> comments,
-      {this.isPub: false})
+      {this.isPriv: false})
       : super(span, comments);
 
   String toString() {
     var sb = new StringBuffer();
     sb.write('fn');
-    if(isPub) sb.write(' pub');
+    if(isPriv) sb.write(' hide');
     sb.write(' $name');
     if (signature != null) sb.write(signature);
     sb.write(body);

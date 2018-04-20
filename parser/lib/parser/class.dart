@@ -1,16 +1,16 @@
 part of 'parser.dart';
 
-class ClassDeclParser {
+class TypeDeclParser {
   final BonoboParseState state;
 
-  ClassDeclParser(this.state);
+  TypeDeclParser(this.state);
 
   ClassDeclContext parse() {
     FileSpan startSpan = state.peek().span;
 
-    if (state.nextToken(TokenType.clazz) == null) return null;
+    if (state.nextToken(TokenType.type) == null) return null;
 
-    bool isPub = state.nextToken(TokenType.pub) != null;
+    bool isPriv = state.nextToken(TokenType.hide_) != null;
 
     // TODO final modifier
 
@@ -74,6 +74,6 @@ class ClassDeclParser {
     if (peek == null) return null;
 
     return new ClassDeclContext(startSpan.expand(peek.span), name,
-        fields: fields, methods: methods, isPub: isPub);
+        fields: fields, methods: methods, isPriv: isPriv);
   }
 }

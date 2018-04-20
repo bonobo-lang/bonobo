@@ -1,19 +1,19 @@
-class Point {
-    let pub x: Int;
+type Point {
+    x: Int;
 
-    let pub y: Int;
+    y: Int;
 
-    fn pub Point(x: Int, y: Int) {
+     Point(x: Int, y: Int) {
         this.x = x
         this.y = y
     }
 
-    fn pub add(other: Point) {
+     add(other: Point) {
         x += other.x;
         y += other.y;
     }
 
-    fn pub toString: String {
+     toString: String {
         let str = String()
         str += "("
         str += x.toString
@@ -24,7 +24,7 @@ class Point {
     }
 }
 
-fn pub main {
+fn main {
     let p1 = Point(5, 5)
     let p2 = Point(20, 20)
     p1.add(p2)

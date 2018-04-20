@@ -10,7 +10,7 @@ class FunctionParser {
 
     if (state.nextToken(TokenType.fn) == null) return null;
 
-    bool isPub = state.nextToken(TokenType.pub) != null;
+    bool isPriv = state.nextToken(TokenType.hide_) != null;
 
     // TODO constexpr modifier
 
@@ -36,7 +36,7 @@ class FunctionParser {
 
     return new FunctionContext(
         name, signature, body, startSpan.expand(body.span), comments,
-        isPub: isPub);
+        isPriv: isPriv);
   }
 
   FunctionSignatureContext parseSignature(FileSpan currentSpan) {

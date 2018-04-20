@@ -1,5 +1,0 @@
-class Point (x: Int, y: Int) {
-  fn length: Double => x + y
-}
-
-class Rect(left: Int, top: Int, width: Int, height: Int)

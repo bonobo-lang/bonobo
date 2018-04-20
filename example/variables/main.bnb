@@ -1,4 +1,4 @@
-fn pub main: String {
+fn main: String {
     // Immutable variables can be declared with the ':=' operator.
     let one := 1
 

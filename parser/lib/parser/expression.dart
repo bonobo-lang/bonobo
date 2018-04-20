@@ -60,10 +60,10 @@ class ExpressionParser {
         break;
     }
 
-    if(state.done) return left;
+    if (state.done) return left;
 
     // TODO move to infix?
-    while(state.peek().type == TokenType.lParen) {
+    while (state.peek().type == TokenType.lParen) {
       // TODO repeated calls
     }
 

@@ -21,7 +21,7 @@ final Map<Pattern, TokenType> normalPatterns = {
   'var': TokenType.var_,
   'const': TokenType.const_,
   'fn': TokenType.fn,
-  'class': TokenType.clazz,
+  'type': TokenType.type,
   'mixin': TokenType.mixin,
   'interface': TokenType.interface,
 
@@ -31,7 +31,7 @@ final Map<Pattern, TokenType> normalPatterns = {
   'extern': TokenType.extern,
 
   // Modifiers
-  'pub': TokenType.pub,
+  'hide': TokenType.hide_,
 
   // Unary operators
   '++': TokenType.increment,
@@ -95,7 +95,7 @@ enum TokenType {
   const_,
   fn,
   ret,
-  clazz,
+  type,
   mixin,
   interface,
 
@@ -106,7 +106,7 @@ enum TokenType {
   extern,
 
   // Modifiers
-  pub,
+  hide_,
 
   // Unary operators
   increment,
@@ -161,7 +161,3 @@ class Token {
         .highlight()}';
   }
 }
-
-const List<TokenType> modifierTypes = const [
-  TokenType.pub,
-];

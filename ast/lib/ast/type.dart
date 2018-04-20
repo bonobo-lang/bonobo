@@ -42,7 +42,7 @@ class TypedefContext extends AstNode {
 class ClassDeclContext extends AstNode {
   final SimpleIdentifierContext name;
 
-  final bool isPub;
+  final bool isPriv;
 
   // TODO List<Generic> generics;
 
@@ -55,13 +55,13 @@ class ClassDeclContext extends AstNode {
   final List<FunctionContext> methods;
 
   ClassDeclContext(FileSpan span, this.name,
-      {this.fields: const [], this.methods: const [], this.isPub: false})
+      {this.fields: const [], this.methods: const [], this.isPriv: false})
       : super(span, []);
 
   String toString() {
     var sb = new StringBuffer();
     sb.write('class');
-    if(isPub) sb.write(' pub');
+    if(isPriv) sb.write(' hide');
     sb.write(' ${name.name}');
     // TODO generics
     // TODO interfaces

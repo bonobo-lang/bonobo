@@ -21,8 +21,8 @@ void main() {
 
     group('SingleLine', () {
       test('exp', () {
-        var scanner = new Scanner("fn pub main => 5 + 5",
-            sourceUrl: 'main.bnb');
+        var scanner =
+            new Scanner("fn pub main => 5 + 5", sourceUrl: 'main.bnb');
         scanner.scan();
 
         var parser = new BonoboParseState(scanner);

@@ -37,7 +37,7 @@ class BonoboParseState extends ParserState {
             lastSpan = f.span;
           }
           break;
-        case TokenType.clazz:
+        case TokenType.type:
           ClassDeclContext c = nextClass();
           if (c != null) {
             classes.add(c);
@@ -84,8 +84,8 @@ class BonoboParseState extends ParserState {
 
   ExpressionContext nextExp(int precedence) => expParser.parse(precedence);
 
-  ClassDeclParser _classParser;
-  ClassDeclParser get classParser => _classParser ?? new ClassDeclParser(this);
+  TypeDeclParser _classParser;
+  TypeDeclParser get classParser => _classParser ?? new TypeDeclParser(this);
 
   FunctionParser _funcParser;
   FunctionParser get funcParser => _funcParser ?? new FunctionParser(this);

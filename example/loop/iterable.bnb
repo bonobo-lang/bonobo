@@ -1,4 +1,4 @@
-fn pub main {
+fn main {
   var langs = ['Dart', 'Bonobo', 'Golang']
 
   // Compact one liner

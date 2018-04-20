@@ -7,53 +7,50 @@ class InfixParselet<T> {
   final int precedence;
 
   final T Function(
-      BonoboParseState parser,
-      T left,
-      Token token,
-      List<Comment> comments) parse;
+          BonoboParseState parser, T left, Token token, List<Comment> comments)
+      parse;
 
   const InfixParselet(this.precedence, this.parse);
 }
 
 class BinaryParselet extends InfixParselet<ExpressionContext> {
   BinaryParselet(int precedence)
-      : super(precedence,
-          (parser, left, token, comments) {
-        var span = left.span.expand(token.span), lastSpan = span;
-        var equals = token.type == TokenType.assign
-            ? null
-            : parser.nextToken(TokenType.assign)?.span;
+      : super(precedence, (parser, left, token, comments) {
+          var span = left.span.expand(token.span), lastSpan = span;
+          var equals = token.type == TokenType.assign
+              ? null
+              : parser.nextToken(TokenType.assign)?.span;
 
-        if (equals != null) {
-          span = span.expand(lastSpan = equals);
-        }
+          if (equals != null) {
+            span = span.expand(lastSpan = equals);
+          }
 
-        ExpressionContext right = parser.nextExp(0);
+          ExpressionContext right = parser.nextExp(0);
 
-        if (right == null) {
-          parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
-              "Missing expression after '${lastSpan.text}'.", lastSpan));
-          return null;
-        }
+          if (right == null) {
+            parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
+                "Missing expression after '${lastSpan.text}'.", lastSpan));
+            return null;
+          }
 
-        span = span.expand(right.span);
+          span = span.expand(right.span);
 
-        if (equals != null || token.type == TokenType.assign) {
-          return new AssignmentExpressionContext(
+          if (equals != null || token.type == TokenType.assign) {
+            return new AssignmentExpressionContext(
+              left,
+              token,
+              right,
+              span,
+              []..addAll(comments)..addAll(right.comments),
+            );
+          }
+
+          return new BinaryExpressionContext(
             left,
-            token,
+            BinaryOp.fromTokenType(token.type),
             right,
             span,
             []..addAll(comments)..addAll(right.comments),
           );
-        }
-
-        return new BinaryExpressionContext(
-          left,
-          BinaryOp.fromTokenType(token.type),
-          right,
-          span,
-          []..addAll(comments)..addAll(right.comments),
-        );
-      });
+        });
 }

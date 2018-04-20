@@ -1,7 +1,7 @@
-class Point {
+type Point {
   let x: Int, y: Int
 
   fn length: Double => x + y
 }
 
-fn pub main => 'Hello!'
+fn main => 'Hello!'
