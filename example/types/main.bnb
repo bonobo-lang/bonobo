@@ -1,31 +1,35 @@
 type Point {
-    x: Int;
+    x: Int
 
-    y: Int;
+    y: Int
 
-     Point(x: Int, y: Int) {
-        this.x = x
-        this.y = y
+    fn Point(x: Int, y: Int) {
+        // this.x = x
+        // this.y = y
+        print()
     }
 
-     add(other: Point) {
-        x += other.x;
-        y += other.y;
+    fn add(other: Point) {
+        // x += other.x
+        // y += other.y
+        print()
     }
 
-     toString: String {
-        let str = String()
-        str += "("
-        str += x.toString
-        str += ", "
-        str += y.toString
-        str += ")"
-        ret str
+     fn toString: String {
+        // let str = String()
+        // str += "("
+        // str += x.toString
+        // str += ", "
+        // str += y.toString
+        // str += ")"
+        // ret str
+        print()
     }
 }
 
 fn main {
-    let p1 = Point(5, 5)
-    let p2 = Point(20, 20)
-    p1.add(p2)
+    // let p1 = Point(5, 5)
+    // let p2 = Point(20, 20)
+    // p1.add(p2)
+    print()
 }

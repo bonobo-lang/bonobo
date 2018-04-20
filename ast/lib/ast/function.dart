@@ -54,12 +54,7 @@ class BlockFunctionBodyContext extends FunctionBodyContext {
   @override
   List<StatementContext> get body => block.statements;
 
-  String toString() {
-    var sb = new StringBuffer();
-    throw new UnimplementedError();
-    // TODO
-    return sb.toString();
-  }
+  String toString() => block.toString();
 }
 
 class SameLineFnBodyContext extends FunctionBodyContext {

@@ -10,6 +10,15 @@ class BlockContext extends AstNode {
 
   BlockContext(this.statements, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  String toString() {
+    var sb = new StringBuffer();
+    sb.writeln(' {');
+    sb.write(statements.map((s) => s.toString()).join('\n'));
+    sb.writeln();
+    sb.writeln('}');
+    return sb.toString();
+  }
 }
 
 class ExpressionStatementContext extends StatementContext {

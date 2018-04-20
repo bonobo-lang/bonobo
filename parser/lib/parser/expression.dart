@@ -56,7 +56,7 @@ class ExpressionParser {
         break;
       default:
         // TODO
-        throw new UnimplementedError();
+        return null;
         break;
     }
 
