@@ -18,6 +18,7 @@ import 'package:dart_language_server/dart_language_server.dart' as lsp;
 import 'package:file/file.dart' show Directory, File, FileSystem, ForwardingFileSystem;
 import 'package:file/local.dart';
 import 'package:file/memory.dart';
+import 'package:logging/logging.dart';
 import 'package:path/path.dart' as p;
 import 'package:source_span/source_span.dart';
 import 'package:symbol_table/symbol_table.dart';

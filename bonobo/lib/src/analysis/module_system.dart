@@ -43,9 +43,13 @@ class BonoboModuleSystem {
   BonoboModule get rootModule => _rootModule;
 
   Future analyzeModule(
-      BonoboModule module, Directory directory, BonoboModule parent) async {
-    // TODO: Provide some way to invalidate the module
-    if (module.analyzer != null) return;
+      BonoboModule module, Directory directory, BonoboModule parent,
+      {bool fresh: false}) async {
+    if (fresh) {
+      // Invalidate existing module
+      module._scope = new SymbolTable();
+      module.analyzer?.errors?.clear();
+    }
 
     // Find all .bnb files
     var sourceFiles = await directory
@@ -107,6 +111,8 @@ class BonoboModuleSystem {
     }
 
     if (!p.isWithin(rootDir, dirPath)) {
+      //print('Could not find $dirPath within $rootDir');
+      //print('Check the root? ${rootDirectory}');
       return null;
     }
 

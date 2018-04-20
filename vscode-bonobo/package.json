@@ -23,7 +23,8 @@
                     "bonobo"
                 ],
                 "extensions": [
-                    ".bnb"
+                    ".bnb",
+                    ".bnbi"
                 ],
                 "configuration": "./language-configuration.json"
             }

@@ -2,9 +2,10 @@ part of bonobo.src.commands;
 
 class BonoboFileSystem extends ForwardingFileSystem {
   File bonoboYaml;
+  final Logger logger;
 
   BonoboFileSystem(FileSystem localFileSystem, Uri currentFile,
-      BonoboLanguageServer languageServer)
+      BonoboLanguageServer languageServer, this.logger)
       : super(new MemoryFileSystem()) {
     // First, find a bonobo.yaml file.
 
@@ -64,6 +65,7 @@ class BonoboFileSystem extends ForwardingFileSystem {
     }
 
     //logSink.writeln('CUR: $cDir');
+    logger.config('New Bonobo file system created in ${currentDirectory.path}');
     directory(cDir).createSync(recursive: true);
     currentDirectory = cDir.path;
 
@@ -84,7 +86,7 @@ class BonoboFileSystem extends ForwardingFileSystem {
       }
     }
 
-    copyDirectory(directory(cDir));
+    copyDirectory(localFileSystem.directory(cDir));
     //logSink.close();
   }
 }

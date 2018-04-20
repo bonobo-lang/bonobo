@@ -3,12 +3,36 @@ part of bonobo.src.commands;
 class LanguageServerCommand extends Command {
   final String name = 'language_server';
   final String description = 'Runs a VSCode language server.';
+  final Logger logger = new Logger('bonobo.language_server');
+
+  LanguageServerCommand() {
+    logger.onRecord.listen((rec) {
+      stderr.writeln(rec);
+      if (rec.error != null && rec.error is! UnimplementedError) {
+        stderr..writeln(rec.error)..writeln(rec.stackTrace);
+      }
+    });
+  }
 
   @override
   run() {
-    var server = new BonoboLanguageServer();
-    var stdio = new lsp.StdIOLanguageServer.start(server);
-    return stdio.onDone;
+    var zone = Zone.current.fork(
+        specification: new ZoneSpecification(
+      print: (self, parent, zone, line) {
+        logger.info(line);
+      },
+      handleUncaughtError: (self, parent, zone, error, stackTrace) {
+        if (error is! UnimplementedError)
+          logger.severe('FATAL ERROR', error, stackTrace);
+      },
+    ));
+
+    return zone.run(() {
+      var server = new BonoboLanguageServer(logger);
+      logger.info('Bonobo language server started.');
+      var stdio = new lsp.StdIOLanguageServer.start(server);
+      return stdio.onDone;
+    });
   }
 }
 
@@ -20,7 +44,9 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   final Completer _onDone = new Completer();
   final StreamController<lsp.ApplyWorkspaceEditParams> _workspaceEdits =
       new StreamController();
-  BonoboFileSystem _fileSystem;
+  final Logger logger;
+
+  BonoboLanguageServer(this.logger);
 
   static bool isAlphaNumOrUnderscore(int ch) {
     return ch == $underscore ||
@@ -59,8 +85,22 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   }
 
   BonoboFileSystem findFileSystem(Uri uri) {
-    return _fileSystem ??=
-        new BonoboFileSystem(const LocalFileSystem(), uri, this);
+    // If a URI exists outside of all existing filesystems,
+    // then it is likely from a different module.
+    var fileSystems = _moduleSystems.keys;
+    logger.fine('Searching for file system for $uri');
+
+    for (var fileSystem in fileSystems) {
+      logger.fine('Searching root: ${fileSystem.currentDirectory.path}');
+
+      if (fileSystem.path.isWithin(
+          fileSystem.currentDirectory.path, fileSystem.path.fromUri(uri))) {
+        logger.fine('Found in: ${fileSystem.currentDirectory.path}');
+        return fileSystem;
+      }
+    }
+
+    return new BonoboFileSystem(const LocalFileSystem(), uri, this, logger);
   }
 
   Uri convertDocumentId(lsp.TextDocumentIdentifier documentId) {
@@ -113,21 +153,26 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   }
 
   Future<Tuple2<Parser, CompilationUnitContext>> parse(
-      lsp.TextDocumentIdentifier documentId) async {
+      lsp.TextDocumentIdentifier documentId) {
     var uri = convertDocumentId(documentId);
-    var file = findFileSystem(uri).file(uri);
+    var fs = findFileSystem(uri);
+    var file = fs.file(uri);
 
-    if (!await file.exists()) {
-      var c = new Completer<File>();
+    if (!file.existsSync()) {
+      // Create a fake, empty file, and parse it.
+      file.createSync(recursive: true);
+      file.writeAsStringSync('');
+
+      //throw new UnimplementedError('File does not exist (yet): ${file.uri}');
+
+      /*var c = new Completer<File>();
       _queue.putIfAbsent(file.uri, () => []).add(c);
-      file = await c.future.timeout(queueTime).catchError((_) {
-        // TODO: Should this have a timeout? Save resources...
-        throw 'Analysis was requested for file "${file
-            .uri}", but a textDocument/didOpen event was never sent.';
-      });
+      return c.future.then(parseFile);.timeout(queueTime).catchError((_) {
+        throw 'Analysis was requested for file "${file.uri}", but a textDocument/didOpen event was never sent.';
+      });*/
     }
 
-    return await parseFile(file);
+    return parseFile(file);
   }
 
   Future<Tuple2<Parser, CompilationUnitContext>> parseFile(File file,
@@ -149,6 +194,8 @@ class BonoboLanguageServer extends lsp.LanguageServer {
         ..uri = sourceUrl.toString()
         ..diagnostics = [];
     }));
+
+    logger.fine('Re-parsing contents from $sourceUrl');
 
     // Load the file...
     var scanner = new Scanner(contents, sourceUrl: sourceUrl)..scan();
@@ -203,12 +250,15 @@ class BonoboLanguageServer extends lsp.LanguageServer {
         await BonoboModuleSystem.create(fileSystem.file(sourceUrl).parent);
 
     // Find the existing analyzer
+    logger.fine('Finding module for file: $sourceUrl');
     var module = await moduleSystem.findModuleForFile(
         sourceUrl, moduleSystem.rootModule);
-    //module.compilationUnits.remove(sourceUrl);
+    module.compilationUnits.remove(sourceUrl);
     await moduleSystem.analyzeModule(
-        module, module.directory, moduleSystem.rootModule);
+        module, module.directory, moduleSystem.rootModule,
+        fresh: true);
     var analyzer = module.analyzer;
+    logger.fine('Analysis of $sourceUrl produced module "${module.name}"');
 
     /*
     var analyzer = new BonoboAnalyzer(
@@ -382,27 +432,51 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     var info = <lsp.SymbolInformation>[];
     var analyzer = await analyze(documentId);
 
-    for (var symbol in analyzer.module.scope.root.allVariables) {
-      if (symbol.value?.span == null) continue;
-      var value = symbol.value;
+    void listAll(
+        List<lsp.SymbolInformation> info, SymbolTable<BonoboObject> scope) {
+      for (var symbol in scope.allVariables) {
+        if (symbol.value?.span == null) continue;
+        var value = symbol.value;
+
+        info.add(new lsp.SymbolInformation((b) {
+          b
+            ..name = symbol.name
+            ..location = new lsp.Location((b) {
+              b
+                ..uri = symbol.value.span.sourceUrl.toString()
+                ..range = convertSpan(symbol.value.span);
+            })
+            ..kind = lsp.SymbolKind.variable;
+
+          if (value is BonoboFunction) {
+            b
+              ..name = '${value.name}(${value.parameters.map((p) => p.name)
+                  .join(
+                  ', ')})'
+              ..kind = lsp.SymbolKind.function;
+          }
+        }));
+      }
+    }
+
+    void listModule(BonoboModule module, List info) {
+      var subInfo = [];
+      listAll(subInfo, module.scope.root);
+      for (var child in analyzer.module.children) listModule(child, info);
 
       info.add(new lsp.SymbolInformation((b) {
+        // TODO: How to add children?
         b
-          ..name = symbol.name
-          ..location = new lsp.Location((b) {
-            b
-              ..uri = symbol.value.span.sourceUrl.toString()
-              ..range = convertSpan(symbol.value.span);
-          })
-          ..kind = lsp.SymbolKind.variable;
-
-        if (value is BonoboFunction) {
-          b
-            ..name = '${value.name}(${value.parameters.map((p) => p.name).join(
-                ', ')})'
-            ..kind = lsp.SymbolKind.function;
-        }
+          ..name = module.name
+          ..kind = lsp.SymbolKind.namespace;
       }));
+    }
+
+    listAll(info, analyzer.module.scope.root);
+
+    // Also, add all child modules
+    for (var child in analyzer.module.children) {
+      listModule(child, info);
     }
 
     return info;
@@ -553,9 +627,10 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     var file = findFileSystem(sourceUrl).file(sourceUrl);
 
     if (textOnly) {
-      parseText(changes.last.text, sourceUrl, analyze: true);
-      file.create(recursive: true).then((_) {
-        file.writeAsString(changes.last.text);
+      file.create(recursive: true).then((_) async {
+        await file.writeAsString(changes.last.text);
+        //_queue[file.uri]?.forEach((c) => c.complete(file));
+        parseText(changes.last.text, sourceUrl, analyze: true);
       });
       return;
     }
@@ -584,6 +659,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
         }
 
         await file.writeAsString(contents);
+        //_queue[file.uri]?.forEach((c) => c.complete(file));
       }
 
       parseFile(file, true);

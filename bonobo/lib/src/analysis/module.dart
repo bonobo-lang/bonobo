@@ -10,7 +10,7 @@ class BonoboModule {
   final bool isCore;
   final BonoboModuleSystem moduleSystem;
   final BonoboModule parent;
-  final SymbolTable<BonoboObject> scope = new SymbolTable();
+  SymbolTable<BonoboObject> _scope = new SymbolTable();
   BonoboAnalyzer analyzer;
   FileSpan emptySpan;
   String _fullName, _name;
@@ -28,6 +28,8 @@ class BonoboModule {
       return new BonoboModule.__(directory, parent, system);
     });
   }
+
+  SymbolTable<BonoboObject> get scope => _scope;
 
   BonoboModule._core(this.directory, this.moduleSystem)
       : isCore = true,

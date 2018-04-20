@@ -15,6 +15,9 @@
       "include": "#keywords"
     },
     {
+      "include": "#storage"
+    },
+    {
       "include": "#strings"
     }
   ],
@@ -37,6 +40,14 @@
     },
     "entities": {
       "patterns": [
+        {
+          "match": "([A-Za-z_][A-Za-z0-9_]*)::",
+          "captures": {
+            "1": {
+              "name": "entity.name.class.bonobo"
+            }
+          }
+        },
         {
           "name": "entity.name.class.bonobo",
           "match": "\\b([A-Z][A-Za-z0-9_]*)\\b"
@@ -74,7 +85,15 @@
       "patterns": [
         {
           "name": "keyword.control.bonobo",
-          "match": "\\b(f|if|for|print|ret|v|while)\\b"
+          "match": "\\b(lambda|hide|if|fn|for|print|ret|type|while)\\b"
+        }
+      ]
+    },
+    "storage": {
+      "patterns": [
+        {
+          "name": "storage.variable.bonobo",
+          "match": "\\b(const|final|var)\\b"
         }
       ]
     },

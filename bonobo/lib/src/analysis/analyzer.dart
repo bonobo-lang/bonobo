@@ -28,6 +28,7 @@ class BonoboAnalyzer {
     }
 
     module.compilationUnits[sourceUrl] = compilationUnit;
+
     errors.addAll(parser.errors);
 
     // Get the names of all types that are not typedefs.
