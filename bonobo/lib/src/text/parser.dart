@@ -51,7 +51,7 @@ class Parser extends _Parser {
       comments.addAll(parseComments());
       return nextToken(TokenType.type);
     });
-    var span = kw?.span;
+    var span = kw?.span, lastSpan = span;
 
     if (kw == null) return null;
 
@@ -59,17 +59,29 @@ class Parser extends _Parser {
 
     if (id == null) {
       errors.add(new BonoboError(BonoboErrorSeverity.error,
-          "Missing identifier after keyword 'type' in typedef.", span));
+          "Missing identifier after keyword 'type' in typedef.", lastSpan));
       return null;
     }
 
-    span = span.expand(id.span);
+    span = span.expand(lastSpan = id.span);
+
+    var equals = nextToken(TokenType.colon_equals);
+
+    if (equals == null) {
+      errors.add(new BonoboError(
+          BonoboErrorSeverity.error,
+          "Missing ':=' after identifier '${id.span.text}' in typedef.",
+          lastSpan));
+      return null;
+    }
+
+    span = span.expand(lastSpan = span);
 
     var type = parseType(0, false);
 
     if (type == null) {
       errors.add(new BonoboError(BonoboErrorSeverity.error,
-          "Missing type after identifier '${id.span.text}' in typedef.", span));
+          "Missing type ':=' in typedef.", lastSpan));
       return null;
     }
 

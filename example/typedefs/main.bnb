@@ -1,1 +1,2 @@
-type TupleOfTwoBytes = (Byte, Byte)
+type TupleOfTwoBytes := (Byte, Byte)
+
