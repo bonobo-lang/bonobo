@@ -65,7 +65,7 @@ class VarDeclParser {
         return null;
       }
     } else {
-      expression = state.nextExp(0);
+      expression = state.nextExp();
 
       if (expression == null) {
         state.errors.add(new BonoboError(

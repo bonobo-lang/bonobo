@@ -13,7 +13,8 @@ final Map<Pattern, TokenType> normalPatterns = {
   '}': TokenType.rCurly,
   '(': TokenType.lParen,
   ')': TokenType.rParen,
-  // new RegExp(r'\(\s*\)'): TokenType.parentheses,
+  '[': TokenType.lSq,
+  ']': TokenType.rSq,
 
   // Reserved
   'ret': TokenType.ret,
@@ -66,6 +67,16 @@ final Map<Pattern, TokenType> normalPatterns = {
 
   // Assignments
   '=': TokenType.assign,
+  '+=': TokenType.assignAdd,
+  '-=': TokenType.assignSub,
+  '*=': TokenType.assignTimes,
+  '/=': TokenType.assignDiv,
+  '%=': TokenType.assignMod,
+  '&=': TokenType.assignAnd,
+  '|=': TokenType.assignOr,
+  '^=': TokenType.assignXor,
+  '<<=': TokenType.assignShl,
+  '>>=': TokenType.assignShr,
 
   // Data
   new RegExp(r'[0-9]+((\.[0-9]+)|b)?'): TokenType.number,
@@ -87,7 +98,8 @@ enum TokenType {
   rCurly,
   lParen,
   rParen,
-  // parentheses,
+  lSq,
+  rSq,
 
   // Reserved
   let,
@@ -141,6 +153,16 @@ enum TokenType {
 
   // Assignment
   assign,
+  assignAdd,
+  assignSub,
+  assignTimes,
+  assignDiv,
+  assignMod,
+  assignAnd,
+  assignOr,
+  assignXor,
+  assignShl,
+  assignShr,
 
   // Data
   number,
@@ -161,3 +183,43 @@ class Token {
         .highlight()}';
   }
 }
+
+bool isAssignToken(TokenType t) =>
+    {
+      TokenType.assign: true,
+      TokenType.assignAdd: true,
+      TokenType.assignSub: true,
+      TokenType.assignTimes: true,
+      TokenType.assignDiv: true,
+      TokenType.assignMod: true,
+      TokenType.assignAnd: true,
+      TokenType.assignOr: true,
+      TokenType.assignXor: true,
+      TokenType.assignShl: true,
+      TokenType.assignShr: true,
+    }[t] !=
+    null;
+
+bool isBinaryOpToken(TokenType t) =>
+    {
+      TokenType.mod: true,
+      TokenType.pow: true,
+      TokenType.times: true,
+      TokenType.div: true,
+      TokenType.plus: true,
+      TokenType.minus: true,
+      TokenType.xor: true,
+      TokenType.and: true,
+      TokenType.or: true,
+      TokenType.l_and: true,
+      TokenType.l_or: true,
+      TokenType.equals: true,
+      TokenType.notEquals: true,
+      TokenType.lt: true,
+      TokenType.lte: true,
+      TokenType.gt: true,
+      TokenType.gte: true,
+      TokenType.shl: true,
+      TokenType.shr: true,
+    }[t] !=
+    null;

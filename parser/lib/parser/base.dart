@@ -18,11 +18,6 @@ class ParserState {
     return scanner.tokens.skip(_index).toList();
   }
 
-  /// Computes the current Pratt expression parser precedence.
-  int getPrecedence() {
-    return _infixParselets[peek()?.type]?.precedence ?? 0;
-  }
-
   /// Joins the [tokens] into a single [FileSpan].
   FileSpan spanFrom(Iterable<Token> tokens) {
     return tokens.map((t) => t.span).reduce((a, b) => a.expand(b));

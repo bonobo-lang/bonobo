@@ -58,28 +58,28 @@ class BlockFunctionBodyContext extends FunctionBodyContext {
 }
 
 class SameLineFnBodyContext extends FunctionBodyContext {
-  final ExpressionContext expression;
+  final List<ExpressionContext> expressions;
 
-  SameLineFnBodyContext(this.expression, FileSpan span, List<Comment> comments)
+  SameLineFnBodyContext(FileSpan span, List<Comment> comments, this.expressions)
       : super(span, comments);
 
   @override
   List<StatementContext> get body =>
-      [new ReturnStatementContext(expression, span, comments)];
+      [new ReturnStatementContext(span, comments, expressions)];
 
   String toString() {
-    return ' => $expression';
+    return ' => ' + expressions.join(', ');
   }
 }
 
 class ParameterListContext extends AstNode {
   final List<ParameterContext> parameters;
 
-  ParameterListContext(this.parameters, FileSpan span, List<Comment> comments)
+  ParameterListContext(FileSpan span, List<Comment> comments, this.parameters)
       : super(span, comments);
 
   String toString() =>
-      '(' + parameters.map((p) => p.toString()).join(', ') + ')';
+      '(' + parameters.join(', ') + ')';
 }
 
 class ParameterContext extends AstNode {

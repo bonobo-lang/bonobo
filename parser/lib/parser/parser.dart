@@ -4,7 +4,6 @@ import 'package:scanner/scanner.dart';
 import 'package:ast/ast.dart';
 
 part 'base.dart';
-part 'infix.dart';
 part 'function.dart';
 part 'expression.dart';
 part 'identifier.dart';
@@ -12,7 +11,6 @@ part 'type_decl.dart';
 part 'type.dart';
 part 'statement/statement.dart';
 part 'statement/var_decl.dart';
-part 'parselet.dart';
 
 UnitContext parseUnit(Scanner scanner) => new BonoboParseState(scanner).parse();
 
@@ -83,7 +81,7 @@ class BonoboParseState extends ParserState {
 
   IdentifierContext nextId() => idParser.parse();
 
-  ExpressionContext nextExp(int precedence) => expParser.parse(precedence);
+  ExpressionContext nextExp() => expParser.parse();
 
   TypeDeclParser _classParser;
   TypeDeclParser get classParser => _classParser ?? new TypeDeclParser(this);

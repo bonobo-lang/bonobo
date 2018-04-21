@@ -11,11 +11,11 @@ class TypeContext extends AstNode {
   
   String toString() {
     var sb = new StringBuffer();
-    sb.write(namespaces.map((n) => n.toString()).join('::'));
+    sb.write(namespaces.join('::'));
     sb.write(symbol);
     if(generics.length != 0) {
       sb.write('<');
-      sb.write(generics.map((g) => g.toString()).join(', '));
+      sb.write(generics.join(', '));
       sb.write('>');
     }
     return sb.toString();
