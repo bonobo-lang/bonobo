@@ -91,15 +91,7 @@ class ExpressionParser {
             new PrefixOpCtx(token.span, [], PrefixOp.fromToken(token.type)),
             exp);
       case TokenType.lParen:
-        state.consume();
-        ExpressionContext exp = parse();
-        // TODO Sub-expression
-        // TODO Tuple initialization expression
-        throw new UnimplementedError('Sub-expressions');
-        Token rParen = state.nextToken(TokenType.rParen);
-        if (rParen == null) return null;
-        // TODO
-        break;
+        return _parseParenExp();
       case TokenType.lSq:
         // TODO List initialization expression
         break;
@@ -119,6 +111,31 @@ class ExpressionParser {
     }
 
     return null;
+  }
+
+  ExpressionContext _parseParenExp() {
+    state.consume();
+    ExpressionContext exp = parse();
+    if(exp == null) return null;
+
+    Token decider = state.peek();
+    if(decider == null) return null;
+
+    // TODO Sub-expression
+    if(decider.type == TokenType.comma) {
+      // TODO Tuple initialization expression
+      throw new UnimplementedError('Tuples');
+    }
+
+    if(decider.type == TokenType.colon) {
+      // TODO range
+      throw new UnimplementedError('Range');
+    }
+
+    Token rParen = state.nextToken(TokenType.rParen);
+    if (rParen == null) return null;
+
+    return exp;
   }
 
   CallIdChainExpPartCtx parseCallParams() {
