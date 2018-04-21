@@ -379,4 +379,30 @@ class CallIdChainExpPartCtx extends AstNode implements IdChainExpPartCtx {
       : super(span, comments);
 
   String toString() => '(' + args.join(', ') + ')';
+<<<<<<< HEAD
 }
+=======
+}
+
+class MemberIdChainExpPartCtx extends AstNode implements IdChainExpPartCtx {
+  final SimpleIdentifierContext member;
+
+  MemberIdChainExpPartCtx(FileSpan span, List<Comment> comments, this.member)
+      : super(span, comments);
+
+  String get name => member.name;
+
+  String toString() => '.$name';
+}
+
+class SubscriptIdChainExpPartCtx extends AstNode implements IdChainExpPartCtx {
+  final List<ExpressionContext> indices;
+
+  SubscriptIdChainExpPartCtx(FileSpan span, List<Comment> comments, this.indices)
+      : super(span, comments);
+
+  String toString() => '(' + indices.join(':') + ')';
+}
+
+
+>>>>>>> 9b308b1da26ea97d8a4b7727109f0cf2b85f2840

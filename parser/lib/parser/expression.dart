@@ -6,7 +6,7 @@ class ExpressionParser {
   ExpressionParser(this.state);
 
   ExpressionContext parse() {
-    ExpressionContext first = parseSingleExpression();
+    ExpressionContext first = _parseSingleExpression();
     if (first == null) return null;
 
     return _parsePartsWithPrecedence(null, first);
@@ -92,21 +92,11 @@ class ExpressionParser {
             new PrefixOperatorContext(token.span, [], PrefixOperator.fromToken(token.type)),
             exp);
       case TokenType.lParen:
-        state.consume();
-        ExpressionContext exp = parse();
-        // TODO Sub-expression
-        // TODO Tuple initialization expression
-        throw new UnimplementedError('Sub-expressions');
-        Token rParen = state.nextToken(TokenType.rParen);
-        if (rParen == null) return null;
-        // TODO
-        break;
+        return _parseParenExp();
       case TokenType.lSq:
-        // TODO List initialization expression
-        break;
+        return _parseList();
       case TokenType.lCurly:
-        // TODO Map initialization expression
-        break;
+        return _parseMap();
       case TokenType.number:
         state.consume();
         return new NumberLiteralContext(token.span, []);
@@ -118,11 +108,107 @@ class ExpressionParser {
       default:
         return null;
     }
-
-    return null;
   }
 
-  CallIdChainExpPartCtx parseCallParams() {
+  ExpressionContext _parseParenExp() {
+    Token lParen = state.consume();
+    ExpressionContext exp = parse();
+    if (exp == null) return null;
+
+    {
+      Token decider = state.peek();
+      if (decider == null) return null;
+
+      // Tuple
+      if (decider.type == TokenType.comma) {
+        return _parseTuple(lParen, exp);
+      }
+
+      // Range
+      if (decider.type == TokenType.colon) {
+        return _parseRange(lParen, exp);
+      }
+    }
+
+    Token rParen = state.nextToken(TokenType.rParen);
+    if (rParen == null) return null;
+
+    return exp; // TODO span the parenthesis
+  }
+
+  TupleInitCtx _parseTuple(Token startTok, ExpressionContext first) {
+    state.consume();
+
+    final exps = <ExpressionContext>[first];
+
+    for (ExpressionContext exp = parse(); exp != null; exp = parse()) {
+      exps.add(exp);
+      if (state.nextToken(TokenType.comma) == null) break;
+    }
+
+    Token rParen = state.nextToken(TokenType.rParen);
+    if (rParen == null) return null;
+
+    return new TupleInitCtx(startTok.span.expand(rParen.span), [], exps);
+  }
+
+  ListInitCtx _parseList() {
+    Token lSq = state.nextToken(TokenType.lSq);
+
+    final exps = <ExpressionContext>[];
+
+    for (ExpressionContext exp = parse(); exp != null; exp = parse()) {
+      exps.add(exp);
+      if (state.nextToken(TokenType.comma) == null) break;
+    }
+
+    Token rParen = state.nextToken(TokenType.rParen);
+    if (rParen == null) return null;
+
+    return new ListInitCtx(lSq.span.expand(rParen.span), [], exps);
+  }
+
+  MapInitCtx _parseMap() {
+    Token lCurly = state.nextToken(TokenType.lCurly);
+
+    final keys = <ExpressionContext>[];
+    final values = <ExpressionContext>[];
+
+    for (ExpressionContext exp = parse(); exp != null; exp = parse()) {
+      keys.add(exp);
+      if (state.nextToken(TokenType.colon) == null) return null;
+      exp = parse();
+      if (exp == null) return null;
+      values.add(exp);
+      if (state.nextToken(TokenType.comma) == null) break;
+    }
+
+    Token rCurly = state.nextToken(TokenType.rCurly);
+    if (rCurly == null) return null;
+
+    return new MapInitCtx(lCurly.span.expand(rCurly.span), [], keys, values);
+  }
+
+  RangeCtx _parseRange(Token startTok, ExpressionContext startRange) {
+    state.consume();
+
+    ExpressionContext endRange = parse();
+    if (endRange == null) return null;
+
+    ExpressionContext step;
+    if (state.peek()?.type == TokenType.colon) {
+      step = parse();
+      if (step == null) return null;
+    }
+
+    Token rParen = state.nextToken(TokenType.rParen);
+    if (rParen == null) return null;
+
+    return new RangeCtx(
+        startTok.span.expand(rParen.span), [], startRange, endRange, step);
+  }
+
+  CallIdChainExpPartCtx _parseCallParams() {
     final args = <ExpressionContext>[];
 
     Token lParen = state.nextToken(TokenType.lParen);
@@ -143,6 +229,28 @@ class ExpressionParser {
     return new CallIdChainExpPartCtx(lParen.span.expand(rParen.span), [], args);
   }
 
+  SubscriptIdChainExpPartCtx _parseSubscript() {
+    final args = <ExpressionContext>[];
+
+    Token lParen = state.nextToken(TokenType.lSq);
+
+    for (ExpressionContext exp = parse(); exp != null; exp = parse()) {
+      args.add(exp);
+      if (state.nextToken(TokenType.comma) == null) break;
+    }
+
+    Token rParen = state.nextToken(TokenType.rSq);
+
+    if (rParen == null) {
+      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing ']' after expression.", lParen.span));
+      return null;
+    }
+
+    return new SubscriptIdChainExpPartCtx(
+        lParen.span.expand(rParen.span), [], args);
+  }
+
   ExpressionContext parseChainExp() {
     IdentifierContext id = state.parseIdentifier();
 
@@ -153,16 +261,18 @@ class ExpressionParser {
       IdChainExpPartCtx now;
       switch (peek.type) {
         case TokenType.dot:
-          // TODO: Support this logic for MemberExpression
-          throw new UnimplementedError('Member expressions');
+          state.consume();
+          SimpleIdentifierContext id = state.nextSimpleId();
+          if (id == null) return null;
+          now = new MemberIdChainExpPartCtx(peek.span.expand(id.span), [], id);
           break;
         case TokenType.lParen:
-          now = parseCallParams();
+          now = _parseCallParams();
           if (now == null) return null;
           break;
         case TokenType.lSq:
-          // TODO: Support this logic for subscript
-          throw new UnimplementedError('Subscript');
+          now = _parseSubscript();
+          if (now == null) return null;
           break;
         // TODO cascade operator?
         default:
