@@ -80,14 +80,16 @@ class ExpressionParser {
 
     switch (token.type) {
       case TokenType.minus:
-        // TODO minus operator
-        break;
       case TokenType.tilde:
-        // TODO binary not operator
-        break;
       case TokenType.not:
-        // TODO logical not operator
-        break;
+        state.consume();
+        ExpressionContext exp = parseSingleExpression();
+        if (exp == null) return null;
+        return new PrefixExpCtx(
+            token.span.expand(exp.span),
+            [],
+            new PrefixOpCtx(token.span, [], PrefixOp.fromToken(token.type)),
+            exp);
       case TokenType.lParen:
         state.consume();
         ExpressionContext exp = parse();

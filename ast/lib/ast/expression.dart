@@ -213,6 +213,47 @@ class ExpChainCtx extends ExpressionContext {
   String toString() => '($left $rightPart)';
 }
 
+class PrefixOp {
+  final int value;
+
+  final String rep;
+
+  const PrefixOp(this.value, this.rep);
+
+  static const PrefixOp minus = const PrefixOp(0, '-');
+
+  static const PrefixOp complement = const PrefixOp(1, '~');
+
+  static const PrefixOp not = const PrefixOp(2, '!');
+
+  static Map<TokenType, PrefixOp> _map = const {
+    TokenType.minus: minus,
+    TokenType.tilde: complement,
+    TokenType.not: not,
+  };
+
+  static PrefixOp fromToken(TokenType tok) => _map[tok];
+}
+
+class PrefixOpCtx extends AstNode {
+  final PrefixOp op;
+
+  PrefixOpCtx(FileSpan span, List<Comment> comments, this.op)
+      : super(span, comments);
+
+  String toString() => op.rep;
+}
+
+class PrefixExpCtx extends ExpressionContext {
+  final PrefixOpCtx op;
+  final ExpressionContext exp;
+
+  PrefixExpCtx(FileSpan span, List<Comment> comments, this.op, this.exp)
+      : super(span, comments);
+
+  String toString() => '$op$exp';
+}
+
 class IdChainExpCtx extends ExpressionContext {
   final IdentifierContext target;
   final List<IdChainExpPartCtx> parts;
@@ -220,8 +261,7 @@ class IdChainExpCtx extends ExpressionContext {
   IdChainExpCtx(FileSpan span, List<Comment> comments, this.target, this.parts)
       : super(span, comments);
 
-  String toString() =>
-      target.toString() + parts.join();
+  String toString() => target.toString() + parts.join();
 }
 
 abstract class IdChainExpPartCtx implements AstNode {}
@@ -232,5 +272,5 @@ class CallIdChainExpPartCtx extends AstNode implements IdChainExpPartCtx {
   CallIdChainExpPartCtx(FileSpan span, List<Comment> comments, this.args)
       : super(span, comments);
 
-  String toString() => '(' + args.join(', ') +')';
+  String toString() => '(' + args.join(', ') + ')';
 }
