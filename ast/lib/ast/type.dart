@@ -8,12 +8,12 @@ class TypeContext extends AstNode {
   TypeContext(FileSpan span, List<Comment> comments, this.symbol,
       {this.namespaces: const [], this.generics: const []})
       : super(span, comments);
-  
+
   String toString() {
     var sb = new StringBuffer();
     sb.write(namespaces.join('::'));
     sb.write(symbol);
-    if(generics.length != 0) {
+    if (generics.length != 0) {
       sb.write('<');
       sb.write(generics.join(', '));
       sb.write('>');
@@ -22,20 +22,35 @@ class TypeContext extends AstNode {
   }
 }
 
-/*
-class TupleTypeContext extends TypeContext {
-  final List<TypeContext> items;
+class TupleInitCtx extends ExpressionContext {
+  final List<ExpressionContext> items;
 
-  TupleTypeContext(this.items, FileSpan span, List<Comment> comments)
+  TupleInitCtx(FileSpan span, List<Comment> comments, this.items)
       : super(span, comments);
 }
-*/
 
-class TypedefContext extends AstNode {
-  final SimpleIdentifierContext name;
-  final TypeContext type;
+class ListInitCtx extends ExpressionContext {
+  final List<ExpressionContext> items;
 
-  TypedefContext(this.name, this.type, FileSpan span, List<Comment> comments)
+  ListInitCtx(FileSpan span, List<Comment> comments, this.items)
+      : super(span, comments);
+}
+
+class MapInitCtx extends ExpressionContext {
+  final List<ExpressionContext> keys;
+  final List<ExpressionContext> values;
+
+  MapInitCtx(FileSpan span, List<Comment> comments, this.keys, this.values)
+      : super(span, comments);
+}
+
+class RangeCtx extends ExpressionContext {
+  final ExpressionContext start;
+  final ExpressionContext end;
+  final ExpressionContext step;
+
+  RangeCtx(
+      FileSpan span, List<Comment> comments, this.start, this.end, this.step)
       : super(span, comments);
 }
 
@@ -61,19 +76,19 @@ class ClassDeclContext extends AstNode {
   String toString() {
     var sb = new StringBuffer();
     sb.write('class');
-    if(isPriv) sb.write(' hide');
+    if (isPriv) sb.write(' hide');
     sb.write(' ${name.name}');
     // TODO generics
     // TODO interfaces
     // TODO mixins
     sb.writeln(' {');
 
-    for(VarDeclStContext st in fields) {
+    for (VarDeclStContext st in fields) {
       sb.writeln(st);
       sb.writeln();
     }
 
-    for(FunctionContext fn in methods) {
+    for (FunctionContext fn in methods) {
       sb.writeln(fn);
       sb.writeln();
     }
