@@ -1,0 +1,10 @@
+func print(data: String, data1: String) {
+    // Empty function
+}
+
+pub func main {
+  print('Hello, world!', 'Wasup?')
+  var a = 10
+  var b = 40
+  b += a
+}

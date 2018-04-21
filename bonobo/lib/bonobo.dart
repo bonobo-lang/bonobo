@@ -1,3 +1,3 @@
-export 'src/ast/ast.dart';
-export 'src/commands/commands.dart';
-export 'src/text/text.dart';
+export 'commands/commands.dart';
+export 'compiler/compiler.dart';
+export 'analysis/analysis.dart';

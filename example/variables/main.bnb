@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 fn main: String {
     // Immutable variables can be declared with the ':=' operator.
     let one := 1
@@ -20,3 +21,27 @@ fn main: String {
     // Bonobo is smart enough to know that `three` is a `String`.
     ret three
 }
+=======
+fn main: String {
+    // Immutable variables can be declared with the ':=' operator.
+    let one := 1
+
+    // Mutable variables just the '=' operator.
+    let two = 2, three = print '3'
+
+    // You can't overwrite an immutable variable.
+    //
+    // For example, the following would be an error (uncomment it!)
+    //
+    // one = 1.0
+
+    // ... But you CAN overwrite mutable variables.
+    // two = three += 4.0
+
+    // The type of variables is automatically inferred, so you don't
+    // have to manually declare them.
+    //
+    // Bonobo is smart enough to know that `three` is a `String`.
+    ret three
+}
+>>>>>>> 7ae4b23a50a45f8590a820e076523d7447a2e1d3

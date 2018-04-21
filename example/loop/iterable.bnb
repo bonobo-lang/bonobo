@@ -1,0 +1,10 @@
+fn main {
+  var langs = ['Dart', 'Bonobo', 'Golang']
+
+  // Compact one liner
+  for lang in langs => print lang + ' is an awesome language!'
+
+  // Compact one liner
+  for lang, i in langs  => print i.toString + '. ' + lang +
+    ' is an awesome language!'
+}

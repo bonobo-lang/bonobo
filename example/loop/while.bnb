@@ -1,0 +1,10 @@
+var a = 0
+
+fn g {
+  a++
+  return a < 10
+}
+
+fn main {
+  while g => print a
+}

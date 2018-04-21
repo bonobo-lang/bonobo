@@ -1,0 +1,5 @@
+fn main {
+  if let a = some.thing; let b = some.other; a > 10 && b > 10 {
+    // TODO
+  }
+}

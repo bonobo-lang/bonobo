@@ -1,0 +1,7 @@
+type Point {
+  x: Int, y: Int
+
+  fn length: Double => x + y
+}
+
+fn main => 'Hello!'
