@@ -8,6 +8,8 @@ environment:
   sdk: '>=1.20.1 <2.0.0'
 
 dependencies:
+  bonobo:
+    path: ../bonobo
   scanner:
     path: ../scanner
   symbol_table: ^1.0.0

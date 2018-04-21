@@ -1,7 +1,7 @@
 part of 'parser.dart';
 
 class FunctionParser {
-  final BonoboParseState state;
+  final Parser state;
 
   FunctionParser(this.state);
 
@@ -14,7 +14,7 @@ class FunctionParser {
 
     // TODO constexpr modifier
 
-    SimpleIdentifierContext name = state.nextSimpleId();
+    SimpleIdentifierContext name = state.parseSimpleIdentifier();
 
     if (name == null) {
       state.errors.add(new BonoboError(
@@ -63,7 +63,7 @@ class FunctionParser {
     TypeContext returnType;
     if (peek.type == TokenType.colon) {
       state.consume();
-      returnType = state.nextType();
+      returnType = state.parseType();
       if (returnType == null) return null;
       span = span.expand(returnType.span);
     }
@@ -102,7 +102,7 @@ class FunctionParser {
   }
 
   ParameterContext parseParameter() {
-    SimpleIdentifierContext id = state.nextId();
+    SimpleIdentifierContext id = state.parseIdentifier();
     if (id == null) return null;
 
     FileSpan span = id.span;
@@ -110,7 +110,7 @@ class FunctionParser {
 
     if (colon == null) return new ParameterContext(id, null, span, []);
 
-    TypeContext type = state.nextType();
+    TypeContext type = state.parseType();
     if (type == null) {
       state.errors.add(new BonoboError(
           BonoboErrorSeverity.error, "Missing type after ':'.", colon.span));
@@ -139,9 +139,9 @@ class FunctionParser {
 
     final exps = <ExpressionContext>[];
 
-    for (ExpressionContext exp = state.nextExp();
+    for (ExpressionContext exp = state.parseExpression();
         exp != null;
-        exp = state.nextExp()) {
+        exp = state.parseExpression()) {
       exps.add(exp);
       if (state.nextToken(TokenType.comma) == null) break;
     }
@@ -169,9 +169,9 @@ class FunctionParser {
 
     var statements = <StatementContext>[];
 
-    for (StatementContext statement = state.nextStatement();
+    for (StatementContext statement = state.parseStatement();
         statement != null;
-        statement = state.nextStatement()) {
+        statement = state.parseStatement()) {
       statements.add(statement);
       lastSpan = statement.span;
     }

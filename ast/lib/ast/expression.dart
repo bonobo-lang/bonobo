@@ -1,6 +1,6 @@
 part of bonobo.src.ast;
 
-class ExpressionContext extends AstNode {
+abstract class ExpressionContext extends AstNode {
   ExpressionContext(FileSpan span, List<Comment> comments)
       : super(span, comments);
 }
@@ -19,6 +19,9 @@ class SimpleIdentifierContext extends IdentifierContext {
       : name = span.text,
         super(span, comments);
 
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitSimpleIdentifier(this);
+
   String toString() => name;
 }
 
@@ -29,6 +32,9 @@ class NamespacedIdentifierContext extends IdentifierContext {
   NamespacedIdentifierContext(
       this.namespaces, this.symbol, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitNamespacedIdentifier(this);
 }
 
 class NumberLiteralContext extends ExpressionContext {
@@ -46,6 +52,9 @@ class NumberLiteralContext extends ExpressionContext {
       return int.parse(span.text.substring(0, span.length - 1));
     return int.parse(span.text);
   }
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitNumberLiteral(this);
 
   String toString() => span.text;
 }
@@ -73,10 +82,13 @@ class StringLiteralContext extends ExpressionContext {
     return _value = t;
   }
 
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitStringLiteral(this);
+
   String toString() => span.text;
 }
 
-class BinaryOp {
+class BinaryOperator {
   final int value;
 
   final String rep;
@@ -85,50 +97,50 @@ class BinaryOp {
 
   final int precedence;
 
-  const BinaryOp._(this.value, this.rep, this.name, this.precedence);
+  const BinaryOperator._(this.value, this.rep, this.name, this.precedence);
 
-  static const BinaryOp mod = const BinaryOp._(0, '%', 'mod', 10);
+  static const BinaryOperator mod = const BinaryOperator._(0, '%', 'mod', 10);
 
-  static const BinaryOp pow = const BinaryOp._(1, '**', 'pow', 10);
+  static const BinaryOperator pow = const BinaryOperator._(1, '**', 'pow', 10);
 
-  static const BinaryOp times = const BinaryOp._(2, '*', 'times', 10);
+  static const BinaryOperator times = const BinaryOperator._(2, '*', 'times', 10);
 
-  static const BinaryOp div = const BinaryOp._(3, '/', 'div', 10);
+  static const BinaryOperator div = const BinaryOperator._(3, '/', 'div', 10);
 
   // TODO truncated div
 
-  static const BinaryOp plus = const BinaryOp._(4, '+', 'plus', 8);
+  static const BinaryOperator plus = const BinaryOperator._(4, '+', 'plus', 8);
 
-  static const BinaryOp minus = const BinaryOp._(5, '-', 'minus', 8);
+  static const BinaryOperator minus = const BinaryOperator._(5, '-', 'minus', 8);
 
-  static const BinaryOp xor = const BinaryOp._(6, '^', 'xor', 8);
+  static const BinaryOperator xor = const BinaryOperator._(6, '^', 'xor', 8);
 
-  static const BinaryOp and = const BinaryOp._(7, '&', 'and', 10);
+  static const BinaryOperator and = const BinaryOperator._(7, '&', 'and', 10);
 
-  static const BinaryOp or = const BinaryOp._(8, '|', 'or', 8);
+  static const BinaryOperator or = const BinaryOperator._(8, '|', 'or', 8);
 
-  static const BinaryOp logicalAnd =
-      const BinaryOp._(9, '&&', 'logical and', 2);
+  static const BinaryOperator logicalAnd =
+      const BinaryOperator._(9, '&&', 'logical and', 2);
 
-  static const BinaryOp logicalOr = const BinaryOp._(10, '||', 'logical or', 4);
+  static const BinaryOperator logicalOr = const BinaryOperator._(10, '||', 'logical or', 4);
 
-  static const BinaryOp equals = const BinaryOp._(11, '==', 'eq', 6);
+  static const BinaryOperator equals = const BinaryOperator._(11, '==', 'eq', 6);
 
-  static const BinaryOp notEquals = const BinaryOp._(12, '!=', 'neq', 6);
+  static const BinaryOperator notEquals = const BinaryOperator._(12, '!=', 'neq', 6);
 
-  static const BinaryOp lt = const BinaryOp._(13, '<', 'lt', 6);
+  static const BinaryOperator lt = const BinaryOperator._(13, '<', 'lt', 6);
 
-  static const BinaryOp lte = const BinaryOp._(14, '<=', 'lte', 6);
+  static const BinaryOperator lte = const BinaryOperator._(14, '<=', 'lte', 6);
 
-  static const BinaryOp gt = const BinaryOp._(15, '>', 'gt', 6);
+  static const BinaryOperator gt = const BinaryOperator._(15, '>', 'gt', 6);
 
-  static const BinaryOp gte = const BinaryOp._(16, '>=', 'gte', 6);
+  static const BinaryOperator gte = const BinaryOperator._(16, '>=', 'gte', 6);
 
-  static const BinaryOp shl = const BinaryOp._(17, '<<', 'shl', 10);
+  static const BinaryOperator shl = const BinaryOperator._(17, '<<', 'shl', 10);
 
-  static const BinaryOp shr = const BinaryOp._(18, '>>', 'shr', 10);
+  static const BinaryOperator shr = const BinaryOperator._(18, '>>', 'shr', 10);
 
-  static BinaryOp fromTokenType(TokenType token) {
+  static BinaryOperator fromTokenType(TokenType token) {
     switch (token) {
       case TokenType.mod:
         return mod;
@@ -176,41 +188,30 @@ class BinaryOp {
   }
 }
 
-class BinaryOpCtx extends AstNode {
-  final BinaryOp op;
+class BinaryExpression extends AstNode {
+  final BinaryOperator op;
 
-  BinaryOpCtx(FileSpan span, List<Comment> comments, this.op)
+  BinaryExpression(FileSpan span, List<Comment> comments, this.op)
       : super(span, comments);
 
   int get precedence => op.precedence;
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitBinaryExpression(this);
 
   String toString() => op.rep;
 }
 
-class ExpChainPartCtx extends AstNode {
-  final BinaryOpCtx op;
-  final ExpressionContext right;
+class AssignmentExpressionContext extends ExpressionContext {
+  final ExpressionContext left, right;
+  final Token operator;
 
-  ExpChainPartCtx(FileSpan span, List<Comment> comments, this.op, this.right)
+  AssignmentExpressionContext(this.left, this.operator, this.right,
+      FileSpan span, List<Comment> comments)
       : super(span, comments);
 
-  int get precedence => op.precedence;
-
-  String toString() => '${op.op.rep} $right';
-}
-
-class ExpChainCtx extends ExpressionContext {
-  final ExpressionContext left;
-  final ExpChainPartCtx rightPart;
-
-  ExpChainCtx(FileSpan span, List<Comment> comments, this.left, this.rightPart)
-      : super(span, comments);
-
-  BinaryOpCtx get op => rightPart.op;
-
-  ExpressionContext get right => rightPart.right;
-
-  String toString() => '($left $rightPart)';
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitAssignmentExpression(this);
 }
 
 class PrefixOp {
@@ -235,23 +236,112 @@ class PrefixOp {
   static PrefixOp fromToken(TokenType tok) => _map[tok];
 }
 
-class PrefixOpCtx extends AstNode {
+class PrefixOperatorContext extends AstNode {
   final PrefixOp op;
 
-  PrefixOpCtx(FileSpan span, List<Comment> comments, this.op)
+  PrefixOperatorContext(FileSpan span, List<Comment> comments, this.op)
       : super(span, comments);
 
   String toString() => op.rep;
 }
 
-class PrefixExpCtx extends ExpressionContext {
-  final PrefixOpCtx op;
+class PrefixExpressionContext extends ExpressionContext {
+  final PrefixOperatorContext op;
   final ExpressionContext exp;
 
-  PrefixExpCtx(FileSpan span, List<Comment> comments, this.op, this.exp)
+  PrefixExpressionContext(FileSpan span, List<Comment> comments, this.op, this.exp)
       : super(span, comments);
 
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitPrefixExpression(this);
+
   String toString() => '$op$exp';
+}
+
+class PostfixExpressionContext extends ExpressionContext {
+  final ExpressionContext expression;
+  final Token operator;
+
+  PostfixExpressionContext(
+      this.expression, this.operator, FileSpan span, List<Comment> comments)
+      : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitPostfixExpression(this);
+}
+
+
+class ConditionalExpressionContext extends ExpressionContext {
+  final ExpressionContext condition, ifTrue, ifFalse;
+
+  ConditionalExpressionContext(this.condition, this.ifTrue, this.ifFalse,
+      FileSpan span, List<Comment> comments)
+      : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitConditionalExpression(this);
+}
+
+class TupleExpressionContext extends ExpressionContext {
+  final List<ExpressionContext> expressions;
+
+  TupleExpressionContext(
+      this.expressions, FileSpan span, List<Comment> comments)
+      : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitTupleExpression(this);
+}
+
+class CallExpressionContext extends ExpressionContext {
+  final ExpressionContext target;
+  final TupleExpressionContext arguments;
+
+  CallExpressionContext(
+      this.target, this.arguments, FileSpan span, List<Comment> comments)
+      : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitCallExpression(this);
+}
+
+class MemberExpressionContext extends ExpressionContext {
+  final ExpressionContext target;
+  final SimpleIdentifierContext identifier;
+
+  MemberExpressionContext(
+      this.target, this.identifier, FileSpan span, List<Comment> comments)
+      : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitMemberExpression(this);
+}
+
+/*
+class ExpChainPartCtx extends AstNode {
+  final BinaryExpression op;
+  final ExpressionContext right;
+
+  ExpChainPartCtx(FileSpan span, List<Comment> comments, this.op, this.right)
+      : super(span, comments);
+
+  int get precedence => op.precedence;
+
+  String toString() => '${op.op.rep} $right';
+}
+
+class ExpChainCtx extends ExpressionContext {
+  final ExpressionContext left;
+  final ExpChainPartCtx rightPart;
+
+  ExpChainCtx(FileSpan span, List<Comment> comments, this.left, this.rightPart)
+      : super(span, comments);
+
+  BinaryExpression get op => rightPart.op;
+
+  ExpressionContext get right => rightPart.right;
+
+  String toString() => '($left $rightPart)';
 }
 
 class IdChainExpCtx extends ExpressionContext {
@@ -274,3 +364,4 @@ class CallIdChainExpPartCtx extends AstNode implements IdChainExpPartCtx {
 
   String toString() => '(' + args.join(', ') + ')';
 }
+*/

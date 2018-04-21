@@ -11,8 +11,8 @@ void main() {
             sourceUrl: 'main.bnb');
         scanner.scan();
 
-        var parser = new BonoboParseState(scanner);
-        UnitContext unit = parser.parse();
+        var parser = new Parser(scanner);
+        CompilationUnitContext unit = parser.parse();
         expect(parser.errors.length, 0);
         expect(unit.functions.length, 1);
         expect(unit.toString(), "fn pub main => print('Hello, world!')\n\n");
@@ -25,8 +25,8 @@ void main() {
             new Scanner("fn pub main => 5 + 5", sourceUrl: 'main.bnb');
         scanner.scan();
 
-        var parser = new BonoboParseState(scanner);
-        UnitContext unit = parser.parse();
+        var parser = new Parser(scanner);
+        CompilationUnitContext unit = parser.parse();
         expect(parser.errors.length, 0);
         expect(unit.functions.length, 1);
         expect(unit.toString(), "fn pub main => print('Hello, world!')\n\n");

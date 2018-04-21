@@ -1,7 +1,7 @@
 part of 'parser.dart';
 
 class TypeParser {
-  final BonoboParseState state;
+  final Parser state;
 
   TypeParser(this.state);
 
@@ -10,7 +10,7 @@ class TypeParser {
     // TODO parse special List syntax
     // TODO parse special Map syntax
 
-    IdentifierContext name = state.nextId();
+    IdentifierContext name = state.parseIdentifier();
     FileSpan lastSpan = name.span;
     if (name == null) return null;
 

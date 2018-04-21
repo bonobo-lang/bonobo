@@ -1,7 +1,7 @@
 /// This library contains source file and logic to read the source file.
 
-import 'dart:io';
 import 'dart:async';
+import 'package:file/file.dart';
 
 /// Encapsulates a source file
 ///
@@ -17,8 +17,8 @@ class Source {
   const Source(this.uri, this.contents);
 
   /// Creates [Source] by reading the contents of file at [path] on hard disk.
-  static Future<Source> fromPath(String path) async {
-    var file = new File(path);
+  static Future<Source> fromPath(FileSystem fileSystem, String path) async {
+    var file = fileSystem.file(path);
 
     if (!await file.exists()) {
       throw new Exception('Source file not found: $path');

@@ -11,6 +11,9 @@ class BlockContext extends AstNode {
   BlockContext(this.statements, FileSpan span, List<Comment> comments)
       : super(span, comments);
 
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitBlock(this);
+
   String toString() {
     var sb = new StringBuffer();
     sb.writeln(' {');
@@ -21,36 +24,36 @@ class BlockContext extends AstNode {
   }
 }
 
-class AssignOp {
+class AssignmentOperator {
   final int value;
 
   final String rep;
 
-  const AssignOp._(this.value, this.rep);
+  const AssignmentOperator._(this.value, this.rep);
 
-  static const AssignOp assign = const AssignOp._(0, '=');
+  static const AssignmentOperator assign = const AssignmentOperator._(0, '=');
 
-  static const AssignOp add = const AssignOp._(0, '+=');
+  static const AssignmentOperator add = const AssignmentOperator._(0, '+=');
 
-  static const AssignOp sub = const AssignOp._(0, '-=');
+  static const AssignmentOperator sub = const AssignmentOperator._(0, '-=');
 
-  static const AssignOp times = const AssignOp._(0, '*=');
+  static const AssignmentOperator times = const AssignmentOperator._(0, '*=');
 
-  static const AssignOp div = const AssignOp._(0, '/=');
+  static const AssignmentOperator div = const AssignmentOperator._(0, '/=');
 
-  static const AssignOp mod = const AssignOp._(0, '%=');
+  static const AssignmentOperator mod = const AssignmentOperator._(0, '%=');
 
-  static const AssignOp and = const AssignOp._(0, '&=');
+  static const AssignmentOperator and = const AssignmentOperator._(0, '&=');
 
-  static const AssignOp or = const AssignOp._(0, '|=');
+  static const AssignmentOperator or = const AssignmentOperator._(0, '|=');
 
-  static const AssignOp xor = const AssignOp._(0, '^=');
+  static const AssignmentOperator xor = const AssignmentOperator._(0, '^=');
 
-  static const AssignOp shl = const AssignOp._(0, '<<=');
+  static const AssignmentOperator shl = const AssignmentOperator._(0, '<<=');
 
-  static const AssignOp shr = const AssignOp._(0, '>>=');
+  static const AssignmentOperator shr = const AssignmentOperator._(0, '>>=');
 
-  static AssignOp fromToken(TokenType tok) {
+  static AssignmentOperator fromToken(TokenType tok) {
     switch (tok) {
       case TokenType.assign:
         return assign;
@@ -80,25 +83,26 @@ class AssignOp {
   }
 }
 
-class AssignOpCtx extends AstNode {
-  final AssignOp op;
+class AssignmentOperatorContext extends AstNode {
+  final AssignmentOperator op;
 
-  AssignOpCtx(FileSpan span, List<Comment> comments, this.op)
+  AssignmentOperatorContext(FileSpan span, List<Comment> comments, this.op)
       : super(span, comments);
 
   String toString() => op.rep;
 }
 
+/*
 class AssignStCtx extends StatementContext {
   final ExpressionContext left, right;
-  final AssignOpCtx op;
+  final AssignmentOperatorContext op;
 
   AssignStCtx(
       FileSpan span, List<Comment> comments, this.left, this.op, this.right)
       : super(span, comments);
 
   String toString() => '$left $op $right';
-}
+}*/
 
 class ExpressionStatementContext extends StatementContext {
   final ExpressionContext expression;
@@ -117,10 +121,11 @@ class ReturnStatementContext extends StatementContext {
       : super(span, comments);
 }
 
+/*
 class VarDeclStContext extends StatementContext {
-  final VarMut mutability;
+  final VariableMutability mutability;
 
-  final List<VarDeclContext> declarations;
+  final List<VariableDeclarationContext> declarations;
 
   VarDeclStContext(
       FileSpan span, this.mutability, this.declarations, List<Comment> comments)
@@ -133,29 +138,49 @@ class VarDeclStContext extends StatementContext {
     sb.write(declarations.join(', '));
     return sb.toString();
   }
-}
+}*/
 
-class VarMut {
+class VariableMutability {
   final int value;
 
   final String rep;
 
-  const VarMut(this.value, this.rep);
+  const VariableMutability(this.value, this.rep);
 
-  static const VarMut const_ = const VarMut(0, 'const');
-  static const VarMut final_ = const VarMut(0, 'let');
-  static const VarMut var_ = const VarMut(0, 'var');
+  static const VariableMutability const_ = const VariableMutability(0, 'const');
+  static const VariableMutability final_ = const VariableMutability(0, 'let');
+  static const VariableMutability var_ = const VariableMutability(0, 'var');
 }
 
-class VarDeclContext extends AstNode {
+class VariableDeclarationStatementContext extends StatementContext {
+  final List<VariableDeclarationContext> declarations;
+  final List<StatementContext> context;
+  final FileSpan declarationSpan;
+  ControlFlow flow;
+  SymbolTable<BonoboObject> scope;
+
+  VariableDeclarationStatementContext(this.declarations, this.context,
+      this.declarationSpan, FileSpan span, List<Comment> comments)
+      : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitVariableDeclarationStatement(this);
+}
+
+class VariableDeclarationContext extends AstNode {
   final SimpleIdentifierContext name;
   final TypeContext type;
   final ExpressionContext initializer;
-  final VarMut mutability;
+  final VariableMutability mutability;
 
-  VarDeclContext(FileSpan span, this.name, this.type, this.initializer,
+  VariableDeclarationContext(FileSpan span, this.name, this.type, this.initializer,
       this.mutability, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitVariableDeclaration(this);
 
   String toString() {
     var sb = new StringBuffer();

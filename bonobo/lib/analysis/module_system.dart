@@ -67,7 +67,7 @@ class BonoboModuleSystem {
           sourceUrl: sourceFile.absolute.uri)
         ..scan();
       module.emptySpan ??= scanner.emptySpan;
-      var parser = new BonoboParseState(scanner);
+      var parser = new Parser(scanner);
       var compilationUnit = parser.parse();
 
       // TODO: Analyze???

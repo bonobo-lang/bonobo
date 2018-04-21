@@ -1,13 +1,6 @@
 import 'package:string_scanner/string_scanner.dart';
 import 'package:source_span/source_span.dart';
-
-part 'token.dart';
-
-final RegExp doubleQuotedString = new RegExp(
-    r'"((\\(["\\/bfnrt]|(u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F])))|([^"\\]))*"');
-
-final RegExp singleQuotedString = new RegExp(
-    r"'((\\(['\\/bfnrt]|(u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F])))|([^'\\]))*'");
+import 'token.dart';
 
 class Scanner {
   final List<BonoboError> errors = [];
@@ -38,13 +31,11 @@ class Scanner {
     'fn': TokenType.fn,
     'lambda': TokenType.lambda,
     'let': TokenType.let,
-    'print': TokenType.print,
     'type': TokenType.type,
     'ret': TokenType.ret,
 
     // Modifiers
-    'pub': TokenType.pub,
-    'priv': TokenType.priv,
+    'hide': TokenType.hide_,
 
     // Unary operators
     '++': TokenType.increment,
@@ -64,10 +55,10 @@ class Scanner {
     '^': TokenType.xor,
     '&': TokenType.and,
     '|': TokenType.or,
-    '&&': TokenType.b_and,
-    '||': TokenType.b_or,
-    '==': TokenType.b_equals,
-    '!=': TokenType.b_not_equals,
+    '&&': TokenType.l_and,
+    '||': TokenType.l_or,
+    '==': TokenType.l_equals,
+    '!=': TokenType.notEquals,
     '?': TokenType.question,
     '<': TokenType.lt,
     '<=': TokenType.lte,
@@ -78,7 +69,7 @@ class Scanner {
     '.': TokenType.dot,
 
     // Assignments
-    ':=': TokenType.colon_equals,
+    //':=': TokenType.colon_equals,
     '=': TokenType.equals,
 
     // Data

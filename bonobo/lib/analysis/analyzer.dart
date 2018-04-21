@@ -1,4 +1,5 @@
-part of bonobo.src.analysis;
+part of 'analysis.dart';
+
 
 class BonoboAnalyzer {
   final List<BonoboError> errors = [];
@@ -13,7 +14,7 @@ class BonoboAnalyzer {
 
   // TODO: Find unused symbols
   Future analyze(
-      UnitContext compilationUnit, Uri sourceUrl, BonoboParseState parser,
+      CompilationUnitContext compilationUnit, Uri sourceUrl, Parser parser,
       [BonoboModule m]) async {
     var functions = <BonoboFunction>[];
 
@@ -542,9 +543,6 @@ class BonoboAnalyzer {
 
       return correspondingSymbol.value;
     }
-
-    if (ctx is PrintExpressionContext)
-      return await resolveExpression(ctx.expression, function, scope);
 
     if (ctx is TupleExpressionContext) {
       var expressions = await Future.wait(

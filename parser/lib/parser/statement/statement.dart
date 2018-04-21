@@ -1,7 +1,7 @@
 part of '../parser.dart';
 
 class StatementParser {
-  final BonoboParseState state;
+  final Parser state;
 
   StatementParser(this.state);
 
@@ -13,17 +13,17 @@ class StatementParser {
   }
 
   StatementContext parseExpressionStatement() {
-    ExpressionContext exp = state.nextExp();
+    ExpressionContext exp = state.parseExpression();
     if (exp == null) return null;
 
     Token peek = state.peek();
     if (peek == null || !isAssignToken(peek.type))
       return new ExpressionStatementContext(exp);
 
-    AssignOpCtx op =
-        new AssignOpCtx(peek.span, [], AssignOp.fromToken(peek.type));
+    AssignmentOperatorContext op =
+        new AssignmentOperatorContext(peek.span, [], AssignmentOperator.fromToken(peek.type));
     state.consume();
-    ExpressionContext rhs = state.nextExp();
+    ExpressionContext rhs = state.parseExpression();
     if (rhs == null) return null;
     // TODO cascaded assignment
 
@@ -36,9 +36,9 @@ class StatementParser {
 
     final exps = <ExpressionContext>[];
 
-    for (ExpressionContext exp = state.nextExp();
+    for (ExpressionContext exp = state.parseExpression();
         exp != null;
-        exp = state.nextExp()) {
+        exp = state.parseExpression()) {
       exps.add(exp);
       if (state.nextToken(TokenType.comma) == null) break;
     }
@@ -49,7 +49,7 @@ class StatementParser {
     return new ReturnStatementContext(span, comments, exps);
   }
 
-  VarDeclParser _varDeclParser;
-  VarDeclParser get varDeclParser =>
-      _varDeclParser ??= new VarDeclParser(state);
+  VariableDeclarationParser _varDeclParser;
+  VariableDeclarationParser get varDeclParser =>
+      _varDeclParser ??= new VariableDeclarationParser(state);
 }

@@ -1,7 +1,7 @@
 part of 'parser.dart';
 
 class ExpressionParser {
-  final BonoboParseState state;
+  final Parser state;
 
   ExpressionParser(this.state);
 
@@ -45,7 +45,7 @@ class ExpressionParser {
 
     prev = parts[parts.length - 2];
     ExpChainPartCtx cur = parts.last;
-    BinaryOpCtx op = prev.op;
+    BinaryExpression op = prev.op;
     ExpressionContext exp = new ExpChainCtx(
         prev.right.span.expand(cur.span), [], prev.right, parts.last);
     for (int i = parts.length - 2; i >= 1; i++) {
@@ -64,11 +64,11 @@ class ExpressionParser {
     Token peek = state.peek();
     if (peek == null) return null;
 
-    BinaryOp op = BinaryOp.fromTokenType(peek.type);
+    BinaryOperator op = BinaryOperator.fromTokenType(peek.type);
     if (op == null) return null;
     state.consume();
 
-    BinaryOpCtx opCtx = new BinaryOpCtx(peek.span, [], op);
+    BinaryExpression opCtx = new BinaryExpression(peek.span, [], op);
     ExpressionContext exp = parseSingleExpression();
     if (exp == null) return null;
     return new ExpChainPartCtx(peek.span.expand(exp.span), [], opCtx, exp);
@@ -85,10 +85,10 @@ class ExpressionParser {
         state.consume();
         ExpressionContext exp = parseSingleExpression();
         if (exp == null) return null;
-        return new PrefixExpCtx(
+        return new PrefixExpressionContext(
             token.span.expand(exp.span),
             [],
-            new PrefixOpCtx(token.span, [], PrefixOp.fromToken(token.type)),
+            new PrefixOperatorContext(token.span, [], PrefixOp.fromToken(token.type)),
             exp);
       case TokenType.lParen:
         state.consume();
@@ -143,7 +143,7 @@ class ExpressionParser {
   }
 
   ExpressionContext parseChainExp() {
-    IdentifierContext id = state.nextId();
+    IdentifierContext id = state.parseIdentifier();
 
     final parts = <IdChainExpPartCtx>[];
 

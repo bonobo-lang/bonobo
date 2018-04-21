@@ -1,6 +1,8 @@
-part of bonobo.src.text;
+import 'package:ast/ast.dart';
+import 'package:scanner/scanner.dart';
+import '../parselet.dart';
 
-final Map<TokenType, InfixParselet<ExpressionContext>> _infixParselets = createInfixParselets();
+final Map<TokenType, InfixParselet<ExpressionContext>> infixParselets = createInfixParselets();
 
 Map<TokenType, InfixParselet> createInfixParselets() {
   int precedence = 1;

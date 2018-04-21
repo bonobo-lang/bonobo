@@ -12,19 +12,19 @@ part 'type.dart';
 part 'statement/statement.dart';
 part 'statement/var_decl.dart';
 
-UnitContext parseUnit(Scanner scanner) => new BonoboParseState(scanner).parse();
+CompilationUnitContext parseUnit(Scanner scanner) => new Parser(scanner).parse();
 
-class BonoboParseState extends ParserState {
-  BonoboParseState(Scanner scanner) : super(scanner);
+class Parser extends BaseParser {
+  Parser(Scanner scanner) : super(scanner);
 
-  UnitContext parse() {
+  CompilationUnitContext parse() {
     // TODO reset?
 
     FileSpan startSpan = peek().span;
     FileSpan lastSpan = startSpan;
 
     final functions = <FunctionContext>[];
-    final classes = <ClassDeclContext>[];
+    final classes = <ClassDeclarationContext>[];
 
     while (!done) {
       Token t = peek();
@@ -37,7 +37,7 @@ class BonoboParseState extends ParserState {
           }
           break;
         case TokenType.type:
-          ClassDeclContext c = nextClass();
+          ClassDeclarationContext c = nextClass();
           if (c != null) {
             classes.add(c);
             lastSpan = c.span;
@@ -54,65 +54,50 @@ class BonoboParseState extends ParserState {
       }
     }
 
-    return new UnitContext(startSpan.expand(lastSpan),
+    return new CompilationUnitContext(startSpan.expand(lastSpan),
         functions: functions, classes: classes);
   }
 
   FunctionContext nextFunc() {
     // TODO comments
-    return funcParser.parse();
+    return functionParser.parse();
   }
 
-  ClassDeclContext nextClass() {
+  ClassDeclarationContext nextClass() {
     // TODO comments
     return classParser.parse();
   }
 
-  TypeContext nextType() => typeParser.parse();
+  TypeContext parseType() => typeParser.parse();
 
-  StatementContext nextStatement() => statParser.parse();
+  StatementContext parseStatement() => statementParser.parse();
 
   /// Parses function name
-  SimpleIdentifierContext nextSimpleId() {
+  SimpleIdentifierContext parseSimpleIdentifier() {
     if (peek()?.type == TokenType.identifier)
       return new SimpleIdentifierContext(consume().span, []);
     return null;
   }
 
-  IdentifierContext nextId() => idParser.parse();
+  IdentifierContext parseIdentifier() => identifierParser.parse();
 
-  ExpressionContext nextExp() => expParser.parse();
+  ExpressionContext parseExpression() => expressionParser.parse();
 
   TypeDeclParser _classParser;
   TypeDeclParser get classParser => _classParser ?? new TypeDeclParser(this);
 
   FunctionParser _funcParser;
-  FunctionParser get funcParser => _funcParser ?? new FunctionParser(this);
+  FunctionParser get functionParser => _funcParser ?? new FunctionParser(this);
 
   IdentifierParser _idParser;
-  IdentifierParser get idParser => _idParser ?? new IdentifierParser(this);
+  IdentifierParser get identifierParser => _idParser ?? new IdentifierParser(this);
 
   ExpressionParser _expParser;
-  ExpressionParser get expParser => _expParser ?? new ExpressionParser(this);
+  ExpressionParser get expressionParser => _expParser ?? new ExpressionParser(this);
 
   StatementParser _statParser;
-  StatementParser get statParser => _statParser ?? new StatementParser(this);
+  StatementParser get statementParser => _statParser ?? new StatementParser(this);
 
   TypeParser _typeParser;
   TypeParser get typeParser => _typeParser ?? new TypeParser(this);
-
-  /// Parses available comments.
-  List<Comment> nextComments() {
-    var comments = <Comment>[];
-    Token token;
-
-    while ((token = nextToken(TokenType.comment)) != null) {
-      var lines = token.match[1]
-          .split('\n')
-          .map((s) => s.replaceAll(commentSlashes, '').trim());
-      comments.add(new Comment(lines.join('\n')));
-    }
-
-    return comments;
-  }
 }

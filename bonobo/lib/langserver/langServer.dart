@@ -1,16 +1,27 @@
-/*
 import 'dart:async';
 import 'dart:io' hide Directory, File, FileMode;
 import 'dart:io' as io show File;
-import 'package:file/file.dart' show Directory, File, FileSystem, ForwardingFileSystem;
+import 'package:args/command_runner.dart';
+import 'package:ast/ast.dart';
+import 'package:bonobo/bonobo.dart';
+import 'package:bonobo/src/text/text.dart';
+import 'package:charcode/charcode.dart';
+import 'package:file/file.dart'
+    show Directory, File, FileSystem, ForwardingFileSystem;
 import 'package:file/local.dart';
 import 'package:file/memory.dart';
 import 'package:dart_language_server/dart_language_server.dart' as lsp;
+import 'package:dart_language_server/src/protocol/language_server/interface.dart'
+    as lsp;
 import 'package:dart_language_server/src/protocol/language_server/messages.dart'
     as lsp;
 import 'package:dart_language_server/src/protocol/language_server/wireformat.dart'
     as lsp;
 import 'package:dart_language_server/dart_language_server.dart' as lsp;
+import 'package:logging/logging.dart';
+import 'package:scanner/scanner.dart';
+import 'package:source_span/source_span.dart';
+import 'package:tuple/tuple.dart';
 
 class LanguageServerCommand extends Command {
   final String name = 'language_server';
@@ -313,7 +324,9 @@ class BonoboLanguageServer extends lsp.LanguageServer {
           ..change = lsp.TextDocumentSyncKind.full
           ..willSave = false
           ..willSaveWaitUntil = false
-          ..save = false)
+          ..save = new lsp.SaveOptions((b) {
+            b..includeText = false;
+          }))
         ..completionProvider = new lsp.CompletionOptions((b) => b
           ..resolveProvider = false
           ..triggerCharacters = const ['.'])
@@ -325,10 +338,17 @@ class BonoboLanguageServer extends lsp.LanguageServer {
         ..referencesProvider = true
         ..renameProvider = true
         ..workspaceSymbolProvider = false
-        ..codeLensProvider = false
+        ..codeLensProvider = new lsp.CodeLensOptions((b) {
+          b..resolveProvider = false;
+        })
         ..documentFormattingProvider = false
         ..documentRangeFormattingProvider = false
-        ..documentOnTypeFormattingProvider = false,
+        ..documentOnTypeFormattingProvider =
+            new lsp.DocumentOnTypeFormattingOptions((b) {
+          b
+            ..firstTriggerCharacter = '.'
+            ..moreTriggerCharacter = ['::'];
+        }),
     );
   }
 
@@ -419,8 +439,8 @@ class BonoboLanguageServer extends lsp.LanguageServer {
       lsp.TextDocumentIdentifier documentId,
       lsp.Range range,
       lsp.CodeActionContext context) async {
-    //var analyzer = await analyze(documentId);
-    //return [];
+    var analyzer = await analyze(documentId);
+    return [];
   }
 
   @override

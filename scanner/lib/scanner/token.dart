@@ -1,4 +1,10 @@
-part of 'scanner.dart';
+import 'package:source_span/source_span.dart';
+
+final RegExp doubleQuotedString = new RegExp(
+    r'"((\\(["\\/bfnrt]|(u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F])))|([^"\\]))*"');
+
+final RegExp singleQuotedString = new RegExp(
+    r"'((\\(['\\/bfnrt]|(u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F])))|([^'\\]))*'");
 
 final Map<Pattern, TokenType> normalPatterns = {
   // Misc.
@@ -100,12 +106,14 @@ enum TokenType {
   rParen,
   lSq,
   rSq,
+  parentheses,
 
   // Reserved
   let,
   var_,
   const_,
   fn,
+  lambda,
   ret,
   type,
   mixin,
@@ -140,6 +148,7 @@ enum TokenType {
   or,
   l_and,
   l_or,
+  l_equals,
   equals,
   notEquals,
   question,

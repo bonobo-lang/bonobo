@@ -1,11 +1,11 @@
 part of 'parser.dart';
 
 class TypeDeclParser {
-  final BonoboParseState state;
+  final Parser state;
 
   TypeDeclParser(this.state);
 
-  ClassDeclContext parse() {
+  ClassDeclarationContext parse() {
     FileSpan startSpan = state.peek().span;
     FileSpan lastSpan = startSpan;
 
@@ -15,7 +15,7 @@ class TypeDeclParser {
 
     // TODO final modifier
 
-    SimpleIdentifierContext name = state.nextSimpleId();
+    SimpleIdentifierContext name = state.parseSimpleIdentifier();
 
     if (name == null) {
       state.errors.add(new BonoboError(
@@ -51,13 +51,13 @@ class TypeDeclParser {
         case TokenType.let:
         case TokenType.var_:
         case TokenType.const_:
-          VarDeclStContext v = state.statParser.varDeclParser.parse();
+          VarDeclStContext v = state.statementParser.varDeclParser.parse();
           if (v == null) return null;
           fields.add(v);
           break;
         default:
           VarDeclStContext v =
-          state.statParser.varDeclParser.parse(mut: VarMut.var_);
+          state.statementParser.varDeclParser.parse(mut: VariableMutability.var_);
           if (v == null) return null;
           fields.add(v);
           break;
@@ -77,7 +77,7 @@ class TypeDeclParser {
           case TokenType.let:
           case TokenType.var_:
           case TokenType.const_:
-            VarDeclStContext v = state.statParser.varDeclParser.parse();
+            VarDeclStContext v = state.statementParser.varDeclParser.parse();
             if (v == null) return null;
             fields.add(v);
             break;
@@ -88,7 +88,7 @@ class TypeDeclParser {
             break;
           default:
             VarDeclStContext v =
-                state.statParser.varDeclParser.parse(mut: VarMut.var_);
+                state.statementParser.varDeclParser.parse(mut: VariableMutability.var_);
             if (v == null) return null;
             fields.add(v);
             break;
@@ -100,7 +100,7 @@ class TypeDeclParser {
       lastSpan = peek.span;
     }
 
-    return new ClassDeclContext(startSpan.expand(lastSpan), name,
+    return new ClassDeclarationContext(startSpan.expand(lastSpan), name,
         fields: fields, methods: methods, isPriv: isPriv);
   }
 }

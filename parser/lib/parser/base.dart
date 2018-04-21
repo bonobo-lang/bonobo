@@ -2,12 +2,12 @@ part of 'parser.dart';
 
 final RegExp commentSlashes = new RegExp(r'///*');
 
-class ParserState {
+class BaseParser {
   final List<BonoboError> errors = [];
   final Scanner scanner;
   int _index = -1;
 
-  ParserState(this.scanner) {
+  BaseParser(this.scanner) {
     errors.addAll(scanner.errors);
   }
 

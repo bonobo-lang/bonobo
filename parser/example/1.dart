@@ -11,8 +11,8 @@ main() async {
   // print(scanner.errors);
   // print(scanner.tokens.join('\n\n'));
 
-  var parser = new BonoboParseState(scanner);
-  UnitContext unit = parser.parse();
+  var parser = new Parser(scanner);
+  CompilationUnitContext unit = parser.parse();
   print(parser.errors);
   print(unit);
 }

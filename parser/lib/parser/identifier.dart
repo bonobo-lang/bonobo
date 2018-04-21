@@ -1,7 +1,7 @@
 part of 'parser.dart';
 
 class IdentifierParser {
-  final BonoboParseState state;
+  final Parser state;
 
   IdentifierParser(this.state);
 

@@ -4,7 +4,7 @@ part of bonobo.src.analysis;
 class BonoboModule {
   static Map<String, BonoboModule> _singletons = {};
   final List<BonoboModule> children = [];
-  final Map<Uri, UnitContext> compilationUnits = {};
+  final Map<Uri, CompilationUnitContext> compilationUnits = {};
   final Map<String, BonoboType> types = {};
   final Directory directory;
   final bool isCore;

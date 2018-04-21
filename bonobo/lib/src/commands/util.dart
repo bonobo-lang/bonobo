@@ -1,4 +1,14 @@
-part of bonobo.src.commands;
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io' as io;
+import 'dart:io' show stderr, stdin, stdout;
+
+import 'package:args/command_runner.dart';
+import 'package:bonobo/bonobo.dart';
+import 'package:file/file.dart';
+import 'package:file/local.dart';
+import 'package:scanner/scanner.dart';
+import 'package:tuple/tuple.dart';
 
 Future<Tuple2<String, Uri>> getInput(Command command) async {
   String contents;
@@ -36,7 +46,7 @@ Future<Tuple2<String, Uri>> getInput(Command command) async {
   return new Tuple2(contents, sourceUrl);
 }
 
-IOSink getOutput(BonoboCommand command) {
+io.IOSink getOutput(BonoboCommand command) {
   if (command.argResults.wasParsed('out')) {
     return new io.File(command.argResults['out']).openWrite();
   } else {
@@ -44,7 +54,7 @@ IOSink getOutput(BonoboCommand command) {
   }
 }
 
-Future<Tuple3<Scanner, Parser, CompilationUnitContext>> scanAndParse(
+Future<Tuple3<Scanner, Parser, UnitContext>> scanAndParse(
     Command command) async {
   var input = await getInput(command);
   if (input == null) return null;

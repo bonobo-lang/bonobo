@@ -1,28 +1,28 @@
 part of '../parser.dart';
 
-class VarDeclParser {
-  final BonoboParseState state;
+class VariableDeclarationParser {
+  final Parser state;
 
-  VarDeclParser(this.state);
+  VariableDeclarationParser(this.state);
 
-  VarDeclStContext parse({VarMut mut}) {
+  VarDeclStContext parse({VariableMutability mut}) {
     List<Comment> comments = state.nextComments();
 
     Token what;
     if (mut == null) {
       what =
-          state.nextIfOneOf([TokenType.const_, TokenType.let, TokenType.var_]);
+          state.next([TokenType.const_, TokenType.let, TokenType.var_])?.removeFirst();
       if (what == null) return null;
       mut = what.type == TokenType.const_
-          ? VarMut.const_
-          : what.type == TokenType.let ? VarMut.final_ : VarMut.var_;
+          ? VariableMutability.const_
+          : what.type == TokenType.let ? VariableMutability.final_ : VariableMutability.var_;
     } else {
       what = state.peek();
     }
 
-    var declarations = <VarDeclContext>[];
+    var declarations = <VariableDeclarationContext>[];
 
-    for (VarDeclContext declaration = parseADecl(mut);
+    for (VariableDeclarationContext declaration = parseADecl(mut);
         declaration != null;
         declaration = parseADecl(mut)) {
       declarations.add(declaration);
@@ -39,8 +39,8 @@ class VarDeclParser {
         what.span.expand(declarations.last.span), mut, declarations, comments);
   }
 
-  VarDeclContext parseADecl(VarMut mut) {
-    SimpleIdentifierContext name = state.nextSimpleId();
+  VariableDeclarationContext parseADecl(VariableMutability mut) {
+    SimpleIdentifierContext name = state.parseSimpleIdentifier();
     if (name == null) return null;
 
     FileSpan lastSpan;
@@ -49,7 +49,7 @@ class VarDeclParser {
     TypeContext type;
     if (state.peek().type == TokenType.colon) {
       state.consume();
-      type = state.nextType();
+      type = state.parseType();
       // TODO error message
       if (type == null) return null;
       lastSpan = type.span;
@@ -65,7 +65,7 @@ class VarDeclParser {
         return null;
       }
     } else {
-      expression = state.nextExp();
+      expression = state.parseExpression();
 
       if (expression == null) {
         state.errors.add(new BonoboError(
@@ -75,7 +75,7 @@ class VarDeclParser {
       lastSpan = expression.span;
     }
 
-    return new VarDeclContext(
+    return new VariableDeclarationContext(
         name.span.expand(lastSpan), name, type, expression, mut, []);
   }
 }

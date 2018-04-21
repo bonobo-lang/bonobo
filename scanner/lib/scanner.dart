@@ -1,4 +1,5 @@
 library scanner;
 
-export 'reader/io.dart';
+export 'reader/file_system.dart';
 export 'scanner/scanner.dart';
+export 'scanner/token.dart';

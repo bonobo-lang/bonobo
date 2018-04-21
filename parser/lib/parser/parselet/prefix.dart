@@ -1,10 +1,12 @@
-part of bonobo.src.text;
+import 'package:ast/ast.dart';
+import 'package:scanner/scanner.dart';
+import '../parselet.dart';
 
 // TODO: +, -
 // TODO: ++, --
 // TODO: ~
 
-final Map<TokenType, PrefixParselet<ExpressionContext>> _prefixParselets = {
+final Map<TokenType, PrefixParselet<ExpressionContext>> prefixParselets = {
   // Literals
   TokenType.string: (_, token, comments, __) =>
       new StringLiteralContext(token.span, comments),
@@ -15,19 +17,8 @@ final Map<TokenType, PrefixParselet<ExpressionContext>> _prefixParselets = {
 
   // Reserved words
   TokenType.lambda: (parser, token, comments, __) =>
-      parser.parseFunction(false, token, comments),
-  TokenType.print: (parser, token, comments, bool inVariableDeclaration) {
-    var expression = parser.parseExpression(0, inVariableDeclaration);
-
-    if (expression == null) {
-      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
-          "Missing expression after 'print'.", token.span));
-      return null;
-    }
-
-    return new PrintExpressionContext(
-        expression, token.span.expand(expression.span), comments);
-  },
+      parser.functionParser.parse(comments: comments),
+      //parser.parseFunction(false, token, comments),
 
   // Operators
   TokenType.lParen: (parser, token, comments, _) {

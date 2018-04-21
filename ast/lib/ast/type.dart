@@ -1,35 +1,38 @@
 part of bonobo.src.ast;
 
-class TypeContext extends AstNode {
-  final List<IdentifierContext> namespaces;
-  final SimpleIdentifierContext symbol;
-  final List<TypeContext> generics;
-
-  TypeContext(FileSpan span, List<Comment> comments, this.symbol,
-      {this.namespaces: const [], this.generics: const []})
-      : super(span, comments);
-  
-  String toString() {
-    var sb = new StringBuffer();
-    sb.write(namespaces.join('::'));
-    sb.write(symbol);
-    if(generics.length != 0) {
-      sb.write('<');
-      sb.write(generics.join(', '));
-      sb.write('>');
-    }
-    return sb.toString();
-  }
+abstract class TypeContext extends AstNode {
+  TypeContext(FileSpan span, List<Comment> comments) : super(span, comments);
 }
 
-/*
+class SimpleIdentifierTypeContext extends TypeContext {
+  final IdentifierContext identifier;
+
+  SimpleIdentifierTypeContext(this.identifier, List<Comment> comments)
+      : super(identifier.span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitSimpleIdentifierType(this);
+}
+
+class NamespacedIdentifierTypeContext extends TypeContext {
+  final NamespacedIdentifierContext identifier;
+
+  NamespacedIdentifierTypeContext(this.identifier, List<Comment> comments)
+      : super(identifier.span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitNamespacedIdentifierType(this);
+}
+
 class TupleTypeContext extends TypeContext {
   final List<TypeContext> items;
 
   TupleTypeContext(this.items, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitTupleType(this);
 }
-*/
 
 class TypedefContext extends AstNode {
   final SimpleIdentifierContext name;
@@ -37,9 +40,24 @@ class TypedefContext extends AstNode {
 
   TypedefContext(this.name, this.type, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitTypedef(this);
 }
 
-class ClassDeclContext extends AstNode {
+class FunctionTypeContext extends TypeContext {
+  final List<TypeContext> parameters;
+  final TypeContext returnType;
+
+  FunctionTypeContext(
+      this.parameters, this.returnType, FileSpan span, List<Comment> comments)
+      : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitFunctionType(this);
+}
+
+class ClassDeclarationContext extends AstNode {
   final SimpleIdentifierContext name;
 
   final bool isPriv;
@@ -50,11 +68,11 @@ class ClassDeclContext extends AstNode {
 
   // TODO List<Mixin> mixes;
 
-  final List<VarDeclStContext> fields;
+  final List<VariableDeclarationStatementContext> fields;
 
   final List<FunctionContext> methods;
 
-  ClassDeclContext(FileSpan span, this.name,
+  ClassDeclarationContext(FileSpan span, this.name,
       {this.fields: const [], this.methods: const [], this.isPriv: false})
       : super(span, []);
 
@@ -68,7 +86,7 @@ class ClassDeclContext extends AstNode {
     // TODO mixins
     sb.writeln(' {');
 
-    for(VarDeclStContext st in fields) {
+    for(VariableDeclarationStatementContext st in fields) {
       sb.writeln(st);
       sb.writeln();
     }
@@ -82,3 +100,35 @@ class ClassDeclContext extends AstNode {
     return sb.toString();
   }
 }
+
+/*
+class TypeContext extends AstNode {
+  final List<IdentifierContext> namespaces;
+  final SimpleIdentifierContext symbol;
+  final List<TypeContext> generics;
+
+  TypeContext(FileSpan span, List<Comment> comments, this.symbol,
+      {this.namespaces: const [], this.generics: const []})
+      : super(span, comments);
+
+  String toString() {
+    var sb = new StringBuffer();
+    sb.write(namespaces.join('::'));
+    sb.write(symbol);
+    if(generics.length != 0) {
+      sb.write('<');
+      sb.write(generics.join(', '));
+      sb.write('>');
+    }
+    return sb.toString();
+  }
+}*/
+
+/*
+class TupleTypeContext extends TypeContext {
+  final List<TypeContext> items;
+
+  TupleTypeContext(this.items, FileSpan span, List<Comment> comments)
+      : super(span, comments);
+}
+*/

@@ -45,7 +45,7 @@ class ExploreCommand extends Command {
       printErrors(warnings);
       if (errors.isNotEmpty) continue;
 
-      var parser = new BonoboParseState(scanner);
+      var parser = new Parser(scanner);
       var parsed = parser.nextFunc() ??
           parser.parseVariableDeclarationStatement() ??
           parser.parseExpressionStatement()?.expression ??

@@ -6,11 +6,8 @@ class LanguageServerCommand extends Command {
 
   @override
   run() {
-    throw new UnimplementedError();
-    /*
     var server = new BonoboLanguageServer();
     var stdio = new lsp.StdIOLanguageServer.start(server);
     return stdio.onDone;
-    */
   }
 }

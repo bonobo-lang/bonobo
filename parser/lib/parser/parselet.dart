@@ -1,4 +1,7 @@
-part of bonobo.src.text;
+import 'package:ast/ast.dart';
+import 'package:scanner/scanner.dart';
+
+import 'parser.dart';
 
 typedef T PrefixParselet<T>(Parser parser, Token token,
     List<Comment> comments, bool inVariableDeclaration);
