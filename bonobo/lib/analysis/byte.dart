@@ -7,37 +7,37 @@ class _BonoboByteType extends BonoboInheritedType {
   c.CType get ctype => c.CType.char;
 
   @override
-  BonoboType prefixOp(Token operator, BonoboAnalyzer analyzer) {
-    var supportedOps = [TokenType.tilde, TokenType.plus, TokenType.minus];
+  BonoboType prefixOp(PrefixOperatorContext operator, BonoboAnalyzer analyzer) {
+    var supportedOps = [PrefixOperator.complement, PrefixOperator.plus, PrefixOperator.minus];
 
-    if (supportedOps.contains(operator.type)) return this;
+    if (supportedOps.contains(operator)) return this;
 
     return super.prefixOp(operator, analyzer);
   }
 
   @override
   BonoboType binaryOp(
-      Token operator, BonoboType other, BonoboAnalyzer analyzer) {
-    var shiftOps = [TokenType.shl, TokenType.shr];
+      BinaryOperator operator, FileSpan span, BonoboType other, BonoboAnalyzer analyzer) {
+    var shiftOps = [BinaryOperator.shl, BinaryOperator.shr];
     var supportedOps = [
-      TokenType.pow,
-      TokenType.times,
-      TokenType.div,
-      TokenType.mod,
-      TokenType.plus,
-      TokenType.minus,
-      TokenType.xor,
-      TokenType.and,
-      TokenType.or,
+      BinaryOperator.pow,
+      BinaryOperator.times,
+      BinaryOperator.div,
+      BinaryOperator.mod,
+      BinaryOperator.plus,
+      BinaryOperator.minus,
+      BinaryOperator.xor,
+      BinaryOperator.and,
+      BinaryOperator.or,
     ];
 
     // TODO: Use `Int`, instead of `Num`, which is being phased out.
-    if (shiftOps.contains(operator.type) &&
+    if (shiftOps.contains(operator) &&
         other.isAssignableTo(BonoboType.Num)) return this;
 
-    if (supportedOps.contains(operator.type) && other.isAssignableTo(this))
+    if (supportedOps.contains(operator) && other.isAssignableTo(this))
       return this;
 
-    return super.prefixOp(operator, analyzer);
+    return super.binaryOp(operator, span, other, analyzer);
   }
 }

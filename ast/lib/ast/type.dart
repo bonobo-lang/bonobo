@@ -76,6 +76,9 @@ class ClassDeclarationContext extends AstNode {
       {this.fields: const [], this.methods: const [], this.isPriv: false})
       : super(span, []);
 
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitClassDeclaration(this);
+
   String toString() {
     var sb = new StringBuffer();
     sb.write('class');

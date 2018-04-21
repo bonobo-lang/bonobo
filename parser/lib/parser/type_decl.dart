@@ -42,7 +42,7 @@ class TypeDeclParser {
       peek = state.peek();
     }
 
-    final fields = <VarDeclStContext>[];
+    final fields = <VariableDeclarationStatementContext>[];
     final methods = <FunctionContext>[];
 
     peek = state.nextToken(TokenType.lParen);
@@ -51,13 +51,13 @@ class TypeDeclParser {
         case TokenType.let:
         case TokenType.var_:
         case TokenType.const_:
-          VarDeclStContext v = state.statementParser.varDeclParser.parse();
+          var v = state.statementParser.variableDeclarationParser.parse();
           if (v == null) return null;
           fields.add(v);
           break;
         default:
-          VarDeclStContext v =
-          state.statementParser.varDeclParser.parse(mut: VariableMutability.var_);
+          var v =
+          state.statementParser.variableDeclarationParser.parse(mut: VariableMutability.var_);
           if (v == null) return null;
           fields.add(v);
           break;
@@ -77,18 +77,18 @@ class TypeDeclParser {
           case TokenType.let:
           case TokenType.var_:
           case TokenType.const_:
-            VarDeclStContext v = state.statementParser.varDeclParser.parse();
+            var v = state.statementParser.variableDeclarationParser.parse();
             if (v == null) return null;
             fields.add(v);
             break;
           case TokenType.fn:
-            FunctionContext f = state.nextFunc();
+            FunctionContext f = state.parseFunction();
             if (f == null) return null;
             methods.add(f);
             break;
           default:
-            VarDeclStContext v =
-                state.statementParser.varDeclParser.parse(mut: VariableMutability.var_);
+            var v =
+                state.statementParser.variableDeclarationParser.parse(mut: VariableMutability.var_);
             if (v == null) return null;
             fields.add(v);
             break;

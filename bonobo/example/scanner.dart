@@ -1,4 +1,5 @@
 import 'package:bonobo/bonobo.dart';
+import 'package:scanner/scanner.dart';
 
 main(List<String> args) async {
   const options = const CompileOptions();

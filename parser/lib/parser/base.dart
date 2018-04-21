@@ -18,6 +18,7 @@ class BaseParser {
     return scanner.tokens.skip(_index).toList();
   }
 
+  /*
   /// Computes the current Pratt expression parser precedence.
   int getPrecedence() {
     return _infixParselets[peek()?.type]?.precedence ?? 0;
@@ -26,7 +27,7 @@ class BaseParser {
   /// Computes the current Pratt type parser precedence.
   int getTypePrecedence() {
     return _typeInfixParselets[peek()?.type]?.precedence ?? 0;
-  }
+  }*/
 
   /// Joins the [tokens] into a single [FileSpan].
   FileSpan spanFrom(Iterable<Token> tokens) {

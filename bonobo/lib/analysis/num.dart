@@ -13,8 +13,8 @@ class _BonoboNumType extends BonoboInheritedType {
 
   @override
   BonoboType binaryOp(
-      Token operator, BonoboType other, BonoboAnalyzer analyzer) {
+      BinaryOperator operator, FileSpan span, BonoboType other, BonoboAnalyzer analyzer) {
     if (other.isAssignableTo(this)) return this;
-    return unsupportedBinaryOperator(operator, other, analyzer);
+    return unsupportedBinaryOperator(operator, span, other, analyzer);
   }
 }

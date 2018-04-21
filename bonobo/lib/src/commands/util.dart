@@ -4,9 +4,12 @@ import 'dart:io' as io;
 import 'dart:io' show stderr, stdin, stdout;
 
 import 'package:args/command_runner.dart';
+import 'package:ast/ast.dart';
 import 'package:bonobo/bonobo.dart';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
+import 'package:parser/parser.dart';
+import 'package:path/path.dart' as p;
 import 'package:scanner/scanner.dart';
 import 'package:tuple/tuple.dart';
 
@@ -54,7 +57,7 @@ io.IOSink getOutput(BonoboCommand command) {
   }
 }
 
-Future<Tuple3<Scanner, Parser, UnitContext>> scanAndParse(
+Future<Tuple3<Scanner, Parser, CompilationUnitContext>> scanAndParse(
     Command command) async {
   var input = await getInput(command);
   if (input == null) return null;

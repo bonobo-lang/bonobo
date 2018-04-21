@@ -17,14 +17,11 @@ class TypeParser {
     var namespaces = <IdentifierContext>[];
 
     if (name is NamespacedIdentifierContext) {
-      NamespacedIdentifierContext tn = name as NamespacedIdentifierContext;
-      namespaces = tn.namespaces;
-      name = tn.symbol;
+      return new NamespacedIdentifierTypeContext(name, []);
+    } else {
+      return new SimpleIdentifierTypeContext(name, []);
     }
 
     // TODO parse generics
-
-    return new TypeContext(name.span.expand(lastSpan), [], name,
-        namespaces: namespaces);
   }
 }

@@ -20,13 +20,14 @@ class SimpleIdentifierContext extends IdentifierContext {
         super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitSimpleIdentifier(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitSimpleIdentifier(this);
 
   String toString() => name;
 }
 
 class NamespacedIdentifierContext extends IdentifierContext {
-  final List<IdentifierContext> namespaces;
+  final List<SimpleIdentifierContext> namespaces;
   final IdentifierContext symbol;
 
   NamespacedIdentifierContext(
@@ -34,7 +35,8 @@ class NamespacedIdentifierContext extends IdentifierContext {
       : super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitNamespacedIdentifier(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitNamespacedIdentifier(this);
 }
 
 class NumberLiteralContext extends ExpressionContext {
@@ -103,7 +105,8 @@ class BinaryOperator {
 
   static const BinaryOperator pow = const BinaryOperator._(1, '**', 'pow', 10);
 
-  static const BinaryOperator times = const BinaryOperator._(2, '*', 'times', 10);
+  static const BinaryOperator times =
+      const BinaryOperator._(2, '*', 'times', 10);
 
   static const BinaryOperator div = const BinaryOperator._(3, '/', 'div', 10);
 
@@ -111,7 +114,8 @@ class BinaryOperator {
 
   static const BinaryOperator plus = const BinaryOperator._(4, '+', 'plus', 8);
 
-  static const BinaryOperator minus = const BinaryOperator._(5, '-', 'minus', 8);
+  static const BinaryOperator minus =
+      const BinaryOperator._(5, '-', 'minus', 8);
 
   static const BinaryOperator xor = const BinaryOperator._(6, '^', 'xor', 8);
 
@@ -122,11 +126,14 @@ class BinaryOperator {
   static const BinaryOperator logicalAnd =
       const BinaryOperator._(9, '&&', 'logical and', 2);
 
-  static const BinaryOperator logicalOr = const BinaryOperator._(10, '||', 'logical or', 4);
+  static const BinaryOperator logicalOr =
+      const BinaryOperator._(10, '||', 'logical or', 4);
 
-  static const BinaryOperator equals = const BinaryOperator._(11, '==', 'eq', 6);
+  static const BinaryOperator equals =
+      const BinaryOperator._(11, '==', 'eq', 6);
 
-  static const BinaryOperator notEquals = const BinaryOperator._(12, '!=', 'neq', 6);
+  static const BinaryOperator notEquals =
+      const BinaryOperator._(12, '!=', 'neq', 6);
 
   static const BinaryOperator lt = const BinaryOperator._(13, '<', 'lt', 6);
 
@@ -188,18 +195,19 @@ class BinaryOperator {
   }
 }
 
-class BinaryExpression extends AstNode {
+class BinaryExpressionContext extends ExpressionContext {
+  final ExpressionContext left, right;
   final BinaryOperator op;
 
-  BinaryExpression(FileSpan span, List<Comment> comments, this.op)
+  BinaryExpressionContext(
+      FileSpan span, List<Comment> comments, this.left, this.right, this.op)
       : super(span, comments);
 
   int get precedence => op.precedence;
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitBinaryExpression(this);
-
-  String toString() => op.rep;
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitBinaryExpression(this);
 }
 
 class AssignmentExpressionContext extends ExpressionContext {
@@ -211,33 +219,37 @@ class AssignmentExpressionContext extends ExpressionContext {
       : super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitAssignmentExpression(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitAssignmentExpression(this);
 }
 
-class PrefixOp {
+class PrefixOperator {
   final int value;
 
   final String rep;
 
-  const PrefixOp(this.value, this.rep);
+  const PrefixOperator(this.value, this.rep);
 
-  static const PrefixOp minus = const PrefixOp(0, '-');
+  static const PrefixOperator minus = const PrefixOperator(0, '-');
 
-  static const PrefixOp complement = const PrefixOp(1, '~');
+  static const PrefixOperator plus = const PrefixOperator(2, '-');
 
-  static const PrefixOp not = const PrefixOp(2, '!');
+  static const PrefixOperator complement = const PrefixOperator(3, '~');
 
-  static Map<TokenType, PrefixOp> _map = const {
+  static const PrefixOperator not = const PrefixOperator(4, '!');
+
+  static Map<TokenType, PrefixOperator> _map = const {
+    TokenType.plus: plus,
     TokenType.minus: minus,
     TokenType.tilde: complement,
     TokenType.not: not,
   };
 
-  static PrefixOp fromToken(TokenType tok) => _map[tok];
+  static PrefixOperator fromToken(TokenType tok) => _map[tok];
 }
 
 class PrefixOperatorContext extends AstNode {
-  final PrefixOp op;
+  final PrefixOperator op;
 
   PrefixOperatorContext(FileSpan span, List<Comment> comments, this.op)
       : super(span, comments);
@@ -247,15 +259,17 @@ class PrefixOperatorContext extends AstNode {
 
 class PrefixExpressionContext extends ExpressionContext {
   final PrefixOperatorContext op;
-  final ExpressionContext exp;
+  final ExpressionContext expression;
 
-  PrefixExpressionContext(FileSpan span, List<Comment> comments, this.op, this.exp)
+  PrefixExpressionContext(
+      FileSpan span, List<Comment> comments, this.op, this.expression)
       : super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitPrefixExpression(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitPrefixExpression(this);
 
-  String toString() => '$op$exp';
+  String toString() => '$op$expression';
 }
 
 class PostfixExpressionContext extends ExpressionContext {
@@ -267,9 +281,9 @@ class PostfixExpressionContext extends ExpressionContext {
       : super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitPostfixExpression(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitPostfixExpression(this);
 }
-
 
 class ConditionalExpressionContext extends ExpressionContext {
   final ExpressionContext condition, ifTrue, ifFalse;
@@ -279,7 +293,8 @@ class ConditionalExpressionContext extends ExpressionContext {
       : super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitConditionalExpression(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitConditionalExpression(this);
 }
 
 class TupleExpressionContext extends ExpressionContext {
@@ -290,7 +305,8 @@ class TupleExpressionContext extends ExpressionContext {
       : super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitTupleExpression(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitTupleExpression(this);
 }
 
 class CallExpressionContext extends ExpressionContext {
@@ -314,10 +330,10 @@ class MemberExpressionContext extends ExpressionContext {
       : super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitMemberExpression(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitMemberExpression(this);
 }
 
-/*
 class ExpChainPartCtx extends AstNode {
   final BinaryExpression op;
   final ExpressionContext right;
@@ -364,4 +380,3 @@ class CallIdChainExpPartCtx extends AstNode implements IdChainExpPartCtx {
 
   String toString() => '(' + args.join(', ') + ')';
 }
-*/

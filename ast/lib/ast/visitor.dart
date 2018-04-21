@@ -16,8 +16,6 @@ abstract class BonoboAstVisitor<T> {
 
   T visitTupleType(TupleTypeContext ctx);
 
-  T visitParenthesizedType(ParenthesizedTypeContext ctx);
-
   T visitFunctionType(FunctionTypeContext ctx);
 
   T visitSimpleIdentifier(SimpleIdentifierContext ctx);
@@ -27,10 +25,6 @@ abstract class BonoboAstVisitor<T> {
   T visitNumberLiteral(NumberLiteralContext ctx);
 
   T visitStringLiteral(StringLiteralContext ctx);
-
-  T visitPrintExpression(PrintExpressionContext ctx);
-
-  T visitParenthesizedExpression(ParenthesizedExpressionContext ctx);
 
   T visitPrefixExpression(PrefixExpressionContext ctx);
 
@@ -67,4 +61,6 @@ abstract class BonoboAstVisitor<T> {
   T visitParameterList(ParameterListContext ctx);
 
   T visitParameter(ParameterContext ctx);
+
+  T visitClassDeclaration(ClassDeclarationContext ctx);
 }

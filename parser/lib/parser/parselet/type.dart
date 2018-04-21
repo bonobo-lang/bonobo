@@ -1,5 +1,6 @@
 part of bonobo.src.text;
 
+/*
 final Map<TokenType, PrefixParselet<TypeContext>> _typePrefixParselets = {
   TokenType.identifier: (parser, token, comments, inVariableDeclaration) {
     var parts = <Token>[token];
@@ -149,3 +150,4 @@ Map<TokenType, InfixParselet<TypeContext>> createTypeInfixParselets() {
     }),
   };
 }
+*/

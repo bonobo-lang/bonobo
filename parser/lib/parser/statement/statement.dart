@@ -6,8 +6,8 @@ class StatementParser {
   StatementParser(this.state);
 
   StatementContext parse() {
-    List<Comment> comments = state.nextComments();
-    return varDeclParser.parse() ??
+    List<Comment> comments = state.parseComments();
+    return variableDeclarationParser.parse() ??
         parseExpressionStatement() ??
         parseReturnStatement(comments);
   }
@@ -50,6 +50,6 @@ class StatementParser {
   }
 
   VariableDeclarationParser _varDeclParser;
-  VariableDeclarationParser get varDeclParser =>
+  VariableDeclarationParser get variableDeclarationParser =>
       _varDeclParser ??= new VariableDeclarationParser(state);
 }

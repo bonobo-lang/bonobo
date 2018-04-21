@@ -1,6 +1,5 @@
 part of 'analysis.dart';
 
-
 class BonoboAnalyzer {
   final List<BonoboError> errors = [];
   final BonoboModuleSystem moduleSystem;
@@ -81,10 +80,10 @@ class BonoboAnalyzer {
         var symbol =
             module.scope.create(ctx.name.name, value: function, constant: true);
 
-        if (ctx.isPub) {
-          symbol.visibility = Visibility.public;
-        } else {
+        if (ctx.isHidden) {
           symbol.visibility = Visibility.private;
+        } else {
+          symbol.visibility = Visibility.public;
         }
 
         if (ctx.signature.parameterList != null) {
@@ -218,8 +217,8 @@ class BonoboAnalyzer {
             childScope.create(
               decl.name.name,
               value: await resolveExpression(
-                  decl.expression, function, childScope),
-              constant: decl.isFinal,
+                  decl.initializer, function, childScope),
+              constant: decl.isImmutable,
             );
           } on StateError catch (e) {
             errors.add(new BonoboError(
@@ -268,8 +267,6 @@ class BonoboAnalyzer {
       var parameters = await Future.wait(ctx.parameters.map(resolveType));
       var returnType = await resolveType(ctx.returnType);
       return new BonoboFunctionType(parameters, returnType);
-    } else if (ctx is ParenthesizedTypeContext) {
-      return await resolveType(ctx.innermost);
     } else {
       errors.add(new BonoboError(BonoboErrorSeverity.warning,
           'Unsupported type: ${ctx.runtimeType}', ctx.span));
@@ -287,11 +284,6 @@ class BonoboAnalyzer {
       BonoboFunction function, SymbolTable<BonoboObject> scope) async {
     final BonoboObject defaultObject =
         new BonoboObject(BonoboType.Root, ctx.span);
-
-    // Misc.
-    if (ctx is ParenthesizedExpressionContext) {
-      return await resolveExpression(ctx.expression, function, scope);
-    }
 
     // Literals
     if (ctx is NumberLiteralContext) {
@@ -358,7 +350,7 @@ class BonoboAnalyzer {
 
     // Other expressions, lexicographical order
     if (ctx is AssignmentExpressionContext) {
-      var leftCtx = ctx.left.innermost;
+      var leftCtx = ctx.left;
 
       if (leftCtx is! IdentifierContext) {
         // TODO: Do this for MemberExpression too
@@ -376,22 +368,18 @@ class BonoboAnalyzer {
           BonoboObject value;
 
           if (ctx.operator.type == TokenType.equals) {
-            value =
-                await resolveExpression(ctx.right.innermost, function, scope);
+            value = await resolveExpression(ctx.right, function, scope);
           } else {
             // Make an artificial binary expression, and assign it as the value.
             var rootOperator = ctx.operator.span.text
                 .substring(0, ctx.operator.span.length - 1);
+
             var binaryExpression = new BinaryExpressionContext(
-              leftCtx,
-              new Token(
-                normalPatterns[rootOperator],
-                ctx.operator.span,
-                ctx.operator.match,
-              ),
-              ctx.right.innermost,
               ctx.span,
               ctx.comments,
+              leftCtx,
+              ctx.right,
+              op,
             );
             value = await resolveExpression(binaryExpression, function, scope);
           }
@@ -407,9 +395,9 @@ class BonoboAnalyzer {
     }
 
     if (ctx is BinaryExpressionContext) {
-      var left = await resolveExpression(ctx.left.innermost, function, scope);
-      var right = await resolveExpression(ctx.right.innermost, function, scope);
-      var type = left.type.binaryOp(ctx.operator, right.type, this);
+      var left = await resolveExpression(ctx.left, function, scope);
+      var right = await resolveExpression(ctx.right, function, scope);
+      var type = left.type.binaryOp(ctx.op, ctx.span, right.type, this);
       return new BonoboObject(type, ctx.span);
     }
 
@@ -472,7 +460,7 @@ class BonoboAnalyzer {
     }
 
     if (ctx is MemberExpressionContext) {
-      var targetExpression = ctx.target.innermost;
+      var targetExpression = ctx.target;
 
       // If the target expression is neither an ID nor a member expression,
       // then we should attempt to access a field.

@@ -1,7 +1,10 @@
+/*
 import 'package:ast/ast.dart';
+import 'package:scanner/scanner.dart';
 import 'package:scanner/scanner.dart';
 
 import 'parser.dart';
+
 
 typedef T PrefixParselet<T>(Parser parser, Token token,
     List<Comment> comments, bool inVariableDeclaration);
@@ -28,7 +31,8 @@ class BinaryParselet extends InfixParselet<ExpressionContext> {
             span = span.expand(lastSpan = equals);
           }
 
-          var right = parser.parseExpression(0, inVariableDeclaration);
+          var right = parser.parseExpression();
+          //var right = parser.parseExpression(0, inVariableDeclaration);
 
           if (right == null) {
             parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
@@ -48,12 +52,15 @@ class BinaryParselet extends InfixParselet<ExpressionContext> {
             );
           }
 
+          //return new BinaryExpressionContext(span, comments, left, right, op);
+          /*
           return new BinaryExpressionContext(
             left,
             token,
             right,
             span,
             []..addAll(comments)..addAll(right.comments),
-          );
+          );*/
         });
 }
+*/

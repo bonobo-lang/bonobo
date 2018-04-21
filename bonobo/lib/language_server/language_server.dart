@@ -4,7 +4,6 @@ import 'dart:io' as io show File;
 import 'package:args/command_runner.dart';
 import 'package:ast/ast.dart';
 import 'package:bonobo/bonobo.dart';
-import 'package:bonobo/src/text/text.dart';
 import 'package:charcode/charcode.dart';
 import 'package:file/file.dart'
     show Directory, File, FileSystem, ForwardingFileSystem;
@@ -19,52 +18,11 @@ import 'package:dart_language_server/src/protocol/language_server/wireformat.dar
     as lsp;
 import 'package:dart_language_server/dart_language_server.dart' as lsp;
 import 'package:logging/logging.dart';
+import 'package:parser/parser.dart';
 import 'package:scanner/scanner.dart';
 import 'package:source_span/source_span.dart';
+import 'package:symbol_table/symbol_table.dart';
 import 'package:tuple/tuple.dart';
-
-class LanguageServerCommand extends Command {
-  final String name = 'language_server';
-  final String description = 'Runs a VSCode language server.';
-  final Logger logger = new Logger('bonobo.language_server');
-
-  LanguageServerCommand() {
-    hierarchicalLoggingEnabled = true;
-    logger
-      ..level = Level.FINEST
-      ..onRecord.listen((rec) {
-        stderr.writeln(rec);
-        if (rec.error != null && rec.error is! UnimplementedError) {
-          stderr.writeln(rec.error);
-          if (rec.stackTrace != null) stderr.writeln(rec.stackTrace);
-        }
-      });
-  }
-
-  @override
-  run() {
-    var zone = Zone.current.fork(
-        specification: new ZoneSpecification(
-      print: (self, parent, zone, line) {
-        logger.info(line);
-      },
-      handleUncaughtError: (self, parent, zone, error, stackTrace) {
-        if (error is! UnimplementedError)
-          logger.severe('FATAL ERROR', error, stackTrace);
-      },
-      errorCallback: (self, parent, zone, error, stackTrace) {
-        self.handleUncaughtError(error, null);
-      },
-    ));
-
-    return zone.run(() {
-      var server = new BonoboLanguageServer(logger);
-      logger.info('Bonobo language server started.');
-      var stdio = new lsp.StdIOLanguageServer.start(server);
-      return stdio.onDone;
-    });
-  }
-}
 
 class BonoboLanguageServer extends lsp.LanguageServer {
   static const Duration queueTime = const Duration(seconds: 10);
@@ -759,5 +717,15 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     var file = findFileSystem(convertDocumentId(documentId))
         .file(convertDocumentId(documentId));
     file.delete(recursive: true).catchError((_) => null);
+  }
+
+  @override
+  Future<List<lsp.Location>> textDocumentImplementation(lsp.TextDocumentIdentifier documentId, lsp.Position position) {
+    // TODO: implement textDocumentImplementation
+  }
+
+  @override
+  Future<List<lsp.SymbolInformation>> workspaceSymbol(String query) {
+    // TODO: implement workspaceSymbol
   }
 }

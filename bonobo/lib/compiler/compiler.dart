@@ -128,9 +128,9 @@ class BonoboCCompiler {
         // Declare all variables
         for (var decl in stmt.declarations) {
           var value = await analyzer.resolveExpression(
-              decl.expression, function, scope);
+              decl.initializer, function, scope);
           var cExpression =
-              await compileExpression(decl.expression, function, out, scope);
+              await compileExpression(decl.initializer, function, out, scope);
           var type = await compileType(value.type);
           out.add(new c.Field(type, decl.name.name, cExpression));
         }
@@ -175,20 +175,6 @@ class BonoboCCompiler {
       var arguments = await Future.wait(ctx.arguments.expressions
           .map((e) => compileExpression(e, function, body, scope)));
       return target.invoke(arguments);
-    }
-
-    if (ctx is ParenthesizedExpressionContext) {
-      var value =
-          await compileExpression(ctx.expression, function, body, scope);
-      return value.parentheses();
-    }
-
-    if (ctx is PrintExpressionContext) {
-      var value =
-          await analyzer.resolveExpression(ctx.expression, function, scope);
-      var cExpression =
-          await compileExpression(ctx.expression, function, body, scope);
-      return new c.Expression('${value.type.name}_print').invoke([cExpression]);
     }
 
     if (ctx is MemberExpressionContext) {

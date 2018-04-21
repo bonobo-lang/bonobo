@@ -110,6 +110,9 @@ class ExpressionStatementContext extends StatementContext {
   ExpressionStatementContext(this.expression)
       : super(expression.span, expression.comments);
 
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitExpressionStatement(this);
+
   String toString() => expression.toString();
 }
 
@@ -119,6 +122,9 @@ class ReturnStatementContext extends StatementContext {
   ReturnStatementContext(
       FileSpan span, List<Comment> comments, this.expressions)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitReturnStatement(this);
 }
 
 /*
@@ -150,6 +156,12 @@ class VariableMutability {
   static const VariableMutability const_ = const VariableMutability(0, 'const');
   static const VariableMutability final_ = const VariableMutability(0, 'let');
   static const VariableMutability var_ = const VariableMutability(0, 'var');
+
+  bool operator <(VariableMutability other) => value < other.value;
+  bool operator <=(VariableMutability other) => value <= other.value;
+
+  bool operator >(VariableMutability other) => value > other.value;
+  bool operator >=(VariableMutability other) => value >= other.value;
 }
 
 class VariableDeclarationStatementContext extends StatementContext {
@@ -177,6 +189,8 @@ class VariableDeclarationContext extends AstNode {
   VariableDeclarationContext(FileSpan span, this.name, this.type, this.initializer,
       this.mutability, List<Comment> comments)
       : super(span, comments);
+
+  bool get isImmutable => mutability >= VariableMutability.final_;
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) =>

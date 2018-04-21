@@ -46,9 +46,9 @@ class ExploreCommand extends Command {
       if (errors.isNotEmpty) continue;
 
       var parser = new Parser(scanner);
-      var parsed = parser.nextFunc() ??
-          parser.parseVariableDeclarationStatement() ??
-          parser.parseExpressionStatement()?.expression ??
+      var parsed = parser.parseFunction() ??
+          parser.statementParser.variableDeclarationParser.parse() ??
+          parser.statementParser.parseExpressionStatement() ??
           parser.parseSimpleIdentifier();
 
       errors =
@@ -88,9 +88,9 @@ class ExploreCommand extends Command {
       if (parsed is VariableDeclarationStatementContext) {
         for (var decl in parsed.declarations) {
           var expr = await analyzer.resolveExpression(
-              decl.expression, null, analyzer.module.scope);
+              decl.initializer, null, analyzer.module.scope);
           analyzer.module.scope
-              .create(decl.name.name, value: expr, constant: decl.isFinal);
+              .create(decl.name.name, value: expr, constant: decl.mutability >= VariableMutability.final_);
         }
       } else if (parsed is ExpressionContext) {
         var expr = await analyzer.resolveExpression(

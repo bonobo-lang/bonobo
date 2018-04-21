@@ -1,7 +1,7 @@
 part of bonobo.src.ast;
 
 class FunctionContext extends ExpressionContext {
-  final bool isPriv;
+  final bool isHidden;
 
   final SimpleIdentifierContext name;
   final FunctionSignatureContext signature;
@@ -9,7 +9,7 @@ class FunctionContext extends ExpressionContext {
 
   FunctionContext(this.name, this.signature, this.body, FileSpan span,
       List<Comment> comments,
-      {this.isPriv: false})
+      {this.isHidden: false})
       : super(span, comments);
 
   @override
@@ -18,7 +18,7 @@ class FunctionContext extends ExpressionContext {
   String toString() {
     var sb = new StringBuffer();
     sb.write('fn');
-    if(isPriv) sb.write(' hide');
+    if(isHidden) sb.write(' hide');
     sb.write(' $name');
     if (signature != null) sb.write(signature);
     sb.write(body);
@@ -69,10 +69,10 @@ class BlockFunctionBodyContext extends FunctionBodyContext {
   String toString() => block.toString();
 }
 
-class SameLineFnBodyContext extends FunctionBodyContext {
+class LambdaFunctionBodyContext extends FunctionBodyContext {
   final List<ExpressionContext> expressions;
 
-  SameLineFnBodyContext(FileSpan span, List<Comment> comments, this.expressions)
+  LambdaFunctionBodyContext(FileSpan span, List<Comment> comments, this.expressions)
       : super(span, comments);
 
   @override

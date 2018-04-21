@@ -77,7 +77,7 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
   @override
   T visitLambdaFunctionBody(LambdaFunctionBodyContext ctx) {
     if (ctx == null) return null;
-    visitExpression(ctx.expression);
+    ctx.expressions.forEach(visitExpression);
     return null;
   }
 
@@ -92,13 +92,6 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
   T visitNamespacedIdentifierType(NamespacedIdentifierTypeContext ctx) {
     if (ctx == null) return null;
     visitNamespacedIdentifier(ctx.identifier);
-    return null;
-  }
-
-  @override
-  T visitParenthesizedType(ParenthesizedTypeContext ctx) {
-    if (ctx == null) return null;
-    visitType(ctx.innermost);
     return null;
   }
 
@@ -129,7 +122,7 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
   T visitVariableDeclaration(VariableDeclarationContext ctx) {
     if (ctx == null) return null;
     visitSimpleIdentifier(ctx.name);
-    visitExpression(ctx.expression);
+    visitExpression(ctx.initializer);
     return null;
   }
 
@@ -141,7 +134,7 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
 
   @override
   T visitReturnStatement(ReturnStatementContext ctx) {
-    visitExpression(ctx.expression);
+    ctx.expressions.forEach(visitExpression);
     return null;
   }
 
@@ -154,20 +147,6 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
 
   @override
   T visitPostfixExpression(PostfixExpressionContext ctx) {
-    if (ctx == null) return null;
-    visitExpression(ctx.expression);
-    return null;
-  }
-
-  @override
-  T visitPrintExpression(PrintExpressionContext ctx) {
-    if (ctx == null) return null;
-    visitExpression(ctx.expression);
-    return null;
-  }
-
-  @override
-  T visitParenthesizedExpression(ParenthesizedExpressionContext ctx) {
     if (ctx == null) return null;
     visitExpression(ctx.expression);
     return null;
@@ -237,4 +216,12 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
 
   @override
   T visitStringLiteral(StringLiteralContext ctx) => null;
+
+  @override
+  T visitClassDeclaration(ClassDeclarationContext ctx) {
+   visitSimpleIdentifier(ctx.name);
+   ctx.fields.forEach(visitVariableDeclarationStatement);
+   ctx.methods.forEach(visitFunction);
+   return null;
+  }
 }

@@ -45,7 +45,7 @@ class ExpressionParser {
 
     prev = parts[parts.length - 2];
     ExpChainPartCtx cur = parts.last;
-    BinaryExpression op = prev.op;
+    BinaryExpressionContext op = prev.op;
     ExpressionContext exp = new ExpChainCtx(
         prev.right.span.expand(cur.span), [], prev.right, parts.last);
     for (int i = parts.length - 2; i >= 1; i++) {
@@ -68,7 +68,8 @@ class ExpressionParser {
     if (op == null) return null;
     state.consume();
 
-    BinaryExpression opCtx = new BinaryExpression(peek.span, [], op);
+    //var opCtx = new BinaryExpressionContext(span, [], left, right, op);
+    BinaryExpressionContext opCtx = new BinaryExpressionContext(peek.span, [], op);
     ExpressionContext exp = parseSingleExpression();
     if (exp == null) return null;
     return new ExpChainPartCtx(peek.span.expand(exp.span), [], opCtx, exp);
@@ -88,7 +89,7 @@ class ExpressionParser {
         return new PrefixExpressionContext(
             token.span.expand(exp.span),
             [],
-            new PrefixOperatorContext(token.span, [], PrefixOp.fromToken(token.type)),
+            new PrefixOperatorContext(token.span, [], PrefixOperator.fromToken(token.type)),
             exp);
       case TokenType.lParen:
         state.consume();

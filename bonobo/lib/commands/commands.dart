@@ -15,7 +15,8 @@ import 'package:dart_language_server/src/protocol/language_server/messages.dart'
 import 'package:dart_language_server/src/protocol/language_server/wireformat.dart'
     as lsp;
 import 'package:dart_language_server/dart_language_server.dart' as lsp;
-import 'package:file/file.dart' show Directory, File, FileSystem, ForwardingFileSystem;
+import 'package:file/file.dart'
+    show Directory, File, FileSystem, ForwardingFileSystem;
 import 'package:file/local.dart';
 import 'package:file/memory.dart';
 import 'package:logging/logging.dart';
@@ -29,19 +30,22 @@ import 'package:source_span/source_span.dart';
 import 'package:ast/ast.dart';
 import 'package:scanner/scanner.dart';
 import 'package:parser/parser.dart';
-
-part 'format/replace.dart';
+import '../language_server/language_server.dart';
 
 part 'bonobo_command.dart';
+
 part 'compile.dart';
 
-part 'compiler.dart';
-
 part 'document.dart';
+
 part 'explore.dart';
+
 part 'file_system.dart';
+
 part 'format.dart';
+
 part 'language_server.dart';
+
 part 'util.dart';
 
 final CommandRunner commandRunner =

@@ -1,4 +1,4 @@
-import 'package:bonobo/bonobo.dart';
+part of 'analysis.dart';
 
 class BonoboTupleType extends BonoboInheritedType {
   final List<BonoboType> types;

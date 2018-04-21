@@ -42,7 +42,7 @@ class FunctionParser {
 
     return new FunctionContext(
         name, signature, body, startSpan.expand(body.span), comments,
-        isPriv: isPriv);
+        isHidden: isPriv);
   }
 
   FunctionSignatureContext parseSignature(FileSpan currentSpan) {
@@ -133,7 +133,7 @@ class FunctionParser {
     return null;
   }
 
-  SameLineFnBodyContext parseSameLineBody() {
+  LambdaFunctionBodyContext parseSameLineBody() {
     Token arrow = state.nextToken(TokenType.arrow);
     if (arrow == null) return null;
 
@@ -152,7 +152,7 @@ class FunctionParser {
       return null;
     }
 
-    return new SameLineFnBodyContext(
+    return new LambdaFunctionBodyContext(
         arrow.span.expand(exps.first.span), [], exps);
   }
 

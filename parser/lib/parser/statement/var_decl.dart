@@ -5,17 +5,19 @@ class VariableDeclarationParser {
 
   VariableDeclarationParser(this.state);
 
-  VarDeclStContext parse({VariableMutability mut}) {
-    List<Comment> comments = state.nextComments();
+  VariableDeclarationStatementContext parse({VariableMutability mut}) {
+    List<Comment> comments = state.parseComments();
 
     Token what;
     if (mut == null) {
-      what =
-          state.next([TokenType.const_, TokenType.let, TokenType.var_])?.removeFirst();
+      what = state.next(
+          [TokenType.const_, TokenType.let, TokenType.var_])?.removeFirst();
       if (what == null) return null;
       mut = what.type == TokenType.const_
           ? VariableMutability.const_
-          : what.type == TokenType.let ? VariableMutability.final_ : VariableMutability.var_;
+          : what.type == TokenType.let
+              ? VariableMutability.final_
+              : VariableMutability.var_;
     } else {
       what = state.peek();
     }
@@ -35,8 +37,24 @@ class VariableDeclarationParser {
       return null;
     }
 
-    return new VarDeclStContext(
-        what.span.expand(declarations.last.span), mut, declarations, comments);
+    var declarationSpan = what.span.expand(declarations.last.span);
+    var context = <StatementContext>[];
+    var statement = state.parseStatement();
+    var span = declarationSpan;
+
+    while (statement != null) {
+      span = span.expand(statement.span);
+      context.add(statement);
+      statement = state.parseStatement();
+    }
+
+    return new VariableDeclarationStatementContext(
+      declarations,
+      context,
+      declarationSpan,
+      span,
+      comments,
+    );
   }
 
   VariableDeclarationContext parseADecl(VariableMutability mut) {

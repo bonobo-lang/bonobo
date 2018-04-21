@@ -68,7 +68,7 @@ class BonoboModuleSystem {
         ..scan();
       module.emptySpan ??= scanner.emptySpan;
       var parser = new Parser(scanner);
-      var compilationUnit = parser.parse();
+      var compilationUnit = parser.parseCompilationUnit();
 
       // TODO: Analyze???
       await analyzer.analyze(

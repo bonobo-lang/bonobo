@@ -12,12 +12,12 @@ part 'type.dart';
 part 'statement/statement.dart';
 part 'statement/var_decl.dart';
 
-CompilationUnitContext parseUnit(Scanner scanner) => new Parser(scanner).parse();
+CompilationUnitContext parseUnit(Scanner scanner) => new Parser(scanner).parseCompilationUnit();
 
 class Parser extends BaseParser {
   Parser(Scanner scanner) : super(scanner);
 
-  CompilationUnitContext parse() {
+  CompilationUnitContext parseCompilationUnit() {
     // TODO reset?
 
     FileSpan startSpan = peek().span;
@@ -30,14 +30,14 @@ class Parser extends BaseParser {
       Token t = peek();
       switch (t.type) {
         case TokenType.fn:
-          FunctionContext f = nextFunc();
+          FunctionContext f = parseFunction();
           if (f != null) {
             functions.add(f);
             lastSpan = f.span;
           }
           break;
         case TokenType.type:
-          ClassDeclarationContext c = nextClass();
+          ClassDeclarationContext c = parseClass();
           if (c != null) {
             classes.add(c);
             lastSpan = c.span;
@@ -45,7 +45,7 @@ class Parser extends BaseParser {
           break;
         default:
           // TODO
-          throw new UnimplementedError();
+          throw new UnimplementedError(peek()?.span?.highlight());
           break;
       }
       if (errors.length != 0) {
@@ -58,12 +58,12 @@ class Parser extends BaseParser {
         functions: functions, classes: classes);
   }
 
-  FunctionContext nextFunc() {
+  FunctionContext parseFunction() {
     // TODO comments
     return functionParser.parse();
   }
 
-  ClassDeclarationContext nextClass() {
+  ClassDeclarationContext parseClass() {
     // TODO comments
     return classParser.parse();
   }

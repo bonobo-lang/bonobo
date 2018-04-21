@@ -1,3 +1,4 @@
+/*
 import 'package:ast/ast.dart';
 import 'package:scanner/scanner.dart';
 import '../parselet.dart';
@@ -17,9 +18,10 @@ final Map<TokenType, PrefixParselet<ExpressionContext>> prefixParselets = {
 
   // Reserved words
   TokenType.lambda: (parser, token, comments, __) =>
-      parser.functionParser.parse(comments: comments),
+      parser.functionParser.parseCompilationUnit(comments: comments),
       //parser.parseFunction(false, token, comments),
 
+  /*
   // Operators
   TokenType.lParen: (parser, token, comments, _) {
     // The parentheses make it OK to include a tuple in a variable declaration.
@@ -48,5 +50,6 @@ final Map<TokenType, PrefixParselet<ExpressionContext>> prefixParselets = {
 
     return new ParenthesizedExpressionContext(
         expression, span.expand(rParen), comments);
-  }
+  }*/
 };
+*/

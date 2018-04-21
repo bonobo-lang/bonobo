@@ -1,5 +1,7 @@
 import 'package:bonobo/bonobo.dart';
 import 'package:file/local.dart';
+import 'package:parser/parser.dart';
+import 'package:scanner/scanner.dart';
 
 main(List<String> args) async {
   const options = const CompileOptions();
@@ -8,7 +10,7 @@ main(List<String> args) async {
   print(scanner.errors);
   print(scanner.tokens.join('\n\n'));
   var parser = new Parser(scanner);
-  CompilationUnitContext compilationUnit = parser.parseCompilationUnit();
+  var compilationUnit = parser.parseCompilationUnit();
 
   const fs = const LocalFileSystem();
   var directory = fs.directory(fs.currentDirectory);

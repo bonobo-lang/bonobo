@@ -13,7 +13,7 @@ class _BonoboStringType extends BonoboInheritedType {
 
   @override
   BonoboType binaryOp(
-      Token operator, BonoboType other, BonoboAnalyzer analyzer) {
+      BinaryOperator operator, FileSpan, BonoboType other, BonoboAnalyzer analyzer) {
     return this;
   }
 }
