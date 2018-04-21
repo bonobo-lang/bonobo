@@ -53,3 +53,4 @@ fabric.properties
 .idea
 .dart_tool
 *.iml
+*.orig
