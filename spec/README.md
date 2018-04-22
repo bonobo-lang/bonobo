@@ -1,6 +1,20 @@
  # The Bonobo Programming Language Specification
  *This document is not yet final. Expect continuous changes.*
 
+* [About](#about)
+    * [Syntax Specification](#syntax-specification)
+* [Compilation Unit](#compilation-unit)
+    * [Relation to Modules](#relation-to-modules)
+* [Top Level Declaration](#top-level-declaration)
+    * [Import Declaration](#import-declaration)
+    * [Function Declaration](#function-declaration)
+        * [Function Signature](#function-signature)
+        * [Function Body](#function-body)
+            * [Expression Function Body](#expression-function-body)
+            * [Block Function Body](#block-function-body)
+                * [Block](#block)
+    * [Typedef Declaration](#typedef-declaration)
+
  ## About
 This document defines the *syntax* of Bonobo, a strongly-typed
 language intended for safe systems development.
@@ -21,19 +35,6 @@ Example:
 ```ebnf
 MyProduction: "Foo" | Bar+ | Baz*
 ```
-
-## Contents
-* [Compilation Unit](#compilation-unit)
-    * [Relation to Modules](#relation-to-modules)
-* [Top Level Declaration](#top-level-declaration)
-    * [Import Declaration](#import-declaration)
-    * [Function Declaration](#function-declaration)
-        * [Function Signature](#function-signature)
-        * [Function Body](#function-body)
-            * [Expression Function Body](#expression-function-body)
-            * [Block Function Body](#block-function-body)
-                * [Block](#block)
-    * [Typedef Declaration](#typedef-declaration)
 
 # Compilation Unit
 Bonobo is a language expressed in *compilation units*. A
