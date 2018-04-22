@@ -1,11 +1,9 @@
 import 'package:ast/ast.dart';
 import 'package:test/test.dart';
 import '../util.dart';
+import 'util.dart';
 
 void main() {
-  Matcher isIdentifierType(String name) => predicate(
-      (x) => x is SimpleIdentifierTypeContext && x.identifier.name == name);
-
   test('parse normal field', () {
     var field = parse('foo: Bar').typeParser.parseStructField();
     expect(field, isNotNull);
