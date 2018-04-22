@@ -33,4 +33,31 @@ class BonoboStructType extends BonoboType {
 
     return b.toString() + ' }';
   }
+
+  @override
+  bool isAssignableTo(BonoboType other) {
+    if (other is! BonoboStructType) return super.isAssignableTo(other);
+
+    var o = other as BonoboStructType;
+
+    for (var key in fields.keys) {
+      if (!o.fields.containsKey(key) ||
+          !fields[key].isAssignableTo(o.fields[key])) return false;
+    }
+
+    return true;
+  }
+
+  @override
+  bool operator ==(other) {
+    if (other is! BonoboStructType) return false;
+
+    var o = other as BonoboStructType;
+
+    for (var key in fields.keys) {
+      if (o.fields[key] != fields[key]) return false;
+    }
+
+    return true;
+  }
 }
