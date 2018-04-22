@@ -103,8 +103,7 @@ class ExpressionParser {
       case TokenType.lCurly:
         return _parseMap();
       case TokenType.number:
-        state.consume();
-        return new NumberLiteralContext(token.span, []);
+        return parseNumberLiteral();
       case TokenType.string:
         state.consume();
         return new StringLiteralContext(token.span, []);
@@ -113,6 +112,12 @@ class ExpressionParser {
       default:
         return null;
     }
+  }
+
+  NumberLiteralContext parseNumberLiteral() {
+    if (state.peek()?.type == TokenType.number)
+      return new NumberLiteralContext(state.consume().span, []);
+    return null;
   }
 
   ExpressionContext _parseParenExp() {
@@ -222,8 +227,7 @@ class ExpressionParser {
     Token lParen = state.nextToken(TokenType.lParen);
     var lastSpan = lParen?.span;
 
-    if (lParen == null)
-      return null;
+    if (lParen == null) return null;
 
     for (ExpressionContext exp = parse(); exp != null; exp = parse()) {
       args.add(exp);
