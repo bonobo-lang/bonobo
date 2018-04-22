@@ -30,7 +30,7 @@ class FunctionParser {
       return null;
     }
 
-    FunctionSignatureContext signature = parseSignature(name.span);
+    FunctionSignatureContext signature = parseSignature();
 
     var body = parseBody();
 
@@ -45,7 +45,7 @@ class FunctionParser {
         isHidden: isPriv);
   }
 
-  FunctionSignatureContext parseSignature(FileSpan currentSpan) {
+  FunctionSignatureContext parseSignature() {
     Token peek = state.peek();
     if (peek == null) return null;
     FileSpan span = peek.span;
@@ -68,7 +68,7 @@ class FunctionParser {
       span = span.expand(returnType.span);
     }
 
-    if (parameterList == null && returnType == null) span = currentSpan;
+    if (parameterList == null && returnType == null) return null;
 
     return new FunctionSignatureContext(parameterList, returnType, span, []);
   }

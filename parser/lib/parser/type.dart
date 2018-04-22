@@ -12,7 +12,8 @@ class TypeParser {
     // TODO parse special List syntax
     // TODO parse special Map syntax
 
-    TypeContext type = parseSingleType(comments: comments);
+    TypeContext type =
+        parseSingleType(comments: comments, ignoreComma: ignoreComma);
 
     if (type == null) return null;
 
@@ -52,13 +53,16 @@ class TypeParser {
     // TODO parse generics
   }
 
-  TypeContext parseSingleType({List<Comment> comments}) {
+  TypeContext parseSingleType(
+      {List<Comment> comments, bool ignoreComma: false}) {
     IdentifierContext name = state.parseIdentifier();
 
     if (name == null) {
       // If we didn't find an identifier type,
-      // try for a struct or parenthesized type
-      return parseParenthesizedType(comments: comments);
+      // try for a struct or parenthesized type, etc.
+      return parseFunctionType(comments: comments, ignoreComma: ignoreComma) ??
+          parseStructField(comments: comments) ??
+          parseParenthesizedType(comments: comments);
     }
 
     if (name is NamespacedIdentifierContext) {
@@ -66,6 +70,65 @@ class TypeParser {
     } else {
       return new SimpleIdentifierTypeContext(name, comments ?? []);
     }
+  }
+
+  /// fn(Int, Int): Int
+  FunctionTypeContext parseFunctionType(
+      {List<Comment> comments, bool ignoreComma: false}) {
+    var fn = state.nextToken(TokenType.fn), span = fn?.span, lastSpan = span;
+
+    if (fn == null) return null;
+
+    // The parameter list is optional.
+    var parameters = <TypeContext>[];
+
+    if (state.peek()?.type == TokenType.lParen) {
+      span = span.expand(lastSpan = state.consume().span);
+      var parameter =
+          parse(comments: state.parseComments(), ignoreComma: ignoreComma);
+
+      while (parameter != null) {
+        parameters.add(parameter);
+        span = span.expand(lastSpan = parameter.span);
+
+        if (state.peek()?.type == TokenType.comma) {
+          span = span.expand(lastSpan = state.consume().span);
+        } else {
+          break;
+        }
+      }
+
+      var rParen = state.nextToken(TokenType.rParen)?.span;
+
+      if (rParen == null) {
+        state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+            "Missing ')' in function type literal.", lastSpan));
+        return null;
+      }
+
+      span = span.expand(lastSpan = rParen);
+    }
+
+    // The return type is never optional.
+    var colon = state.nextToken(TokenType.colon);
+
+    if (colon == null) {
+      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing ':' in function type literal.", lastSpan));
+    }
+
+    span = span.expand(lastSpan = colon.span);
+    var returnType =
+        parse(comments: state.parseComments(), ignoreComma: ignoreComma);
+
+    if (returnType == null) {
+      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing return type after ':'.", lastSpan));
+      return null;
+    }
+
+    span = span.expand(lastSpan = returnType.span);
+    return new FunctionTypeContext(parameters, returnType, span, comments);
   }
 
   StructTypeContext parseStructType({List<Comment> comments}) {
@@ -131,9 +194,9 @@ class TypeParser {
   ///
   /// Ex.
   ///
-  /// `{fn myFn(Int, String): Double}`
+  /// `{ fn myFn(Int, String): Double }`
   /// automatically maps to
-  /// `{myInt: fn(Int, String): Double}`.
+  /// `{ myFn: fn(Int, String): Double }`.
   StructFieldContext parseStructFunctionField({List<Comment> comments}) {
     var fn = state.nextToken(TokenType.fn);
 
