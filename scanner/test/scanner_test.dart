@@ -1,10 +1,7 @@
 import 'package:scanner/scanner.dart';
 import 'package:test/test.dart';
+import 'util.dart';
 
 void main() {
-  group('A group of tests', () {
-    setUp(() {});
-
-    test('First Test', () {});
-  });
+  test('identifier', () => expect('foo', scansOne(TokenType.identifier, 'foo')));
 }
