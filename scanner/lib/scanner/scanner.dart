@@ -12,6 +12,7 @@ class Scanner {
 
   static final RegExp whitespace = new RegExp(r'\s+');
 
+  /*
   static final Map<Pattern, TokenType> normalPatterns = {
     // Misc.
     new RegExp(r'//([^\n]*)'): TokenType.comment,
@@ -77,7 +78,7 @@ class Scanner {
     singleQuotedString: TokenType.string,
     doubleQuotedString: TokenType.string,
     new RegExp(r'[A-Za-z_][A-Za-z0-9_]*'): TokenType.identifier,
-  };
+  };*/
 
   Scanner(String string, {sourceUrl})
       : scanner = new SpanScanner(string, sourceUrl: sourceUrl) {

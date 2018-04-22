@@ -25,11 +25,11 @@ class _Scans extends Matcher {
     if (count != null) matches = scanner.tokens.length == count;
 
     if (tokens != null)
-      matches = equals(tokens)
+      matches = matches && equals(tokens)
           .matches(scanner.tokens.map((t) => t.type).toList(), matchState);
 
     if (text != null)
-      matches = equals(text)
+      matches = matches && equals(text)
           .matches(scanner.tokens.map((t) => t.span.text).toList(), matchState);
 
     return matches;
@@ -42,11 +42,11 @@ class _Scans extends Matcher {
 
     if (tokens != null)
       description =
-          description.add('scans exactly this sequence of tokens: $tokens');
+          description.add(' scans exactly this sequence of tokens: $tokens');
 
     if (text != null)
       description =
-          description.add('scans exactly this sequence of text: $text');
+          description.add(' scans exactly this sequence of text: $text');
 
     return description;
   }
