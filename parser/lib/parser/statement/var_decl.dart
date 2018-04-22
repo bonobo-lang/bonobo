@@ -50,7 +50,7 @@ class VarDeclarationParser {
     TypeContext type;
     if (state.peek().type == TokenType.colon) {
       state.consume();
-      type = state.parseType(); // TODO ignore comma
+      type = state.parseType();
       // TODO error message
       if (type == null) return null;
       lastSpan = type.span;
