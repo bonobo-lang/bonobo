@@ -3,12 +3,11 @@ part of bonobo.src.ast;
 abstract class TypeContext implements AstNode {}
 
 class NamedTypeContext extends AstNode implements TypeContext {
-  final List<SimpleIdentifierContext> namespaces;
-  final SimpleIdentifierContext symbol;
+  final NamespacedIdentifierContext typeName;
   final List<TypeContext> generics; // TODO List<NamedTypeContext>?
 
-  NamedTypeContext(FileSpan span, List<Comment> comments, this.symbol,
-      {this.namespaces: const [], this.generics: const []})
+  NamedTypeContext(FileSpan span, List<Comment> comments, this.typeName,
+      {this.generics: const []})
       : super(span, comments);
 
   @override
@@ -16,8 +15,7 @@ class NamedTypeContext extends AstNode implements TypeContext {
 
   String toString() {
     var sb = new StringBuffer();
-    sb.write(namespaces.join('::'));
-    sb.write(symbol);
+    sb.write(typeName.toString());
     if (generics.length != 0) {
       sb.write('<');
       sb.write(generics.join(', '));
@@ -27,21 +25,21 @@ class NamedTypeContext extends AstNode implements TypeContext {
   }
 }
 
-class FunctionTypeCtx extends AstNode implements TypeContext {
+class FunctionTypeContext extends AstNode implements TypeContext {
   final FunctionSignatureContext signature;
   // TODO modifiers?
 
-  FunctionTypeCtx(FileSpan span, List<Comment> comments, this.signature)
+  FunctionTypeContext(FileSpan span, List<Comment> comments, this.signature)
       : super(span, comments);
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitFunctionType(this);
 }
 
-class AnonymousTypeCtx extends AstNode implements TypeContext {
-  final VarDeclarationStatementContext fields;
+class AnonymousTypeContext extends AstNode implements TypeContext {
+  final VariableDeclarationStatementContext fields;
 
-  AnonymousTypeCtx(FileSpan span, List<Comment> comments, this.fields)
+  AnonymousTypeContext(FileSpan span, List<Comment> comments, this.fields)
       : super(span, comments);
 
   @override
@@ -59,7 +57,7 @@ class TypeDeclarationContext extends AstNode {
 
   // TODO List<Mixin> mixes;
 
-  final List<VarDeclarationStatementContext> fields;
+  final List<VariableDeclarationStatementContext> fields;
 
   final List<FunctionContext> methods;
 
@@ -81,7 +79,7 @@ class TypeDeclarationContext extends AstNode {
     // TODO mixins
     sb.writeln(' {');
 
-    for (VarDeclarationStatementContext st in fields) {
+    for (VariableDeclarationStatementContext st in fields) {
       sb.writeln(st);
       sb.writeln();
     }

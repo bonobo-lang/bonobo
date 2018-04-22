@@ -12,7 +12,7 @@ void main() {
         scanner.scan();
 
         var parser = new Parser(scanner);
-        UnitContext unit = parser.parseUnit();
+        CompilationUnitContext unit = parser.parseCompilationUnit();
         expect(parser.errors.length, 0);
         expect(unit.functions.length, 1);
         expect(unit.toString(), "fn pub main => print('Hello, world!')\n\n");
@@ -26,7 +26,7 @@ void main() {
         scanner.scan();
 
         var parser = new Parser(scanner);
-        UnitContext unit = parser.parseUnit();
+        CompilationUnitContext unit = parser.parseCompilationUnit();
         expect(parser.errors.length, 0);
         expect(unit.functions.length, 1);
         expect(unit.toString(), "fn pub main => print('Hello, world!')\n\n");

@@ -155,7 +155,8 @@ class FunctionParser {
     return new SameLineFunctionBodyContext(
         arrow.span.expand(exps.first.span),
         [],
-        new TupleLiteralCtx(exps.first.span.expand(exps.last.span), [], exps));
+        new ObjectLiteralContext(
+            exps.first.span.expand(exps.last.span), [], exps));
   }
 
   BlockFunctionBodyContext parseBlockFunctionBody() {

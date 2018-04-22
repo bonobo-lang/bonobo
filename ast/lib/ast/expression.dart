@@ -37,6 +37,13 @@ class NamespacedIdentifierContext extends IdentifierContext {
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) =>
       visitor.visitNamespacedIdentifier(this);
+
+  String toString() {
+    var sb = new StringBuffer();
+    sb.write(namespaces.join('::'));
+    sb.write(symbol);
+    return sb.toString();
+  }
 }
 
 class NumberLiteralContext extends ExpressionContext {
@@ -115,21 +122,21 @@ class PrefixOperator {
   static PrefixOperator fromToken(TokenType tok) => _map[tok];
 }
 
-class PrefixOperatorCtx {
+class PrefixOperatorContext {
   final FileSpan span;
   final List<Comment> comments;
   final PrefixOperator op;
 
-  PrefixOperatorCtx(this.span, this.comments, this.op);
+  PrefixOperatorContext(this.span, this.comments, this.op);
 
   String toString() => op.rep;
 }
 
-class PrefixExpressionCtx extends ExpressionContext {
-  final PrefixOperatorCtx op;
+class PrefixExpressionContext extends ExpressionContext {
+  final PrefixOperatorContext op;
   final ExpressionContext expression;
 
-  PrefixExpressionCtx(
+  PrefixExpressionContext(
       FileSpan span, List<Comment> comments, this.op, this.expression)
       : super(span, comments);
 
@@ -197,7 +204,7 @@ class BinaryOperator {
 
   static const BinaryOperator shr = const BinaryOperator._(18, '>>', 'shr', 10);
 
-  static const Map<TokenType, BinaryOperator> _map = {
+  static const Map<TokenType, BinaryOperator> _map = const {
     TokenType.mod: mod,
     TokenType.pow: pow,
     TokenType.times: times,
@@ -222,40 +229,40 @@ class BinaryOperator {
   static BinaryOperator fromTokenType(TokenType token) => _map[token];
 }
 
-class BinaryOperatorCtx {
+class BinaryOperatorContext {
   final FileSpan span;
   final List<Comment> comments;
   final BinaryOperator op;
 
-  BinaryOperatorCtx(this.span, this.comments, this.op);
+  BinaryOperatorContext(this.span, this.comments, this.op);
 
   int get precedence => op.precedence;
 
   String toString() => op.rep;
 }
 
-class BinaryExpressionPartCtx {
+class BinaryExpressionPartContext {
   final FileSpan span;
   final List<Comment> comments;
-  final BinaryOperatorCtx op;
+  final BinaryOperatorContext op;
   final ExpressionContext right;
 
-  BinaryExpressionPartCtx(this.span, this.comments, this.op, this.right);
+  BinaryExpressionPartContext(this.span, this.comments, this.op, this.right);
 
   int get precedence => op.precedence;
 
   String toString() => '${op.op.rep} $right';
 }
 
-class BinaryExpressionCtx extends ExpressionContext {
+class BinaryExpressionContext extends ExpressionContext {
   final ExpressionContext left;
-  final BinaryExpressionPartCtx rightPart;
+  final BinaryExpressionPartContext rightPart;
 
-  BinaryExpressionCtx(
+  BinaryExpressionContext(
       FileSpan span, List<Comment> comments, this.left, this.rightPart)
       : super(span, comments);
 
-  BinaryOperatorCtx get op => rightPart.op;
+  BinaryOperatorContext get op => rightPart.op;
 
   ExpressionContext get right => rightPart.right;
 
@@ -266,11 +273,11 @@ class BinaryExpressionCtx extends ExpressionContext {
   String toString() => '($left $rightPart)';
 }
 
-class IdentifierChainExpressionCtx extends ExpressionContext {
+class IdentifierChainExpressionContext extends ExpressionContext {
   final IdentifierContext target;
-  final List<IdentifierChainExpressionPartCtx> parts;
+  final List<IdentifierChainExpressionPartContext> parts;
 
-  IdentifierChainExpressionCtx(
+  IdentifierChainExpressionContext(
       FileSpan span, List<Comment> comments, this.target, this.parts)
       : super(span, comments);
 
@@ -281,84 +288,86 @@ class IdentifierChainExpressionCtx extends ExpressionContext {
   String toString() => target.toString() + parts.join();
 }
 
-abstract class IdentifierChainExpressionPartCtx {
+abstract class IdentifierChainExpressionPartContext {
   FileSpan get span;
   List<Comment> get comments;
 }
 
-class IdentfierChainExpressionCallPartCtx
-    implements IdentifierChainExpressionPartCtx {
+class IdentifierChainExpressionCallPartContext
+    implements IdentifierChainExpressionPartContext {
   final FileSpan span;
   final List<Comment> comments;
   final List<ExpressionContext> args;
 
-  IdentfierChainExpressionCallPartCtx(this.span, this.comments, this.args);
+  IdentifierChainExpressionCallPartContext(this.span, this.comments, this.args);
 
   String toString() => '(' + args.join(', ') + ')';
 }
 
-class IdentfierChainExpressionMemberPartCtx
-    implements IdentifierChainExpressionPartCtx {
+class IdentifierChainExpressionMemberPartContext
+    implements IdentifierChainExpressionPartContext {
   final FileSpan span;
   final List<Comment> comments;
   final SimpleIdentifierContext member;
 
-  IdentfierChainExpressionMemberPartCtx(this.span, this.comments, this.member);
+  IdentifierChainExpressionMemberPartContext(this.span, this.comments, this.member);
 
   String get name => member.name;
 
   String toString() => '.$name';
 }
 
-class IdentfierChainExpressionSubscriptPartCtx
-    implements IdentifierChainExpressionPartCtx {
+class IdentifierChainExpressionSubscriptPartContext
+    implements IdentifierChainExpressionPartContext {
   final FileSpan span;
   final List<Comment> comments;
   final List<ExpressionContext> indices;
 
-  IdentfierChainExpressionSubscriptPartCtx(
+  IdentifierChainExpressionSubscriptPartContext(
       this.span, this.comments, this.indices);
 
   String toString() => '(' + indices.join(':') + ')';
 }
 
-class TupleLiteralCtx extends ExpressionContext {
+class ObjectLiteralContext extends ExpressionContext {
   final List<ExpressionContext> items;
 
-  TupleLiteralCtx(FileSpan span, List<Comment> comments, this.items)
+  ObjectLiteralContext(FileSpan span, List<Comment> comments, this.items)
       : super(span, comments);
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitTupleLiteral(this);
+
+  String toString() => '(' + items.join(', ') + ')';
 }
 
-class ArrayLiteralCtx extends ExpressionContext {
+class ArrayLiteralContext extends ExpressionContext {
   final List<ExpressionContext> items;
 
-  ArrayLiteralCtx(FileSpan span, List<Comment> comments, this.items)
+  ArrayLiteralContext(FileSpan span, List<Comment> comments, this.items)
       : super(span, comments);
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitArrayLiteral(this);
 }
 
-class MapLiteralCtx extends ExpressionContext {
+class MapLiteralContext extends ExpressionContext {
   final List<ExpressionContext> keys;
   final List<ExpressionContext> values;
 
-  MapLiteralCtx(FileSpan span, List<Comment> comments, this.keys, this.values)
+  MapLiteralContext(FileSpan span, List<Comment> comments, this.keys, this.values)
       : super(span, comments);
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitMapLiteral(this);
 }
 
-class RangeLiteralCtx extends ExpressionContext {
+class RangeLiteralContext extends ExpressionContext {
   final ExpressionContext start;
   final ExpressionContext end;
   final ExpressionContext step;
 
-  RangeLiteralCtx(
+  RangeLiteralContext(
       FileSpan span, List<Comment> comments, this.start, this.end, this.step)
       : super(span, comments);
 

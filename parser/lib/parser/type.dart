@@ -27,35 +27,27 @@ class TypeParser {
     FileSpan lastSpan = name.span;
     if (name == null) return null;
 
-    var namespaces = <IdentifierContext>[];
-
-    if (name is NamespacedIdentifierContext) {
-      NamespacedIdentifierContext tn = name as NamespacedIdentifierContext;
-      namespaces = tn.namespaces;
-      name = tn.symbol;
-    }
-
     // TODO parse generics
 
-    return new NamedTypeContext(name.span.expand(lastSpan), [], name,
-        namespaces: namespaces);
+    return new NamedTypeContext(name.span.expand(lastSpan), [], name);
   }
 
-  AnonymousTypeCtx parseAnonymousType() {
+  AnonymousTypeContext parseAnonymousType() {
     Token lCurly = state.nextToken(TokenType.lCurly);
     if (lCurly == null) return null;
 
-    VarDeclarationStatementContext fields =
+    VariableDeclarationStatementContext fields =
         state.typeDeclarationParser.parseDataClass();
     if (fields == null) return null;
 
     Token rCurly = state.nextToken(TokenType.rCurly);
     if (rCurly == null) return null;
 
-    return new AnonymousTypeCtx(lCurly.span.expand(rCurly.span), [], fields);
+    return new AnonymousTypeContext(
+        lCurly.span.expand(rCurly.span), [], fields);
   }
 
-  FunctionTypeCtx parseFunction() {
+  FunctionTypeContext parseFunction() {
     Token fn = state.nextToken(TokenType.fn);
     if (fn == null) return null;
 
@@ -72,6 +64,6 @@ class TypeParser {
         ? signature.returnType.span
         : signature.parameterList.span);
 
-    return new FunctionTypeCtx(span, [], signature);
+    return new FunctionTypeContext(span, [], signature);
   }
 }

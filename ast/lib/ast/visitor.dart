@@ -4,7 +4,7 @@ part of bonobo.src.ast;
 abstract class BonoboAstVisitor<T> {
   T visit(AstNode node) => node.accept(this);
 
-  T visitUnit(UnitContext ctx);
+  T visitCompilationUnit(CompilationUnitContext ctx);
 
   // Expression
 
@@ -16,19 +16,19 @@ abstract class BonoboAstVisitor<T> {
 
   T visitStringLiteral(StringLiteralContext ctx);
 
-  T visitPrefixExpression(PrefixExpressionCtx ctx);
+  T visitPrefixExpression(PrefixExpressionContext ctx);
 
-  T visitBinaryExpression(BinaryExpressionCtx ctx);
+  T visitBinaryExpression(BinaryExpressionContext ctx);
 
-  T visitIdentifierChainExpression(IdentifierChainExpressionCtx ctx);
+  T visitIdentifierChainExpression(IdentifierChainExpressionContext ctx);
 
-  T visitTupleLiteral(TupleLiteralCtx ctx);
+  T visitTupleLiteral(ObjectLiteralContext ctx);
 
-  T visitArrayLiteral(ArrayLiteralCtx ctx);
+  T visitArrayLiteral(ArrayLiteralContext ctx);
 
-  T visitMapLiteral(MapLiteralCtx ctx);
+  T visitMapLiteral(MapLiteralContext ctx);
 
-  T visitRangeLiteral(RangeLiteralCtx ctx);
+  T visitRangeLiteral(RangeLiteralContext ctx);
 
   // Types
 
@@ -36,9 +36,9 @@ abstract class BonoboAstVisitor<T> {
 
   T visitNamedType(NamedTypeContext ctx);
 
-  T visitFunctionType(FunctionTypeCtx ctx);
+  T visitFunctionType(FunctionTypeContext ctx);
 
-  T visitAnonymousType(AnonymousTypeCtx ctx);
+  T visitAnonymousType(AnonymousTypeContext ctx);
 
   // Function
 
@@ -60,13 +60,13 @@ abstract class BonoboAstVisitor<T> {
 
   T visitReturnStatement(ReturnStatementContext ctx);
 
-  T visitVariableDeclarationStatement(VarDeclarationStatementContext ctx);
+  T visitVariableDeclarationStatement(VariableDeclarationStatementContext ctx);
 
-  T visitVariableDeclaration(VarDeclarationContext ctx);
+  T visitVariableDeclaration(VariableDeclarationContext ctx);
 
-  T visitAssignStatement(AssignStatementCtx ctx);
+  T visitAssignStatement(AssignStatementContext ctx);
 
-  T visitForStatement(ForStatementCtx ctx);
+  T visitForStatement(ForStatementContext ctx);
 
   T visitBlock(BlockContext ctx);
 

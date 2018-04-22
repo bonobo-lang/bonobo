@@ -14,20 +14,20 @@ class ExpressionParser {
 
   ExpressionContext _parsePartsWithPrecedence(
       int precedence, ExpressionContext first) {
-    final parts = <BinaryExpressionPartCtx>[];
+    final parts = <BinaryExpressionPartContext>[];
 
-    BinaryExpressionPartCtx prev;
+    BinaryExpressionPartContext prev;
 
-    for (BinaryExpressionPartCtx part = _parseExpPart();
+    for (BinaryExpressionPartContext part = _parseExpPart();
         part != null;
         part = _parseExpPart()) {
       precedence ??= part.precedence;
       if (part.precedence > precedence) {
         ExpressionContext exp = _parsePartsWithPrecedence(
             part.precedence,
-            new BinaryExpressionCtx(
+            new BinaryExpressionContext(
                 prev.right.span.expand(part.span), [], prev.right, part));
-        part = new BinaryExpressionPartCtx(
+        part = new BinaryExpressionPartContext(
             prev.span.expand(exp.span), [], prev.op, exp);
         prev = null;
       }
@@ -40,30 +40,31 @@ class ExpressionParser {
     if (parts.length == 0) return first;
 
     if (parts.length == 1)
-      return new BinaryExpressionCtx(
+      return new BinaryExpressionContext(
           first.span.expand(parts[0].span), [], first, parts[0]);
 
     prev = parts[parts.length - 2];
-    BinaryExpressionPartCtx cur = parts.last;
-    BinaryOperatorCtx op = prev.op;
-    ExpressionContext exp = new BinaryExpressionCtx(
+    BinaryExpressionPartContext cur = parts.last;
+    BinaryOperatorContext op = prev.op;
+    ExpressionContext exp = new BinaryExpressionContext(
         prev.right.span.expand(cur.span), [], prev.right, parts.last);
     for (int i = parts.length - 2; i >= 1; i++) {
       prev = parts[i - 2];
       cur = parts[i - 1];
-      exp = new BinaryExpressionCtx(
+      exp = new BinaryExpressionContext(
           prev.right.span.expand(exp.span),
           [],
           prev.right,
-          new BinaryExpressionPartCtx(op.span.expand(exp.span), [], op, exp));
+          new BinaryExpressionPartContext(
+              op.span.expand(exp.span), [], op, exp));
       op = prev.op;
     }
-    exp = new BinaryExpressionCtx(first.span.expand(exp.span), [], first,
-        new BinaryExpressionPartCtx(op.span.expand(exp.span), [], op, exp));
+    exp = new BinaryExpressionContext(first.span.expand(exp.span), [], first,
+        new BinaryExpressionPartContext(op.span.expand(exp.span), [], op, exp));
     return exp;
   }
 
-  BinaryExpressionPartCtx _parseExpPart() {
+  BinaryExpressionPartContext _parseExpPart() {
     Token peek = state.peek();
     if (peek == null) return null;
 
@@ -71,10 +72,10 @@ class ExpressionParser {
     if (op == null) return null;
     state.consume();
 
-    BinaryOperatorCtx opCtx = new BinaryOperatorCtx(peek.span, [], op);
+    BinaryOperatorContext opCtx = new BinaryOperatorContext(peek.span, [], op);
     ExpressionContext exp = _parseSingleExpression();
     if (exp == null) return null;
-    return new BinaryExpressionPartCtx(
+    return new BinaryExpressionPartContext(
         peek.span.expand(exp.span), [], opCtx, exp);
   }
 
@@ -89,10 +90,10 @@ class ExpressionParser {
         state.consume();
         ExpressionContext exp = _parseSingleExpression();
         if (exp == null) return null;
-        return new PrefixExpressionCtx(
+        return new PrefixExpressionContext(
             token.span.expand(exp.span),
             [],
-            new PrefixOperatorCtx(
+            new PrefixOperatorContext(
                 token.span, [], PrefixOperator.fromToken(token.type)),
             exp);
       case TokenType.lParen:
@@ -140,7 +141,7 @@ class ExpressionParser {
     return exp; // TODO span the parenthesis
   }
 
-  TupleLiteralCtx _parseTuple(Token startTok, ExpressionContext first) {
+  ObjectLiteralContext _parseTuple(Token startTok, ExpressionContext first) {
     state.consume();
 
     final exps = <ExpressionContext>[first];
@@ -153,10 +154,11 @@ class ExpressionParser {
     Token rParen = state.nextToken(TokenType.rParen);
     if (rParen == null) return null;
 
-    return new TupleLiteralCtx(startTok.span.expand(rParen.span), [], exps);
+    return new ObjectLiteralContext(
+        startTok.span.expand(rParen.span), [], exps);
   }
 
-  ArrayLiteralCtx _parseList() {
+  ArrayLiteralContext _parseList() {
     Token lSq = state.nextToken(TokenType.lSq);
 
     final exps = <ExpressionContext>[];
@@ -169,10 +171,10 @@ class ExpressionParser {
     Token rParen = state.nextToken(TokenType.rParen);
     if (rParen == null) return null;
 
-    return new ArrayLiteralCtx(lSq.span.expand(rParen.span), [], exps);
+    return new ArrayLiteralContext(lSq.span.expand(rParen.span), [], exps);
   }
 
-  MapLiteralCtx _parseMap() {
+  MapLiteralContext _parseMap() {
     Token lCurly = state.nextToken(TokenType.lCurly);
 
     final keys = <ExpressionContext>[];
@@ -190,10 +192,12 @@ class ExpressionParser {
     Token rCurly = state.nextToken(TokenType.rCurly);
     if (rCurly == null) return null;
 
-    return new MapLiteralCtx(lCurly.span.expand(rCurly.span), [], keys, values);
+    return new MapLiteralContext(
+        lCurly.span.expand(rCurly.span), [], keys, values);
   }
 
-  RangeLiteralCtx _parseRange(Token startTok, ExpressionContext startRange) {
+  RangeLiteralContext _parseRange(
+      Token startTok, ExpressionContext startRange) {
     state.consume();
 
     ExpressionContext endRange = parse();
@@ -208,11 +212,11 @@ class ExpressionParser {
     Token rParen = state.nextToken(TokenType.rParen);
     if (rParen == null) return null;
 
-    return new RangeLiteralCtx(
+    return new RangeLiteralContext(
         startTok.span.expand(rParen.span), [], startRange, endRange, step);
   }
 
-  IdentfierChainExpressionCallPartCtx _parseCallParams() {
+  IdentifierChainExpressionCallPartContext _parseCallParams() {
     final args = <ExpressionContext>[];
 
     Token lParen = state.nextToken(TokenType.lParen);
@@ -230,11 +234,11 @@ class ExpressionParser {
       return null;
     }
 
-    return new IdentfierChainExpressionCallPartCtx(
+    return new IdentifierChainExpressionCallPartContext(
         lParen.span.expand(rParen.span), [], args);
   }
 
-  IdentfierChainExpressionSubscriptPartCtx _parseSubscript() {
+  IdentifierChainExpressionSubscriptPartContext _parseSubscript() {
     final args = <ExpressionContext>[];
 
     Token lParen = state.nextToken(TokenType.lSq);
@@ -252,24 +256,24 @@ class ExpressionParser {
       return null;
     }
 
-    return new IdentfierChainExpressionSubscriptPartCtx(
+    return new IdentifierChainExpressionSubscriptPartContext(
         lParen.span.expand(rParen.span), [], args);
   }
 
   ExpressionContext parseChainExp() {
     IdentifierContext id = state.parseIdentifier();
 
-    final parts = <IdentifierChainExpressionPartCtx>[];
+    final parts = <IdentifierChainExpressionPartContext>[];
 
     Token peek = state.peek();
     while (peek != null) {
-      IdentifierChainExpressionPartCtx now;
+      IdentifierChainExpressionPartContext now;
       switch (peek.type) {
         case TokenType.dot:
           state.consume();
           SimpleIdentifierContext id = state.parseSimpleIdentifier();
           if (id == null) return null;
-          now = new IdentfierChainExpressionMemberPartCtx(
+          now = new IdentifierChainExpressionMemberPartContext(
               peek.span.expand(id.span), [], id);
           break;
         case TokenType.lParen:
@@ -291,7 +295,7 @@ class ExpressionParser {
 
     if (parts.length == 0) return id;
 
-    return new IdentifierChainExpressionCtx(
+    return new IdentifierChainExpressionContext(
         id.span.expand(parts.last.span), [], id, parts);
   }
 }

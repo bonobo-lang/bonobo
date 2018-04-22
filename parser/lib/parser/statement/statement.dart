@@ -20,14 +20,15 @@ class StatementParser {
     if (peek == null || !isAssignToken(peek.type))
       return new ExpressionStatementContext(exp);
 
-    AssignOperatorCtx op = new AssignOperatorCtx(
+    AssignOperatorContext op = new AssignOperatorContext(
         peek.span, [], AssignOperator.fromToken(peek.type));
     state.consume();
     ExpressionContext rhs = state.parseExpression();
     if (rhs == null) return null;
     // TODO cascaded assignment
 
-    return new AssignStatementCtx(exp.span.expand(rhs.span), [], exp, op, rhs);
+    return new AssignStatementContext(
+        exp.span.expand(rhs.span), [], exp, op, rhs);
   }
 
   ReturnStatementContext parseReturnStatement(List<Comment> comments) {
@@ -48,8 +49,11 @@ class StatementParser {
 
     FileSpan span = start.span.expand(exps.last.span);
 
-    return new ReturnStatementContext(span, comments,
-        new TupleLiteralCtx(exps.first.span.expand(exps.last.span), [], exps));
+    return new ReturnStatementContext(
+        span,
+        comments,
+        new ObjectLiteralContext(
+            exps.first.span.expand(exps.last.span), [], exps));
   }
 
   VarDeclarationParser _varDeclParser;

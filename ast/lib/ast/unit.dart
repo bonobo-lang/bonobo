@@ -1,15 +1,15 @@
 part of bonobo.src.ast;
 
-class UnitContext extends AstNode {
+class CompilationUnitContext extends AstNode {
   final List<FunctionContext> functions;
   final List<TypeDeclarationContext> classes;
 
-  UnitContext(FileSpan span, List<Comment> comments,
+  CompilationUnitContext(FileSpan span, List<Comment> comments,
       {this.functions, this.classes})
       : super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitUnit(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitCompilationUnit(this);
 
   String toString() {
     var sb = new StringBuffer();

@@ -12,12 +12,13 @@ part 'type.dart';
 part 'statement/statement.dart';
 part 'statement/var_decl.dart';
 
-UnitContext parseUnit(Scanner scanner) => new Parser(scanner).parseUnit();
+CompilationUnitContext parseCompilationUnit(Scanner scanner) =>
+    new Parser(scanner).parseCompilationUnit();
 
 class Parser extends BaseParser {
   Parser(Scanner scanner) : super(scanner);
 
-  UnitContext parseUnit() {
+  CompilationUnitContext parseCompilationUnit() {
     // TODO reset?
 
     FileSpan startSpan = peek().span;
@@ -54,7 +55,7 @@ class Parser extends BaseParser {
       }
     }
 
-    return new UnitContext(startSpan.expand(lastSpan), [],
+    return new CompilationUnitContext(startSpan.expand(lastSpan), [],
         functions: functions, classes: classes);
   }
 

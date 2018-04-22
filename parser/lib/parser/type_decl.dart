@@ -42,12 +42,12 @@ class TypeDeclarationParser {
       peek = state.peek();
     }
 
-    final fields = <VarDeclarationStatementContext>[];
+    final fields = <VariableDeclarationStatementContext>[];
     final methods = <FunctionContext>[];
 
     peek = state.nextToken(TokenType.lParen);
     if (peek != null) {
-      VarDeclarationStatementContext v = parseDataClass();
+      VariableDeclarationStatementContext v = parseDataClass();
       if (v == null) return null;
       peek = state.nextToken(TokenType.rParen);
       if (peek == null) return null;
@@ -65,7 +65,7 @@ class TypeDeclarationParser {
           case TokenType.let:
           case TokenType.var_:
           case TokenType.const_:
-            VarDeclarationStatementContext v =
+            VariableDeclarationStatementContext v =
                 state.statementParser.varDeclarationParser.parse([]);
             if (v == null) return null;
             fields.add(v);
@@ -76,7 +76,7 @@ class TypeDeclarationParser {
             methods.add(f);
             break;
           default:
-            VarDeclarationStatementContext v = state
+            VariableDeclarationStatementContext v = state
                 .statementParser.varDeclarationParser
                 .parse([], mut: VariableMutability.var_);
             if (v == null) return null;
@@ -94,7 +94,7 @@ class TypeDeclarationParser {
         fields: fields, methods: methods, isPriv: isPriv);
   }
 
-  VarDeclarationStatementContext parseDataClass() {
+  VariableDeclarationStatementContext parseDataClass() {
     switch (state.peek().type) {
       case TokenType.let:
       case TokenType.var_:

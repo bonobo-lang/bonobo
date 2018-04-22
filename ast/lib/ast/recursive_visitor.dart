@@ -6,7 +6,7 @@ part of bonobo.src.ast;
 /// or nodes like [BlockContext].
 class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
   @override
-  T visitUnit(UnitContext ctx) {
+  T visitCompilationUnit(CompilationUnitContext ctx) {
     if (ctx == null) return null;
     ctx
       ..functions.forEach(visitFunction)
@@ -36,47 +36,47 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
   T visitStringLiteral(StringLiteralContext ctx) => null;
 
   @override
-  T visitPrefixExpression(PrefixExpressionCtx ctx) {
+  T visitPrefixExpression(PrefixExpressionContext ctx) {
     if (ctx == null) return null;
     visitExpression(ctx.expression);
     return null;
   }
 
-  T visitBinaryExpression(BinaryExpressionCtx ctx) {
+  T visitBinaryExpression(BinaryExpressionContext ctx) {
     if (ctx == null) return null;
     visitExpression(ctx.left);
     visitExpression(ctx.right);
     return null;
   }
 
-  T visitIdentifierChainExpression(IdentifierChainExpressionCtx ctx) {
+  T visitIdentifierChainExpression(IdentifierChainExpressionContext ctx) {
     if (ctx == null) return null;
     // TODO visit identifier
     // TODO follow chain?
     return null;
   }
 
-  T visitTupleLiteral(TupleLiteralCtx ctx) {
+  T visitTupleLiteral(ObjectLiteralContext ctx) {
     if (ctx == null) return null;
     ctx.items.forEach(visitExpression);
     return null;
   }
 
   @override
-  T visitArrayLiteral(ArrayLiteralCtx ctx) {
+  T visitArrayLiteral(ArrayLiteralContext ctx) {
     if (ctx == null) return null;
     ctx.items.forEach(visitExpression);
     return null;
   }
 
-  T visitMapLiteral(MapLiteralCtx ctx) {
+  T visitMapLiteral(MapLiteralContext ctx) {
     if (ctx == null) return null;
     // TODO iterate over key:value pairs
     return null;
   }
 
   @override
-  T visitRangeLiteral(RangeLiteralCtx ctx) {
+  T visitRangeLiteral(RangeLiteralContext ctx) {
     if (ctx == null) return null;
     visitExpression(ctx.start);
     visitExpression(ctx.end);
@@ -151,28 +151,28 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
   }
 
   @override
-  T visitVariableDeclarationStatement(VarDeclarationStatementContext ctx) {
+  T visitVariableDeclarationStatement(VariableDeclarationStatementContext ctx) {
     if (ctx == null) return null;
     ctx.declarations.forEach(visitVariableDeclaration);
     return null;
   }
 
   @override
-  T visitVariableDeclaration(VarDeclarationContext ctx) {
+  T visitVariableDeclaration(VariableDeclarationContext ctx) {
     if (ctx == null) return null;
     visitSimpleIdentifier(ctx.name);
     visitExpression(ctx.initializer);
     return null;
   }
 
-  T visitAssignStatement(AssignStatementCtx ctx) {
+  T visitAssignStatement(AssignStatementContext ctx) {
     if (ctx == null) return null;
     visitExpression(ctx.left);
     visitExpression(ctx.right);
     return null;
   }
 
-  T visitForStatement(ForStatementCtx ctx) {
+  T visitForStatement(ForStatementContext ctx) {
     if (ctx == null) return null;
     // TODO
     return null;
@@ -191,19 +191,18 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
 
   T visitNamedType(NamedTypeContext ctx) {
     if (ctx == null) return null;
-    ctx.namespaces.forEach(visitSimpleIdentifier);
-    visitSimpleIdentifier(ctx.symbol);
+    visitNamespacedIdentifier(ctx.typeName);
     ctx.generics.forEach(visitType);
     return null;
   }
 
-  T visitFunctionType(FunctionTypeCtx ctx) {
+  T visitFunctionType(FunctionTypeContext ctx) {
     if (ctx == null) return null;
     visitFunctionSignature(ctx.signature);
     return null;
   }
 
-  T visitAnonymousType(AnonymousTypeCtx ctx) {
+  T visitAnonymousType(AnonymousTypeContext ctx) {
     if (ctx == null) return null;
     visitVariableDeclarationStatement(ctx.fields);
     return null;
@@ -219,23 +218,6 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
     ctx.methods.forEach(visitFunction);
     return null;
   }
-
-  /* TODO
-  @override
-  T visitTupleType(TupleTypeContext ctx) {
-    if (ctx == null) return null;
-    ctx.items.forEach(visitType);
-    return null;
-  }
-
-  @override
-  T visitFunctionType(FunctionTypeContext ctx) {
-    if (ctx == null) return null;
-    ctx.parameters.forEach(visitType);
-    visitType(ctx.returnType);
-    return null;
-  }
-  */
 
   /* TODO
   @override

@@ -53,7 +53,7 @@ class AssignOperator {
 
   static const AssignOperator shr = const AssignOperator._(0, '>>=');
 
-  static const Map<TokenType, AssignOperator> _map = {
+  static const Map<TokenType, AssignOperator> _map = const {
     TokenType.assign: assign,
     TokenType.assignAdd: add,
     TokenType.assignSub: sub,
@@ -70,21 +70,21 @@ class AssignOperator {
   static AssignOperator fromToken(TokenType tok) => _map[tok];
 }
 
-class AssignOperatorCtx {
+class AssignOperatorContext {
   final FileSpan span;
   final List<Comment> comments;
   final AssignOperator op;
 
-  AssignOperatorCtx(this.span, this.comments, this.op);
+  AssignOperatorContext(this.span, this.comments, this.op);
 
   String toString() => op.rep;
 }
 
-class AssignStatementCtx extends StatementContext {
+class AssignStatementContext extends StatementContext {
   final ExpressionContext left, right;
-  final AssignOperatorCtx op;
+  final AssignOperatorContext op;
 
-  AssignStatementCtx(
+  AssignStatementContext(
       FileSpan span, List<Comment> comments, this.left, this.op, this.right)
       : super(span, comments);
 
@@ -137,9 +137,9 @@ class VariableMutability {
   bool operator >=(VariableMutability other) => value >= other.value;
 }
 
-class VarDeclarationStatementContext extends StatementContext {
+class VariableDeclarationStatementContext extends StatementContext {
   final VariableMutability mutability;
-  final List<VarDeclarationContext> declarations;
+  final List<VariableDeclarationContext> declarations;
   /*
   final List<StatementContext> context;
   final FileSpan declarationSpan;
@@ -147,7 +147,7 @@ class VarDeclarationStatementContext extends StatementContext {
   SymbolTable<BonoboObject> scope;
   */
 
-  VarDeclarationStatementContext(
+  VariableDeclarationStatementContext(
       FileSpan span, List<Comment> comments, this.mutability, this.declarations)
       : super(span, comments);
 
@@ -156,13 +156,13 @@ class VarDeclarationStatementContext extends StatementContext {
       visitor.visitVariableDeclarationStatement(this);
 }
 
-class VarDeclarationContext extends AstNode {
+class VariableDeclarationContext extends AstNode {
   final SimpleIdentifierContext name;
   final TypeContext type;
   final ExpressionContext initializer;
   final VariableMutability mutability;
 
-  VarDeclarationContext(FileSpan span, List<Comment> comments, this.mutability,
+  VariableDeclarationContext(FileSpan span, List<Comment> comments, this.mutability,
       this.name, this.type, this.initializer)
       : super(span, comments);
 
@@ -181,12 +181,12 @@ class VarDeclarationContext extends AstNode {
   }
 }
 
-class ForStatementCtx extends StatementContext {
+class ForStatementContext extends StatementContext {
   final List<SimpleIdentifierContext> vars;
   final ExpressionContext exp;
   final BlockContext body;
 
-  ForStatementCtx(
+  ForStatementContext(
       FileSpan span, List<Comment> comments, this.vars, this.exp, this.body)
       : super(span, comments);
 
