@@ -25,6 +25,7 @@ class Parser extends BaseParser {
 
     final functions = <FunctionContext>[];
     final classes = <ClassDeclarationContext>[];
+    final typedefs = <TypedefContext>[];
 
     while (!done) {
       Token t = peek();
@@ -55,7 +56,7 @@ class Parser extends BaseParser {
     }
 
     return new CompilationUnitContext(startSpan.expand(lastSpan),
-        functions: functions, classes: classes);
+        functions: functions, classes: classes, typedefs: typedefs);
   }
 
   FunctionContext parseFunction() {
