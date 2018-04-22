@@ -14,7 +14,7 @@ Future<Tuple3<Scanner, Parser, CompilationUnitContext>> scanAndParse(
   io.File file;
 
   await for (var entity in io.Directory.current.list()) {
-    if (entity is File && p.extension(entity.path) == '*.bnb') {
+    if (entity is io.File && p.extension(entity.path) == '.bnb') {
       file = entity;
       break;
     }
