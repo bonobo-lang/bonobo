@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // A brief explanation of functions in Bonobo...
 fn main => print emoji()
 
@@ -18,25 +17,4 @@ fn add(a, b: Num) => b
 // Functions don't have to be lambdas, of course.
 fn emoji(): String {
     ret '🔥✊🏿💣'
-=======
-// A brief explanation of functions in Bonobo...
-fn main => print(emoji())
-
-// You can explicitly declare the return type of functions.
-fn one: Num => 1
-
-// However, you can also omit the declaration.
-//
-// The return type will be inferred.
-fn two => 2
-
-// Functions can also have parameters.
-//
-// Functions can be annotated with types.
-fn add(a, b: Num) => b
-
-// Functions don't have to be lambdas, of course.
-fn emoji(): String {
-    ret '🔥✊🏿💣'
->>>>>>> 7ae4b23a50a45f8590a820e076523d7447a2e1d3
 }
