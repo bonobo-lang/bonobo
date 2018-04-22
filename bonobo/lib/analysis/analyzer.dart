@@ -261,7 +261,13 @@ class BonoboAnalyzer {
 
       return BonoboType.Root;
     } else if (ctx is StructTypeContext) {
+      var fields = <String, BonoboType>{};
 
+      for (var field in ctx.fields) {
+        fields[field.name.name] = await resolveType(field.type);
+      }
+
+      return new BonoboStructType(fields);
     } else if (ctx is TupleTypeContext) {
       var types = await Future.wait(ctx.items.map(resolveType));
       return new BonoboTupleType(types);
