@@ -220,9 +220,14 @@ class ExpressionParser {
     final args = <ExpressionContext>[];
 
     Token lParen = state.nextToken(TokenType.lParen);
+    var lastSpan = lParen?.span;
+
+    if (lParen == null)
+      return null;
 
     for (ExpressionContext exp = parse(); exp != null; exp = parse()) {
       args.add(exp);
+      lastSpan = exp.span;
       if (state.nextToken(TokenType.comma) == null) break;
     }
 
@@ -230,7 +235,7 @@ class ExpressionParser {
 
     if (rParen == null) {
       state.errors.add(new BonoboError(BonoboErrorSeverity.error,
-          "Missing ')' after expression.", lParen.span));
+          "Missing ')' after expression.", lastSpan));
       return null;
     }
 

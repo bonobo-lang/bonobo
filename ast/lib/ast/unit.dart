@@ -6,12 +6,13 @@ class CompilationUnitContext extends AstNode {
 
   final List<ClassDeclarationContext> classes;
 
-  CompilationUnitContext(FileSpan span,
+  CompilationUnitContext(FileSpan span, List<Comment> comments,
       {this.typedefs, this.functions, this.classes})
-      : super(span, []);
+      : super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitCompilationUnit(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitCompilationUnit(this);
 
   String toString() {
     var sb = new StringBuffer();

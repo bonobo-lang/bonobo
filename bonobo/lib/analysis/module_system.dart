@@ -166,14 +166,41 @@ class BonoboModuleSystem {
   void dumpTree([BonoboModule module]) {
     var b = new StringBuffer()..writeln('Dump of module "${module.fullName}":');
 
-    void prinDent(int indent) {
-      for (int i = 0; i < indent; i++) b.write('  ');
+    void prinDent(int indent, [int n = 1]) {
+      for (int i = 0; i < n; i++) {
+        for (int j = 0; j < indent; j++)
+          b.write('  ');
+      }
     }
 
     void dump(BonoboModule module, int indent) {
+      // Show names
       prinDent(indent);
       b.writeln('* ${module.name} (${module.directory.path})');
-      module.children.forEach((m) => dump(m, indent + 1));
+
+      // Dump children
+      prinDent(indent + 1);
+      b.writeln('* Children: ${module.children.length}');
+      module.children.forEach((m) => dump(m, indent + 2));
+
+      // Print all types
+      prinDent(indent + 1);
+      b.writeln('* Types: ${module.types.length}');
+
+      module.types.forEach((name, type) {
+        prinDent(indent + 2);
+        b.writeln('* $name: $type');
+      });
+
+      // Print all public symbols
+      var publicSymbols = module.scope.allPublicVariables;
+      prinDent(indent + 1);
+      b.writeln('* Public Variables: ${publicSymbols.length}');
+
+      publicSymbols.forEach((symbol) {
+        prinDent(indent + 2);
+        b.writeln('* ${symbol.name}: ${symbol.value}');
+      });
     }
 
     dump(module ?? rootModule, 0);

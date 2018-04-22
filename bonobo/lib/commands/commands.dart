@@ -38,6 +38,8 @@ part 'compile.dart';
 
 part 'document.dart';
 
+part 'dump.dart';
+
 part 'explore.dart';
 
 part 'file_system.dart';
@@ -54,4 +56,5 @@ final CommandRunner commandRunner =
       ..addCommand(new DocumentCommand())
       ..addCommand(new ExploreCommand())
       ..addCommand(new FormatCommand())
+      ..addCommand(new InfoCommand())
       ..addCommand(new LanguageServerCommand());

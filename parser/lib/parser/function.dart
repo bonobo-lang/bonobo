@@ -30,7 +30,7 @@ class FunctionParser {
       return null;
     }
 
-    FunctionSignatureContext signature = parseSignature(name.span);
+    FunctionSignatureContext signature = parseSignature();
 
     var body = parseBody();
 
@@ -45,7 +45,7 @@ class FunctionParser {
         isHidden: isPriv);
   }
 
-  FunctionSignatureContext parseSignature(FileSpan currentSpan) {
+  FunctionSignatureContext parseSignature() {
     Token peek = state.peek();
     if (peek == null) return null;
     FileSpan span = peek.span;
@@ -63,12 +63,12 @@ class FunctionParser {
     TypeContext returnType;
     if (peek.type == TokenType.colon) {
       state.consume();
-      returnType = state.parseType();
+      returnType = state.typeParser.parse(comments: state.parseComments());
       if (returnType == null) return null;
       span = span.expand(returnType.span);
     }
 
-    if (parameterList == null && returnType == null) span = currentSpan;
+    if (parameterList == null && returnType == null) return null;
 
     return new FunctionSignatureContext(parameterList, returnType, span, []);
   }
@@ -110,7 +110,7 @@ class FunctionParser {
 
     if (colon == null) return new ParameterContext(id, null, span, []);
 
-    TypeContext type = state.parseType();
+    TypeContext type = state.typeParser.parse(comments: state.parseComments());
     if (type == null) {
       state.errors.add(new BonoboError(
           BonoboErrorSeverity.error, "Missing type after ':'.", colon.span));

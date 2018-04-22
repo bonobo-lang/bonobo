@@ -260,6 +260,14 @@ class BonoboAnalyzer {
           "Unknown type '${ctx.identifier.name}'.", ctx.span));
 
       return BonoboType.Root;
+    } else if (ctx is StructTypeContext) {
+      var fields = <String, BonoboType>{};
+
+      for (var field in ctx.fields) {
+        fields[field.name.name] = await resolveType(field.type);
+      }
+
+      return new BonoboStructType(fields);
     } else if (ctx is TupleTypeContext) {
       var types = await Future.wait(ctx.items.map(resolveType));
       return new BonoboTupleType(types);
@@ -367,7 +375,7 @@ class BonoboAnalyzer {
         } else {
           BonoboObject value;
 
-          if (ctx.operator.type == TokenType.equals) {
+          if (ctx.operator.type == TokenType.assign) {
             value = await resolveExpression(ctx.right, function, scope);
           } else {
             // Make an artificial binary expression, and assign it as the value.

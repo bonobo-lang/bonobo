@@ -1,3 +1,4 @@
+/*
 import 'package:bonobo/bonobo.dart';
 import 'package:file/local.dart';
 import 'package:parser/parser.dart';
@@ -11,4 +12,4 @@ main(List<String> args) async {
   print(scanner.tokens.join('\n\n'));
   var parser = new Parser(scanner);
   var compilationUnit = parser.parseCompilationUnit();
-}
+}*/

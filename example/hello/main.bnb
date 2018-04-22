@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-fn main => print 'Hello, world!'
-=======
 fn main => print('Hello, world!')
->>>>>>> 7ae4b23a50a45f8590a820e076523d7447a2e1d3
