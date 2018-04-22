@@ -1,2 +1,4 @@
 language: dart
+dart:
+  - dev
 script: bash ./travis.sh
