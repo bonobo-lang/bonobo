@@ -18,7 +18,7 @@ class FunctionContext extends ExpressionContext {
   String toString() {
     var sb = new StringBuffer();
     sb.write('fn');
-    if(isHidden) sb.write(' hide');
+    if (isHidden) sb.write(' hide');
     sb.write(' $name');
     if (signature != null) sb.write(signature);
     sb.write(body);
@@ -33,11 +33,10 @@ class FunctionSignatureContext extends AstNode {
   FunctionSignatureContext(this.parameterList, this.returnType, FileSpan span,
       List<Comment> comments)
       : super(span, comments);
-      
-      
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitFunctionSignature(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitFunctionSignature(this);
 
   String toString() {
     var sb = new StringBuffer();
@@ -61,28 +60,28 @@ class BlockFunctionBodyContext extends FunctionBodyContext {
 
   @override
   List<StatementContext> get body => block.statements;
-  
-  
+
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitBlockFunctionBody(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitBlockFunctionBody(this);
 
   String toString() => block.toString();
 }
 
-class LambdaFunctionBodyContext extends FunctionBodyContext {
+class SameLineFunctionBodyContext extends FunctionBodyContext {
   final ExpressionContext expression;
 
-  LambdaFunctionBodyContext(FileSpan span, List<Comment> comments, this.expression)
+  SameLineFunctionBodyContext(
+      FileSpan span, List<Comment> comments, this.expression)
       : super(span, comments);
 
   @override
   List<StatementContext> get body =>
       [new ReturnStatementContext(span, comments, expression)];
-      
-      
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitLambdaFunctionBody(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitSameLineFunctionBody(this);
 
   String toString() {
     return ' => ' + expression.toString();
@@ -95,10 +94,7 @@ class ParameterListContext extends AstNode {
   ParameterListContext(FileSpan span, List<Comment> comments, this.parameters)
       : super(span, comments);
 
-  String toString() =>
-      '(' + parameters.join(', ') + ')';
-      
-      
+  String toString() => '(' + parameters.join(', ') + ')';
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitParameterList(this);
@@ -110,8 +106,6 @@ class ParameterContext extends AstNode {
 
   ParameterContext(this.name, this.type, FileSpan span, List<Comment> comments)
       : super(span, comments);
-      
-      
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitParameter(this);

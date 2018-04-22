@@ -41,6 +41,18 @@ final Map<Pattern, TokenType> normalPatterns = {
   // Modifiers
   'hide': TokenType.hide_,
 
+  // Conditionals
+  'if': TokenType.if_,
+  'else': TokenType.else_,
+  'elif': TokenType.elif_,
+  'switch': TokenType.switch_,
+
+  // Loops
+  'loop': TokenType.loop,
+  'for': TokenType.for_,
+  'in': TokenType.in_,
+  'while': TokenType.while_,
+
   // Unary operators
   '++': TokenType.increment,
   '--': TokenType.decrement,
@@ -130,6 +142,20 @@ enum TokenType {
   // Modifiers
   hide_,
 
+  // Conditionals
+  if_,
+  else_,
+  elif_,
+  switch_,
+  case_,
+  default_,
+
+  // Loops
+  for_,
+  in_,
+  loop,
+  while_,
+
   // Unary operators
   increment,
   decrement,
@@ -195,6 +221,7 @@ class Token {
   }
 }
 
+// TODO remove this
 bool isAssignToken(TokenType t) =>
     {
       TokenType.assign: true,
@@ -208,29 +235,5 @@ bool isAssignToken(TokenType t) =>
       TokenType.assignXor: true,
       TokenType.assignShl: true,
       TokenType.assignShr: true,
-    }[t] !=
-    null;
-
-bool isBinaryOpToken(TokenType t) =>
-    {
-      TokenType.mod: true,
-      TokenType.pow: true,
-      TokenType.times: true,
-      TokenType.div: true,
-      TokenType.plus: true,
-      TokenType.minus: true,
-      TokenType.xor: true,
-      TokenType.and: true,
-      TokenType.or: true,
-      TokenType.l_and: true,
-      TokenType.l_or: true,
-      TokenType.equals: true,
-      TokenType.notEquals: true,
-      TokenType.lt: true,
-      TokenType.lte: true,
-      TokenType.gt: true,
-      TokenType.gte: true,
-      TokenType.shl: true,
-      TokenType.shr: true,
     }[t] !=
     null;

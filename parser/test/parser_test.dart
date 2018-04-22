@@ -1,4 +1,3 @@
-import 'package:parser/parser.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -1,17 +1,16 @@
 part of '../parser.dart';
 
-class VariableDeclarationParser {
+class VarDeclarationParser {
   final Parser state;
 
-  VariableDeclarationParser(this.state);
+  VarDeclarationParser(this.state);
 
-  VariableDeclarationStatementContext parse({VariableMutability mut}) {
-    List<Comment> comments = state.parseComments();
-
+  VarDeclarationStatementContext parse(List<Comment> comments,
+      {VariableMutability mut}) {
     Token what;
     if (mut == null) {
-      what = state.next(
-          [TokenType.const_, TokenType.let, TokenType.var_])?.removeFirst();
+      what =
+          state.nextIfOneOf([TokenType.const_, TokenType.let, TokenType.var_]);
       if (what == null) return null;
       mut = what.type == TokenType.const_
           ? VariableMutability.const_
@@ -22,9 +21,9 @@ class VariableDeclarationParser {
       what = state.peek();
     }
 
-    var declarations = <VariableDeclarationContext>[];
+    var declarations = <VarDeclarationContext>[];
 
-    for (VariableDeclarationContext declaration = parseADecl(mut);
+    for (VarDeclarationContext declaration = parseADecl(mut);
         declaration != null;
         declaration = parseADecl(mut)) {
       declarations.add(declaration);
@@ -37,27 +36,11 @@ class VariableDeclarationParser {
       return null;
     }
 
-    var declarationSpan = what.span.expand(declarations.last.span);
-    var context = <StatementContext>[];
-    var statement = state.parseStatement();
-    var span = declarationSpan;
-
-    while (statement != null) {
-      span = span.expand(statement.span);
-      context.add(statement);
-      statement = state.parseStatement();
-    }
-
-    return new VariableDeclarationStatementContext(
-      declarations,
-      context,
-      declarationSpan,
-      span,
-      comments,
-    );
+    return new VarDeclarationStatementContext(
+        what.span.expand(declarations.last.span), comments, mut, declarations);
   }
 
-  VariableDeclarationContext parseADecl(VariableMutability mut) {
+  VarDeclarationContext parseADecl(VariableMutability mut) {
     SimpleIdentifierContext name = state.parseSimpleIdentifier();
     if (name == null) return null;
 
@@ -67,7 +50,7 @@ class VariableDeclarationParser {
     TypeContext type;
     if (state.peek().type == TokenType.colon) {
       state.consume();
-      type = state.typeParser.parse(comments: state.parseComments(), ignoreComma: true);
+      type = state.parseType();
       // TODO error message
       if (type == null) return null;
       lastSpan = type.span;
@@ -93,7 +76,7 @@ class VariableDeclarationParser {
       lastSpan = expression.span;
     }
 
-    return new VariableDeclarationContext(
-        name.span.expand(lastSpan), name, type, expression, mut, []);
+    return new VarDeclarationContext(
+        name.span.expand(lastSpan), [], mut, name, type, expression);
   }
 }

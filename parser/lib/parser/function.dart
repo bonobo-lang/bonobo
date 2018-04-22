@@ -10,7 +10,7 @@ class FunctionParser {
 
     if (state.nextToken(TokenType.fn) == null) return null;
 
-    bool isPriv = state.nextToken(TokenType.hide_) != null;
+    bool isHidden = state.nextToken(TokenType.hide_) != null;
 
     // TODO constexpr modifier
 
@@ -30,7 +30,7 @@ class FunctionParser {
       return null;
     }
 
-    FunctionSignatureContext signature = parseSignature();
+    FunctionSignatureContext signature = parseSignature(name.span);
 
     var body = parseBody();
 
@@ -42,10 +42,10 @@ class FunctionParser {
 
     return new FunctionContext(
         name, signature, body, startSpan.expand(body.span), comments,
-        isHidden: isPriv);
+        isHidden: isHidden);
   }
 
-  FunctionSignatureContext parseSignature() {
+  FunctionSignatureContext parseSignature(FileSpan currentSpan) {
     Token peek = state.peek();
     if (peek == null) return null;
     FileSpan span = peek.span;
@@ -63,12 +63,12 @@ class FunctionParser {
     TypeContext returnType;
     if (peek.type == TokenType.colon) {
       state.consume();
-      returnType = state.typeParser.parse(comments: state.parseComments());
+      returnType = state.parseType();
       if (returnType == null) return null;
       span = span.expand(returnType.span);
     }
 
-    if (parameterList == null && returnType == null) return null;
+    if (parameterList == null && returnType == null) span = currentSpan;
 
     return new FunctionSignatureContext(parameterList, returnType, span, []);
   }
@@ -102,7 +102,7 @@ class FunctionParser {
   }
 
   ParameterContext parseParameter() {
-    SimpleIdentifierContext id = state.parseIdentifier();
+    SimpleIdentifierContext id = state.parseSimpleIdentifier();
     if (id == null) return null;
 
     FileSpan span = id.span;
@@ -110,7 +110,7 @@ class FunctionParser {
 
     if (colon == null) return new ParameterContext(id, null, span, []);
 
-    TypeContext type = state.typeParser.parse(comments: state.parseComments());
+    TypeContext type = state.parseType();
     if (type == null) {
       state.errors.add(new BonoboError(
           BonoboErrorSeverity.error, "Missing type after ':'.", colon.span));
@@ -125,7 +125,7 @@ class FunctionParser {
   FunctionBodyContext parseBody() {
     Token decider = state.peek();
 
-    if (decider.type == TokenType.arrow) return parseLambdaBody();
+    if (decider.type == TokenType.arrow) return parseSameLineBody();
     if (decider.type == TokenType.lCurly) return parseBlockFunctionBody();
 
     state.errors.add(new BonoboError(
@@ -133,19 +133,29 @@ class FunctionParser {
     return null;
   }
 
-  LambdaFunctionBodyContext parseLambdaBody() {
+  SameLineFunctionBodyContext parseSameLineBody() {
     Token arrow = state.nextToken(TokenType.arrow);
     if (arrow == null) return null;
 
-    var exp = state.parseExpression();
+    final exps = <ExpressionContext>[];
 
-    if (exp == null) {
+    for (ExpressionContext exp = state.parseExpression();
+        exp != null;
+        exp = state.parseExpression()) {
+      exps.add(exp);
+      if (state.nextToken(TokenType.comma) == null) break;
+    }
+
+    if (exps.length == 0) {
       state.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Missing expression after '=>'.", arrow.span));
       return null;
     }
 
-    return new LambdaFunctionBodyContext(arrow.span.expand(exp.span), [], exp);
+    return new SameLineFunctionBodyContext(
+        arrow.span.expand(exps.first.span),
+        [],
+        new TupleLiteralCtx(exps.first.span.expand(exps.last.span), [], exps));
   }
 
   BlockFunctionBodyContext parseBlockFunctionBody() {

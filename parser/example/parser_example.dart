@@ -12,7 +12,7 @@ main() async {
   // print(scanner.tokens.join('\n\n'));
 
   var parser = new Parser(scanner);
-  CompilationUnitContext unit = parser.parseCompilationUnit();
+  UnitContext unit = parser.parseUnit();
   print(parser.errors);
   print(unit);
 }

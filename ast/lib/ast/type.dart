@@ -1,113 +1,54 @@
 part of bonobo.src.ast;
 
-abstract class TypeContext extends AstNode {
-  //final List<TypeContext> generics;
-  TypeContext(FileSpan span, List<Comment> comments) : super(span, comments);
+abstract class TypeContext implements AstNode {}
 
-  TypeContext get innermost => this;
-}
+class NamedTypeContext extends AstNode implements TypeContext {
+  final List<SimpleIdentifierContext> namespaces;
+  final SimpleIdentifierContext symbol;
+  final List<TypeContext> generics; // TODO List<NamedTypeContext>?
 
-class SimpleIdentifierTypeContext extends TypeContext {
-  final IdentifierContext identifier;
-
-  SimpleIdentifierTypeContext(this.identifier, List<Comment> comments)
-      : super(identifier.span, comments);
-
-  @override
-  T accept<T>(BonoboAstVisitor<T> visitor) =>
-      visitor.visitSimpleIdentifierType(this);
-
-  @override
-  String toString() => identifier.toString();
-}
-
-class NamespacedIdentifierTypeContext extends TypeContext {
-  final NamespacedIdentifierContext identifier;
-
-  NamespacedIdentifierTypeContext(this.identifier, List<Comment> comments)
-      : super(identifier.span, comments);
-
-  @override
-  T accept<T>(BonoboAstVisitor<T> visitor) =>
-      visitor.visitNamespacedIdentifierType(this);
-
-  @override
-  String toString() => identifier.toString();
-}
-
-class TupleTypeContext extends TypeContext {
-  final List<TypeContext> items;
-
-  TupleTypeContext(this.items, FileSpan span, List<Comment> comments)
+  NamedTypeContext(FileSpan span, List<Comment> comments, this.symbol,
+      {this.namespaces: const [], this.generics: const []})
       : super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitTupleType(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitNamedType(this);
+
+  String toString() {
+    var sb = new StringBuffer();
+    sb.write(namespaces.join('::'));
+    sb.write(symbol);
+    if (generics.length != 0) {
+      sb.write('<');
+      sb.write(generics.join(', '));
+      sb.write('>');
+    }
+    return sb.toString();
+  }
 }
 
-class TypedefContext extends AstNode {
-  final SimpleIdentifierContext name;
-  final TypeContext type;
+class FunctionTypeCtx extends AstNode implements TypeContext {
+  final FunctionSignatureContext signature;
+  // TODO modifiers?
 
-  TypedefContext(this.name, this.type, FileSpan span, List<Comment> comments)
+  FunctionTypeCtx(FileSpan span, List<Comment> comments, this.signature)
       : super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitTypedef(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitFunctionType(this);
 }
 
-class ParenthesizedTypeContext extends TypeContext {
-  final TypeContext innermost;
+class AnonymousTypeCtx extends AstNode implements TypeContext {
+  final VarDeclarationStatementContext fields;
 
-  ParenthesizedTypeContext(
-      this.innermost, FileSpan span, List<Comment> comments)
+  AnonymousTypeCtx(FileSpan span, List<Comment> comments, this.fields)
       : super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => innermost.accept(visitor);
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitAnonymousType(this);
 }
 
-class StructTypeContext extends TypeContext {
-  final List<StructFieldContext> fields;
-
-  StructTypeContext(this.fields, FileSpan span, List<Comment> comments) : super(span, comments);
-
-  @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitStructType(this);
-}
-
-class StructFieldContext extends AstNode {
-  final SimpleIdentifierContext name;
-  final TypeContext type;
-
-  StructFieldContext(
-      this.name, this.type, FileSpan span, List<Comment> comments)
-      : super(span, comments);
-
-  @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitStructField(this);
-}
-
-class EnumTypeContext extends TypeContext {
-  final List<EnumValueContext> values;
-
-  EnumTypeContext(this.values, FileSpan span, List<Comment> comments) : super(span, comments);
-
-  @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitEnumType(this);
-}
-
-class EnumValueContext extends AstNode {
-  final SimpleIdentifierContext name;
-  final NumberLiteralContext index;
-
-  EnumValueContext(this.name, this.index, FileSpan span, List<Comment> comments) : super(span, comments);
-
-  @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitEnumValue(this);
-}
-
-class ClassDeclarationContext extends TypeContext {
+class TypeDeclarationContext extends AstNode {
   final SimpleIdentifierContext name;
 
   final bool isPriv;
@@ -118,17 +59,17 @@ class ClassDeclarationContext extends TypeContext {
 
   // TODO List<Mixin> mixes;
 
-  final List<VariableDeclarationStatementContext> fields;
+  final List<VarDeclarationStatementContext> fields;
 
   final List<FunctionContext> methods;
 
-  ClassDeclarationContext(FileSpan span, this.name,
+  TypeDeclarationContext(FileSpan span, this.name,
       {this.fields: const [], this.methods: const [], this.isPriv: false})
       : super(span, []);
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) =>
-      visitor.visitClassDeclaration(this);
+      visitor.visitTypeDeclaration(this);
 
   String toString() {
     var sb = new StringBuffer();
@@ -140,7 +81,7 @@ class ClassDeclarationContext extends TypeContext {
     // TODO mixins
     sb.writeln(' {');
 
-    for (VariableDeclarationStatementContext st in fields) {
+    for (VarDeclarationStatementContext st in fields) {
       sb.writeln(st);
       sb.writeln();
     }
@@ -154,35 +95,3 @@ class ClassDeclarationContext extends TypeContext {
     return sb.toString();
   }
 }
-
-/*
-class TypeContext extends AstNode {
-  final List<IdentifierContext> namespaces;
-  final SimpleIdentifierContext symbol;
-  final List<TypeContext> generics;
-
-  TypeContext(FileSpan span, List<Comment> comments, this.symbol,
-      {this.namespaces: const [], this.generics: const []})
-      : super(span, comments);
-
-  String toString() {
-    var sb = new StringBuffer();
-    sb.write(namespaces.join('::'));
-    sb.write(symbol);
-    if(generics.length != 0) {
-      sb.write('<');
-      sb.write(generics.join(', '));
-      sb.write('>');
-    }
-    return sb.toString();
-  }
-}*/
-
-/*
-class TupleTypeContext extends TypeContext {
-  final List<TypeContext> items;
-
-  TupleTypeContext(this.items, FileSpan span, List<Comment> comments)
-      : super(span, comments);
-}
-*/

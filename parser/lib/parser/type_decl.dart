@@ -1,11 +1,11 @@
 part of 'parser.dart';
 
-class TypeDeclParser {
+class TypeDeclarationParser {
   final Parser state;
 
-  TypeDeclParser(this.state);
+  TypeDeclarationParser(this.state);
 
-  ClassDeclarationContext parse() {
+  TypeDeclarationContext parse() {
     FileSpan startSpan = state.peek().span;
     FileSpan lastSpan = startSpan;
 
@@ -42,28 +42,16 @@ class TypeDeclParser {
       peek = state.peek();
     }
 
-    final fields = <VariableDeclarationStatementContext>[];
+    final fields = <VarDeclarationStatementContext>[];
     final methods = <FunctionContext>[];
 
     peek = state.nextToken(TokenType.lParen);
     if (peek != null) {
-      switch (state.peek().type) {
-        case TokenType.let:
-        case TokenType.var_:
-        case TokenType.const_:
-          var v = state.statementParser.variableDeclarationParser.parse();
-          if (v == null) return null;
-          fields.add(v);
-          break;
-        default:
-          var v =
-          state.statementParser.variableDeclarationParser.parse(mut: VariableMutability.var_);
-          if (v == null) return null;
-          fields.add(v);
-          break;
-      }
+      VarDeclarationStatementContext v = parseDataClass();
+      if (v == null) return null;
       peek = state.nextToken(TokenType.rParen);
       if (peek == null) return null;
+      fields.add(v);
       lastSpan = peek.span;
     }
 
@@ -77,7 +65,8 @@ class TypeDeclParser {
           case TokenType.let:
           case TokenType.var_:
           case TokenType.const_:
-            var v = state.statementParser.variableDeclarationParser.parse();
+            VarDeclarationStatementContext v =
+                state.statementParser.varDeclarationParser.parse([]);
             if (v == null) return null;
             fields.add(v);
             break;
@@ -87,8 +76,9 @@ class TypeDeclParser {
             methods.add(f);
             break;
           default:
-            var v =
-                state.statementParser.variableDeclarationParser.parse(mut: VariableMutability.var_);
+            VarDeclarationStatementContext v = state
+                .statementParser.varDeclarationParser
+                .parse([], mut: VariableMutability.var_);
             if (v == null) return null;
             fields.add(v);
             break;
@@ -100,7 +90,19 @@ class TypeDeclParser {
       lastSpan = peek.span;
     }
 
-    return new ClassDeclarationContext(startSpan.expand(lastSpan), name,
+    return new TypeDeclarationContext(startSpan.expand(lastSpan), name,
         fields: fields, methods: methods, isPriv: isPriv);
+  }
+
+  VarDeclarationStatementContext parseDataClass() {
+    switch (state.peek().type) {
+      case TokenType.let:
+      case TokenType.var_:
+      case TokenType.const_:
+        return state.statementParser.varDeclarationParser.parse([]);
+      default:
+        return state.statementParser.varDeclarationParser
+            .parse([], mut: VariableMutability.var_);
+    }
   }
 }

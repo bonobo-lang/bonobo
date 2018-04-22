@@ -4,7 +4,8 @@ import 'package:ast/ast.dart';
 
 main() async {
   // var scanner = new Scanner("fn main => 5 + 6 * 7 + 8", sourceUrl: 'main.bnb');
-  var scanner = new Scanner("fn main => 5 + !6 * 7 + ~8", sourceUrl: 'main.bnb');
+  var scanner =
+      new Scanner("fn main => 5 + !6 * 7 + ~8", sourceUrl: 'main.bnb');
   // var scanner = new Scanner("fn hide main => print('Hello, world!')",
   //    sourceUrl: 'main.bnb');
   scanner.scan();
@@ -12,7 +13,7 @@ main() async {
   // print(scanner.tokens.join('\n\n'));
 
   var parser = new Parser(scanner);
-  CompilationUnitContext unit = parser.parseCompilationUnit();
+  UnitContext unit = parser.parseUnit();
   print(parser.errors);
   print(unit);
 }
