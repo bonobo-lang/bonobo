@@ -70,26 +70,11 @@ abstract class BonoboAstVisitor<T> {
 
   T visitBlock(BlockContext ctx);
 
-  // Types
+  // Type declaration
 
   T visitTypeDeclaration(TypeDeclarationContext ctx);
 
-  /* TODO
-  T visitTupleType(TupleTypeContext ctx);
-
-  T visitFunctionType(FunctionTypeContext ctx);
-  */
-
-  /* TODO
-
-  T visitStructType(StructTypeContext ctx);
-
-  T visitStructField(StructFieldContext ctx);
-  */
-
-  /* TODO
-  T visitEnumType(EnumTypeContext ctx);
+  T visitEnumDeclaration(EnumDeclarationContext ctx);
 
   T visitEnumValue(EnumValueContext ctx);
-  */
 }

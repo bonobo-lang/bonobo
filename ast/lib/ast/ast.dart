@@ -11,6 +11,7 @@ part 'function.dart';
 part 'recursive_visitor.dart';
 part 'statement.dart';
 part 'type.dart';
+part 'type_declaration.dart';
 part 'visitor.dart';
 
 abstract class AstNode {

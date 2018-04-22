@@ -298,4 +298,10 @@ class ExpressionParser {
     return new IdentifierChainExpressionContext(
         id.span.expand(parts.last.span), [], id, parts);
   }
+
+  NumberLiteralContext parseNumberLiteral() {
+    if (state.peek()?.type == TokenType.number)
+      return new NumberLiteralContext(state.consume().span, []);
+    return null;
+  }
 }

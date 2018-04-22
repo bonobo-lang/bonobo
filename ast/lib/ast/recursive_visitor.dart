@@ -219,7 +219,6 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
     return null;
   }
 
-  /* TODO
   @override
   T visitEnumValue(EnumValueContext ctx) {
     if (ctx == null) return null;
@@ -229,10 +228,9 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
   }
 
   @override
-  T visitEnumType(EnumTypeContext ctx) {
+  T visitEnumDeclaration(EnumDeclarationContext ctx) {
     if (ctx == null) return null;
     ctx.values.forEach(visitEnumValue);
     return null;
   }
-  */
 }

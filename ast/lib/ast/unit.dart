@@ -3,9 +3,10 @@ part of bonobo.src.ast;
 class CompilationUnitContext extends AstNode {
   final List<FunctionContext> functions;
   final List<TypeDeclarationContext> classes;
+  final List<EnumDeclarationContext> enums;
 
   CompilationUnitContext(FileSpan span, List<Comment> comments,
-      {this.functions, this.classes})
+      {this.functions: const [], this.classes: const [], this.enums: const []})
       : super(span, comments);
 
   @override
@@ -17,6 +18,11 @@ class CompilationUnitContext extends AstNode {
 
     for (TypeDeclarationContext cl in classes) {
       sb.writeln(cl);
+      sb.writeln();
+    }
+
+    for (EnumDeclarationContext en in enums) {
+      sb.writeln(en);
       sb.writeln();
     }
 

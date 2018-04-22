@@ -106,3 +106,77 @@ class TypeDeclarationParser {
     }
   }
 }
+
+class EnumDeclarationParser {
+  final Parser state;
+
+  EnumDeclarationParser(this.state);
+
+  /// enum { a, b, c }
+  EnumDeclarationContext parse({List<Comment> comments}) {
+    Token start = state.nextToken(TokenType.enum_);
+    if (start == null) return null;
+
+    SimpleIdentifierContext name = state.parseSimpleIdentifier();
+    if (name == null) {
+      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing name in enum declaration.", start.span));
+      return null;
+    }
+
+    var lCurly = state.nextToken(TokenType.lCurly);
+    if (lCurly == null) {
+      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing '{' in enum type definition.", start.span));
+      return null;
+    }
+
+    var values = <EnumValueContext>[];
+
+    for (EnumValueContext value =
+            parseEnumValue(comments: state.parseComments());
+        value != null;
+        value = parseEnumValue(comments: state.parseComments())) {
+      values.add(value);
+
+      if (state.nextToken(TokenType.comma) == null) break;
+    }
+
+    var rCurly = state.nextToken(TokenType.rCurly)?.span;
+
+    if (rCurly == null) {
+      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing '}' in enum type definition.", lCurly.span));
+      return null;
+    }
+
+    return new EnumDeclarationContext(
+        name, values, start.span.expand(rCurly), comments);
+  }
+
+  EnumValueContext parseEnumValue({List<Comment> comments}) {
+    SimpleIdentifierContext name = state.parseSimpleIdentifier();
+
+    if (name == null) return null;
+
+    NumberLiteralContext index;
+
+    // Index is optional
+    FileSpan assign = state.nextToken(TokenType.assign)?.span;
+
+    if (assign != null) {
+      index = state.expressionParser.parseNumberLiteral();
+
+      if (index == null) {
+        state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+            "Missing index after '=' in enum type definition.", assign));
+        return null;
+      }
+    }
+
+    FileSpan span = name.span;
+    if (index != null) span.expand(index.span);
+
+    return new EnumValueContext(name, index, span, comments);
+  }
+}

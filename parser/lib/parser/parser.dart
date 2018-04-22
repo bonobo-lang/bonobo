@@ -26,6 +26,7 @@ class Parser extends BaseParser {
 
     final functions = <FunctionContext>[];
     final classes = <TypeDeclarationContext>[];
+    final enums = <EnumDeclarationContext>[];
 
     while (!done) {
       Token t = peek();
@@ -44,6 +45,13 @@ class Parser extends BaseParser {
             lastSpan = c.span;
           }
           break;
+        case TokenType.enum_:
+          EnumDeclarationContext c = parsEnumDeclaration();
+          if (c != null) {
+            enums.add(c);
+            lastSpan = c.span;
+          }
+          break;
         default:
           // TODO
           throw new UnimplementedError();
@@ -56,7 +64,7 @@ class Parser extends BaseParser {
     }
 
     return new CompilationUnitContext(startSpan.expand(lastSpan), [],
-        functions: functions, classes: classes);
+        functions: functions, classes: classes, enums: enums);
   }
 
   FunctionContext parseFunction({List<Comment> comments}) {
@@ -67,6 +75,11 @@ class Parser extends BaseParser {
   TypeDeclarationContext parseTypeDeclaration() {
     // TODO comments
     return typeDeclarationParser.parse();
+  }
+
+  EnumDeclarationContext parsEnumDeclaration() {
+    // TODO comments
+    return enumDeclarationParser.parse();
   }
 
   TypeContext parseType() => typeParser.parse();
@@ -88,6 +101,11 @@ class Parser extends BaseParser {
 
   TypeDeclarationParser get typeDeclarationParser =>
       _typeDeclarationParser ??= new TypeDeclarationParser(this);
+
+  EnumDeclarationParser _enumDeclarationParser;
+
+  EnumDeclarationParser get enumDeclarationParser =>
+      _enumDeclarationParser ??= new EnumDeclarationParser(this);
 
   FunctionParser _funcParser;
 
