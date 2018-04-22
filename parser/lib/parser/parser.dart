@@ -92,13 +92,6 @@ class Parser extends BaseParser {
     return typedefParser.parse(comments: comments);
   }
 
-  ClassDeclarationContext parseClass({List<Comment> comments}) {
-    // TODO comments
-    return classParser.parse();
-  }
-
-  TypeContext parseType() => typeParser.parse();
-
   StatementContext parseStatement() => statementParser.parse();
 
   /// Parses function name

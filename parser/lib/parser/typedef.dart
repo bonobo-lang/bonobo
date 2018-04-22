@@ -24,11 +24,8 @@ class TypedefParser {
     if (colonEquals != null) {
       span = span.expand(lastSpan = colonEquals.span);
     }
-
-    var comments = state.parseComments();
-
     // TODO: Pass these to type parser
-    var type = state.typeParser.parse();
+    var type = state.typeParser.parse(comments: state.parseComments());
 
     if (type == null) {
       state.errors.add(new BonoboError(

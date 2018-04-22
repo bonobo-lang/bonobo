@@ -54,7 +54,7 @@ class TypedefContext extends AstNode {
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitTypedef(this);
 }
 
-class ClassDeclarationContext extends AstNode {
+class ClassDeclarationContext extends TypeContext {
   final SimpleIdentifierContext name;
 
   final bool isPriv;
