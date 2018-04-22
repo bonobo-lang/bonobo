@@ -213,7 +213,19 @@ class TypeParser {
     while (field != null) {
       fields.add(field);
       span = span.expand(lastSpan = field.span);
-      field = parseStructField(comments: state.parseComments());
+
+      // Optional comma
+      if (state.peek()?.type == TokenType.comma) {
+        span = span.expand(lastSpan = state.consume().span);
+        field = parseStructField(comments: state.parseComments());
+
+        if (field == null) {
+          state.errors.add(new BonoboError(
+              BonoboErrorSeverity.error, "Missing field after ','.", lastSpan));
+          return null;
+        }
+      } else
+        field = parseStructField(comments: state.parseComments());
     }
 
     var rCurly = state.nextToken(TokenType.rCurly);
@@ -247,7 +259,7 @@ class TypeParser {
 
     span = span.expand(lastSpan = colon.span);
 
-    var type = parse(comments: state.parseComments());
+    var type = parse(comments: state.parseComments(), ignoreComma: true);
 
     if (type == null) {
       state.errors.add(new BonoboError(
