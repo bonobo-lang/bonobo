@@ -63,7 +63,7 @@ class FunctionParser {
     TypeContext returnType;
     if (peek.type == TokenType.colon) {
       state.consume();
-      returnType = state.parseType();
+      returnType = state.typeParser.parse(comments: state.parseComments());
       if (returnType == null) return null;
       span = span.expand(returnType.span);
     }
@@ -110,7 +110,7 @@ class FunctionParser {
 
     if (colon == null) return new ParameterContext(id, null, span, []);
 
-    TypeContext type = state.parseType();
+    TypeContext type = state.typeParser.parse(comments: state.parseComments());
     if (type == null) {
       state.errors.add(new BonoboError(
           BonoboErrorSeverity.error, "Missing type after ':'.", colon.span));

@@ -3,6 +3,8 @@ part of bonobo.src.ast;
 abstract class TypeContext extends AstNode {
   //final List<TypeContext> generics;
   TypeContext(FileSpan span, List<Comment> comments) : super(span, comments);
+
+  TypeContext get innermost => this;
 }
 
 class SimpleIdentifierTypeContext extends TypeContext {
@@ -52,6 +54,16 @@ class TypedefContext extends AstNode {
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitTypedef(this);
+}
+
+class ParenthesizedTypeContext extends TypeContext {
+  final TypeContext innermost;
+
+  ParenthesizedTypeContext(this.innermost, FileSpan span, List<Comment> comments)
+      : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => innermost.accept(visitor);
 }
 
 class ClassDeclarationContext extends TypeContext {

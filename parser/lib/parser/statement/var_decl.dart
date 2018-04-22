@@ -67,7 +67,7 @@ class VariableDeclarationParser {
     TypeContext type;
     if (state.peek().type == TokenType.colon) {
       state.consume();
-      type = state.parseType();
+      type = state.typeParser.parse(comments: state.parseComments());
       // TODO error message
       if (type == null) return null;
       lastSpan = type.span;

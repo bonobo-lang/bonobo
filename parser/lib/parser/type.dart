@@ -5,7 +5,10 @@ class TypeParser {
 
   TypeParser(this.state);
 
-  TypeContext parse({List<Comment> comments}) {
+  // When calling `parse` from methods within this class,
+  // Be sure to forward the value of `ignoreComma`. Otherwise,
+  // there can be ambiguity when a comma appears in a variable declaration statement.
+  TypeContext parse({List<Comment> comments, bool ignoreComma: false}) {
     // TODO parse special Tuple syntax
     // TODO parse special List syntax
     // TODO parse special Map syntax
@@ -16,6 +19,31 @@ class TypeParser {
 
     while (!state.done) {
       switch (state.peek()?.type) {
+        case TokenType.comma:
+          if (ignoreComma == true) break;
+          // Consume the token, then read in the other type in this tuple.
+          var comma = state.consume();
+          var nextType = parse(comments: state.parseComments());
+          var span = type.span.expand(nextType.span);
+          nextType = nextType.innermost;
+
+          if (nextType == null) {
+            state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+                "Missing type after ','.", comma.span));
+            return null;
+          }
+
+          // If the other type is a tuple, combine the two.
+          if (nextType is TupleTypeContext) {
+            type = new TupleTypeContext([type]..addAll(nextType.items), span,
+                []..addAll(comments)..addAll(nextType.comments));
+          }
+
+          // Otherwise, create a new one.
+          else {
+            type = new TupleTypeContext([type, nextType], span, comments);
+          }
+          break;
         default:
           break;
       }
@@ -40,12 +68,12 @@ class TypeParser {
     }
   }
 
-  _ParenthesizedType parseParenthesizedType({List<Comment> comments}) {
+  ParenthesizedTypeContext parseParenthesizedType({List<Comment> comments}) {
     var span = state.nextToken(TokenType.lParen)?.span, lastSpan = span;
 
     if (span == null) return null;
 
-    var inner = parse(comments: state.parseComments());
+    var inner = parse(comments: state.parseComments(), ignoreComma: false);
 
     if (inner == null) {
       state.errors.add(new BonoboError(
@@ -62,16 +90,6 @@ class TypeParser {
       return null;
     }
 
-    return new _ParenthesizedType(inner, span, comments ?? []);
+    return new ParenthesizedTypeContext(inner, span, comments ?? []);
   }
-}
-
-class _ParenthesizedType extends TypeContext {
-  final TypeContext inner;
-
-  _ParenthesizedType(this.inner, FileSpan span, List<Comment> comments)
-      : super(span, comments);
-
-  @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => inner.accept(visitor);
 }
