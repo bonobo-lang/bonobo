@@ -1,40 +1,5 @@
 part of bonobo.src.commands;
 
-class CompilerInput {
-  final Uri uri;
-
-  final String contents;
-
-  const CompilerInput(this.uri, this.contents);
-
-  static Future<CompilerInput> fromOptions(CompileOptions options) async {
-    String contents;
-    Uri sourceUrl;
-
-    if (options.filename == '-') {
-      contents = await stdin.transform(utf8.decoder).join();
-      sourceUrl = Uri.parse('<stdin>');
-    } else {
-      var file = new io.File(options.filename);
-
-      if (!await file.exists()) {
-        throw new Exception('Source file not found: ${options.filename}');
-      }
-
-      contents = await file.readAsString();
-      sourceUrl = file.absolute.uri;
-    }
-
-    return new CompilerInput(sourceUrl, contents);
-  }
-}
-
-class CompileOptions {
-  final String filename;
-
-  const CompileOptions({this.filename: 'main.bnb'});
-}
-
 IOSink getOutput(BonoboCommand command) {
   if (command.argResults.wasParsed('out')) {
     return new io.File(command.argResults['out']).openWrite();
@@ -44,16 +9,28 @@ IOSink getOutput(BonoboCommand command) {
 }
 
 Future<Tuple3<Scanner, Parser, CompilationUnitContext>> scanAndParse(
-    CompileOptions options) async {
-  CompilerInput input = await CompilerInput.fromOptions(options);
-  var scanner = new Scanner(input.contents, sourceUrl: input.uri)..scan();
+    Command command) async {
+  // Choose the first available *.bnb file
+  io.File file;
+
+  await for (var entity in io.Directory.current.list()) {
+    if (entity is File && p.extension(entity.path) == '*.bnb') {
+      file = entity;
+      break;
+    }
+  }
+
+  if (file == null) throw 'No *.bnb files exist in the current directory.';
+
+  var scanner = new Scanner(await file.readAsString(), sourceUrl: file.uri)
+    ..scan();
   var parser = new Parser(scanner);
   var compilationUnit = parser.parseCompilationUnit();
   return new Tuple3(scanner, parser, compilationUnit);
 }
 
-Future<BonoboAnalyzer> analyze(CompileOptions options) async {
-  var tuple = await scanAndParse(options);
+Future<BonoboAnalyzer> analyze(Command command) async {
+  var tuple = await scanAndParse(command);
   const fs = const LocalFileSystem();
   var directory = fs.directory(fs.currentDirectory);
   var moduleSystem = await BonoboModuleSystem.create(directory);

@@ -14,19 +14,9 @@ class CompileCommand extends BonoboCommand {
     );
   }
 
-  CompileOptions validate() {
-    String filename = 'main.bnb';
-
-    if (!argResults.rest.isEmpty) {
-      filename = argResults.rest.first;
-    }
-
-    return new CompileOptions(filename: filename);
-  }
-
   @override
   run() async {
-    var analyzer = await analyze(validate());
+    var analyzer = await analyze(this);
     var compiler = new BonoboCCompiler(analyzer);
     await compiler.compile();
 

@@ -9,19 +9,9 @@ class ExploreCommand extends Command {
   bool initialized = false;
   BonoboAnalyzer analyzer;
 
-  CompileOptions validate() {
-    String filename = 'main.bnb';
-
-    if (!argResults.rest.isEmpty) {
-      filename = argResults.rest.first;
-    }
-
-    return new CompileOptions(filename: filename);
-  }
-
   @override
   run() async {
-    analyzer = await analyze(validate());
+    analyzer = await analyze(this);
 
     var errors =
     analyzer.errors.where((e) => e.severity == BonoboErrorSeverity.error);

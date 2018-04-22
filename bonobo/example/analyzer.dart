@@ -1,3 +1,4 @@
+/*
 import 'package:bonobo/bonobo.dart';
 import 'package:file/local.dart';
 import 'package:parser/parser.dart';
@@ -26,3 +27,4 @@ main(List<String> args) async {
   // var analyzer = await analyze(new CompileOptions());
   // print(analyzer.module.scope.root.allPublicVariables);
 }
+*/

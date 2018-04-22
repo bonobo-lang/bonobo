@@ -1,3 +1,4 @@
+/*
 import 'package:bonobo/bonobo.dart';
 import 'package:scanner/scanner.dart';
 
@@ -8,3 +9,4 @@ main(List<String> args) async {
   print(scanner.errors);
   print(scanner.tokens.join('\n\n'));
 }
+*/
