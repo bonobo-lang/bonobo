@@ -23,6 +23,7 @@ final Map<Pattern, TokenType> normalPatterns = {
   ']': TokenType.rSq,
 
   // Reserved
+  'enum': TokenType.enum_,
   'ret': TokenType.ret,
   'let': TokenType.let,
   'var': TokenType.var_,
@@ -109,6 +110,7 @@ enum TokenType {
   parentheses,
 
   // Reserved
+  enum_,
   let,
   var_,
   const_,
