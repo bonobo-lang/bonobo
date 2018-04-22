@@ -27,8 +27,8 @@ class BonoboStructType extends BonoboType {
 
     for (int i = 0; i < fields.length; i++) {
       var name = fields.keys.elementAt(i), type = fields[name];
-      if (i > 0) b.write(', ');
-      b.write('$name: $type');
+      if (i > 0) b.write(',');
+      b.write(' $name: $type');
     }
 
     return b.toString() + ' }';

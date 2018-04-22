@@ -31,7 +31,7 @@ class BonoboFunctionType extends BonoboInheritedType {
       var p = parameters[i];
 
       if (i > 0) b.write(', ');
-      b.write(': $p');
+      b.write(p);
     }
 
     b.write(')');
