@@ -1,4 +1,6 @@
 # bonobo
+[![build status](https://travis-ci.org/bonobo-lang/bonobo.svg?branch=master)](https://travis-ci.org/bonobo-lang/bonobo)
+
 A strongly-typed, expressive language for safe systems programming.
 
 [Language Specification](spec/README.md)
