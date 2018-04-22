@@ -4,15 +4,25 @@ import 'package:scanner/scanner.dart';
 import 'package:ast/ast.dart';
 
 part 'base.dart';
+
 part 'function.dart';
+
 part 'expression.dart';
+
 part 'identifier.dart';
+
 part 'type_decl.dart';
+
 part 'type.dart';
+
+part 'typedef.dart';
+
 part 'statement/statement.dart';
+
 part 'statement/var_decl.dart';
 
-CompilationUnitContext parseUnit(Scanner scanner) => new Parser(scanner).parseCompilationUnit();
+CompilationUnitContext parseUnit(Scanner scanner) =>
+    new Parser(scanner).parseCompilationUnit();
 
 class Parser extends BaseParser {
   Parser(Scanner scanner) : super(scanner);
@@ -20,8 +30,9 @@ class Parser extends BaseParser {
   CompilationUnitContext parseCompilationUnit() {
     // TODO reset?
 
-    FileSpan startSpan = peek().span;
-    FileSpan lastSpan = startSpan;
+    var span = peek()?.span, lastSpan = span;
+
+    if (span == null) return null;
 
     final functions = <FunctionContext>[];
     final classes = <ClassDeclarationContext>[];
@@ -29,20 +40,28 @@ class Parser extends BaseParser {
 
     while (!done) {
       Token t = peek();
+      var comments = parseComments();
+
       switch (t.type) {
         case TokenType.fn:
           FunctionContext f = parseFunction();
           if (f != null) {
             functions.add(f);
-            lastSpan = f.span;
+            span = span.expand(lastSpan = f.span);
           }
           break;
         case TokenType.type:
+          var typedef = parseTypedef(comments: comments);
+          if (typedef != null) {
+            typedefs.add(typedef);
+            span = span.expand(lastSpan = typedef.span);
+          }
+          /*
           ClassDeclarationContext c = parseClass();
           if (c != null) {
             classes.add(c);
             lastSpan = c.span;
-          }
+          }*/
           break;
         default:
           // TODO
@@ -55,16 +74,25 @@ class Parser extends BaseParser {
       }
     }
 
-    return new CompilationUnitContext(startSpan.expand(lastSpan),
-        functions: functions, classes: classes, typedefs: typedefs);
+    return new CompilationUnitContext(
+      span,
+      [],
+      functions: functions,
+      classes: classes,
+      typedefs: typedefs,
+    );
   }
 
-  FunctionContext parseFunction() {
+  FunctionContext parseFunction({List<Comment> comments}) {
     // TODO comments
     return functionParser.parse();
   }
 
-  ClassDeclarationContext parseClass() {
+  TypedefContext parseTypedef({List<Comment> comments}) {
+    return typedefParser.parse(comments: comments);
+  }
+
+  ClassDeclarationContext parseClass({List<Comment> comments}) {
     // TODO comments
     return classParser.parse();
   }
@@ -85,20 +113,33 @@ class Parser extends BaseParser {
   ExpressionContext parseExpression() => expressionParser.parse();
 
   TypeDeclParser _classParser;
-  TypeDeclParser get classParser => _classParser ?? new TypeDeclParser(this);
+
+  TypeDeclParser get classParser => _classParser ??= new TypeDeclParser(this);
 
   FunctionParser _funcParser;
-  FunctionParser get functionParser => _funcParser ?? new FunctionParser(this);
+
+  FunctionParser get functionParser => _funcParser ??= new FunctionParser(this);
 
   IdentifierParser _idParser;
-  IdentifierParser get identifierParser => _idParser ?? new IdentifierParser(this);
+
+  IdentifierParser get identifierParser =>
+      _idParser ??= new IdentifierParser(this);
 
   ExpressionParser _expParser;
-  ExpressionParser get expressionParser => _expParser ?? new ExpressionParser(this);
+
+  ExpressionParser get expressionParser =>
+      _expParser ??= new ExpressionParser(this);
 
   StatementParser _statParser;
-  StatementParser get statementParser => _statParser ?? new StatementParser(this);
+
+  StatementParser get statementParser =>
+      _statParser ??= new StatementParser(this);
 
   TypeParser _typeParser;
-  TypeParser get typeParser => _typeParser ?? new TypeParser(this);
+
+  TypeParser get typeParser => _typeParser ??= new TypeParser(this);
+
+  TypedefParser _typedefParser;
+
+  TypedefParser get typedefParser => _typedefParser ??= new TypedefParser(this);
 }
