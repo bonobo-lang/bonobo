@@ -13,7 +13,8 @@ can grow to describe any type of data.
 The syntax used in this document to describe the language
 is a variant of EBNF. Productions may offer alternatives, separated by `|`. Options suffixed with `*` may appear zero or
 more times, while those suffixed with `+` may appear one or
-more times.
+more times. Units within productions are not separated by commas,
+for brevity's sake.
 
 Example:
 
@@ -27,6 +28,11 @@ MyProduction: "Foo" | Bar+ | Baz*
 * [Top Level Declaration](#top-level-declaration)
     * [Import Declaration](#import-declaration)
     * [Function Declaration](#function-declaration)
+        * [Function Signature](#function-signature)
+        * [Function Body](#function-body)
+            * [Expression Function Body](#expression-function-body)
+            * [Block Function Body](#block-function-body)
+                * [Block](#block)
     * [Typedef Declaration](#typedef-declaration)
 
 # Compilation Unit
@@ -61,6 +67,60 @@ TopLevelDeclaration:
 ## Import Declaration
 
 ## Function Declaration
+Many languages allow *functions* as mechanisms to store units of
+reusable code. Bonobo is no different; in fact, functions are
+supported both as top-level declarations and as
+[expressions](#expression).
+
+```ebnf
+FunctionDeclaration: "fn" SimpleIdentifier FunctionSignature? FunctionBody;
+```
+
+### Function Signature
+A *function signature* formally specifies the names and types
+of parameters a function expects, as well as defining a return
+type.
+
+A function signature is only necessary if the given function
+takes parameters, or wants to explicitly specify a return type.
+
+```ebnf
+FunctionSignature: ParameterList? Type?;
+```
+
+### Function Body
+The reusable sequence of code contained in a function is called
+its *body*.
+
+```ebnf
+FunctionBody: ExpressionFunctionBody | BlockFunctionBody;
+```
+
+#### Expression Function Body
+This type of function body exists as a shorthand syntax for
+functions that immediately return a value. Internally, this
+is expanded into a [block function body](#block-function-body).
+
+```ebnf
+ExpressionFunctionBody: "=>" Expression;
+```
+
+#### Block Function Body
+This is the most common type of function body. It defines a series
+of zero or more [statements](#statement) to be executed
+sequentially at runtime.
+
+```ebnf
+BlockFunctionBody: Block;
+```
+
+##### Block
+This is the formal definition of a *block*, a group of
+zero or more statements that represents a series of actions.
+
+```ebnf
+Block: "{" Statement* "}";
+```
 
 ## Typedef Declaration
 In Bonobo, all data can be classified into *types*.
@@ -70,5 +130,5 @@ special declarations that can be used to assign an alias
 to an anonymous, or otherwise verbose, type.
 
 ```ebnf
-TypedefDeclaration: "type" Identifier "="? Type;
+TypedefDeclaration: "type" SimpleIdentifier "="? Type;
 ```
