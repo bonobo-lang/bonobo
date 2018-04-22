@@ -59,11 +59,27 @@ class TypedefContext extends AstNode {
 class ParenthesizedTypeContext extends TypeContext {
   final TypeContext innermost;
 
-  ParenthesizedTypeContext(this.innermost, FileSpan span, List<Comment> comments)
+  ParenthesizedTypeContext(
+      this.innermost, FileSpan span, List<Comment> comments)
       : super(span, comments);
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => innermost.accept(visitor);
+}
+
+class StructTypeContext extends TypeContext {
+  final List<StructFieldContext> fields;
+
+  StructTypeContext(this.fields, FileSpan span, List<Comment> comments) : super(span, comments);
+}
+
+class StructFieldContext extends AstNode {
+  final SimpleIdentifierContext name;
+  final TypeContext type;
+
+  StructFieldContext(
+      this.name, this.type, FileSpan span, List<Comment> comments)
+      : super(span, comments);
 }
 
 class ClassDeclarationContext extends TypeContext {
