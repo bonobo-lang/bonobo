@@ -88,6 +88,25 @@ class StructFieldContext extends AstNode {
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitStructField(this);
 }
 
+class EnumTypeContext extends TypeContext {
+  final List<EnumValueContext> values;
+
+  EnumTypeContext(this.values, FileSpan span, List<Comment> comments) : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitEnumType(this);
+}
+
+class EnumValueContext extends AstNode {
+  final SimpleIdentifierContext name;
+  final NumberLiteralContext index;
+
+  EnumValueContext(this.name, this.index, FileSpan span, List<Comment> comments) : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitEnumValue(this);
+}
+
 class ClassDeclarationContext extends TypeContext {
   final SimpleIdentifierContext name;
 
