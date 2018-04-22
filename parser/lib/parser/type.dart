@@ -69,14 +69,38 @@ class TypeParser {
   }
 
   StructTypeContext parseStructType({List<Comment> comments}) {
+    var lCurly = state.nextToken(TokenType.lCurly),
+        span = lCurly?.span,
+        lastSpan = span;
 
+    if (lCurly == null) return null;
+
+    var fields = <StructFieldContext>[],
+        field = parseStructField(comments: state.parseComments());
+
+    while (field != null) {
+      fields.add(field);
+      span = span.expand(lastSpan = field.span);
+      field = parseStructField(comments: state.parseComments());
+    }
+
+    var rCurly = state.nextToken(TokenType.rCurly);
+
+    if (rCurly == null) {
+      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing '}' in struct type definition.", lastSpan));
+      return null;
+    }
+
+    return new StructTypeContext(fields, span, comments);
   }
 
   StructFieldContext parseStructField({List<Comment> comments}) {
-    var name = state.parseSimpleIdentifier(), span = name?.span, lastSpan = span;
+    var name = state.parseSimpleIdentifier(),
+        span = name?.span,
+        lastSpan = span;
 
-    if (name == null)
-      return null;
+    if (name == null) return null;
 
     var colon = state.nextToken(TokenType.colon);
 
@@ -91,8 +115,8 @@ class TypeParser {
     var type = parse(comments: state.parseComments());
 
     if (type == null) {
-      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
-          "Missing type after ':'.", colon.span));
+      state.errors.add(new BonoboError(
+          BonoboErrorSeverity.error, "Missing type after ':'.", colon.span));
       return null;
     }
 
