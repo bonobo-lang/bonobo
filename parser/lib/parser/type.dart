@@ -96,6 +96,9 @@ class TypeParser {
   }
 
   StructFieldContext parseStructField({List<Comment> comments}) {
+    if (state.peek()?.type == TokenType.fn)
+      return parseStructField(comments: comments);
+
     var name = state.parseSimpleIdentifier(),
         span = name?.span,
         lastSpan = span;
@@ -122,6 +125,49 @@ class TypeParser {
 
     span = span.expand(type.span);
     return new StructFieldContext(name, type, span, comments);
+  }
+
+  /// Syntactic sugar.
+  ///
+  /// Ex.
+  ///
+  /// `{fn myFn(Int, String): Double}`
+  /// automatically maps to
+  /// `{myInt: fn(Int, String): Double}`.
+  StructFieldContext parseStructFunctionField({List<Comment> comments}) {
+    var fn = state.nextToken(TokenType.fn);
+
+    if (fn == null) return null;
+
+    var span = fn.span;
+    var name = state.parseSimpleIdentifier();
+
+    if (name == null) {
+      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing identifier after 'fn'.", fn.span));
+      return null;
+    }
+
+    span = span.expand(name.span);
+    var signature = state.functionParser.parseSignature();
+
+    if (signature == null) {
+      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing function signature after '${name.name}'.", name.span));
+      return null;
+    }
+
+    span = span.expand(signature.span);
+
+    // Manufacture a FunctionTypeContext
+    var functionType = new FunctionTypeContext(
+        signature.parameterList?.parameters ?? [],
+        signature.returnType,
+        signature.span,
+        comments);
+
+    // Then, create a StructField with the item's name.
+    return new StructFieldContext(name, functionType, span, comments);
   }
 
   ParenthesizedTypeContext parseParenthesizedType({List<Comment> comments}) {
