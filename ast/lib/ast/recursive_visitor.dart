@@ -249,4 +249,19 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
     ctx.values.forEach(visitExpression);
     return null;
   }
+
+  @override
+  T visitStructType(StructTypeContext ctx) {
+    if (ctx == null) return null;
+    ctx.fields.forEach(visitStructField);
+    return null;
+  }
+
+  @override
+  T visitStructField(StructFieldContext ctx) {
+    if (ctx == null) return null;
+    visitSimpleIdentifier(ctx.name);
+    visitType(ctx.type);
+    return null;
+  }
 }

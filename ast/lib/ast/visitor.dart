@@ -69,4 +69,8 @@ abstract class BonoboAstVisitor<T> {
   T visitObjectLiteral(ObjectLiteralContext ctx);
 
   T visitRangeExpression(RangeExpressionContext ctx);
+
+  T visitStructType(StructTypeContext ctx);
+
+  T visitStructField(StructFieldContext ctx);
 }

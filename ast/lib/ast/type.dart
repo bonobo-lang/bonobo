@@ -71,6 +71,9 @@ class StructTypeContext extends TypeContext {
   final List<StructFieldContext> fields;
 
   StructTypeContext(this.fields, FileSpan span, List<Comment> comments) : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitStructType(this);
 }
 
 class StructFieldContext extends AstNode {
@@ -80,6 +83,9 @@ class StructFieldContext extends AstNode {
   StructFieldContext(
       this.name, this.type, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitStructField(this);
 }
 
 class ClassDeclarationContext extends TypeContext {
