@@ -96,7 +96,13 @@ class TypeParser {
     while (value != null) {
       values.add(value);
       span = span.expand(lastSpan = value.span);
-      value = parseEnumValue(comments: state.parseComments());
+
+      if (state.peek()?.type == TokenType.comma) {
+        span = span.expand(lastSpan = state.consume().span);
+        value = parseEnumValue(comments: state.parseComments());
+      } else {
+        break;
+      }
     }
 
     var rCurly = state.nextToken(TokenType.rCurly)?.span;
