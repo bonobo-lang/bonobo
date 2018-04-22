@@ -1,0 +1,23 @@
+// Structure types allow you to specify flexible types
+// that can express virtually any kind of data.
+//
+// The `=` is optional as always, but you might consider keeping it.
+type Foo = {
+    bar: Byte
+    baz: Num
+}
+
+// You can also specify that a type should have a function.
+//
+// In this example, we declare a type that expects to have a function named 'go'.
+type Runner = {
+    speed: Double
+    fn go(): Double
+}
+
+// The above is syntactic sugar, a shorthand for the following,
+// which is equally valid
+type Runner2 = {
+    speed: Double,
+    go: fn(): Double
+}
