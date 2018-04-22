@@ -20,7 +20,7 @@ class TypeParser {
     while (!state.done) {
       switch (state.peek()?.type) {
         case TokenType.comma:
-          if (ignoreComma == true) break;
+          if (ignoreComma == true) return type;
           // Consume the token, then read in the other type in this tuple.
           var comma = state.consume();
           var nextType = parse(comments: state.parseComments());
@@ -153,8 +153,7 @@ class TypeParser {
 
     if (state.peek()?.type == TokenType.lParen) {
       span = span.expand(lastSpan = state.consume().span);
-      var parameter =
-          parse(comments: state.parseComments(), ignoreComma: ignoreComma);
+      var parameter = parse(comments: state.parseComments(), ignoreComma: true);
 
       while (parameter != null) {
         parameters.add(parameter);
@@ -162,6 +161,7 @@ class TypeParser {
 
         if (state.peek()?.type == TokenType.comma) {
           span = span.expand(lastSpan = state.consume().span);
+          parameter = parse(comments: state.parseComments(), ignoreComma: true);
         } else {
           break;
         }

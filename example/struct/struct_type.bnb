@@ -18,6 +18,6 @@ type Runner = {
 // The above is syntactic sugar, a shorthand for the following,
 // which is equally valid
 type Runner2 = {
-    speed: Byte
-    go: fn(): Byte
+    speed: Num
+    go: fn(String, Num): Num
 }
