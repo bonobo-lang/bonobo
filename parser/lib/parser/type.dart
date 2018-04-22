@@ -45,7 +45,7 @@ class TypeParser {
           }
           break;
         default:
-          break;
+          return type;
       }
     }
 
@@ -61,7 +61,7 @@ class TypeParser {
       // If we didn't find an identifier type,
       // try for a struct or parenthesized type, etc.
       return parseFunctionType(comments: comments, ignoreComma: ignoreComma) ??
-          parseStructField(comments: comments) ??
+          parseStructType(comments: comments) ??
           parseParenthesizedType(comments: comments);
     }
 
@@ -160,7 +160,7 @@ class TypeParser {
 
   StructFieldContext parseStructField({List<Comment> comments}) {
     if (state.peek()?.type == TokenType.fn)
-      return parseStructField(comments: comments);
+      return parseStructFunctionField(comments: comments);
 
     var name = state.parseSimpleIdentifier(),
         span = name?.span,
@@ -224,7 +224,12 @@ class TypeParser {
 
     // Manufacture a FunctionTypeContext
     var functionType = new FunctionTypeContext(
-        signature.parameterList?.parameters ?? [],
+        signature.parameterList?.parameters
+                ?.map((p) =>
+                    p.type ??
+                    new SimpleIdentifierTypeContext(p.name, p.comments))
+                ?.toList() ??
+            [],
         signature.returnType,
         signature.span,
         comments);

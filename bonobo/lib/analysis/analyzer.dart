@@ -367,7 +367,7 @@ class BonoboAnalyzer {
         } else {
           BonoboObject value;
 
-          if (ctx.operator.type == TokenType.equals) {
+          if (ctx.operator.type == TokenType.assign) {
             value = await resolveExpression(ctx.right, function, scope);
           } else {
             // Make an artificial binary expression, and assign it as the value.

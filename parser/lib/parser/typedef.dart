@@ -19,10 +19,11 @@ class TypedefParser {
     }
 
     // Optionally parse `=` in typedef
-    var colonEquals = state.nextToken(TokenType.equals);
+    span = span.expand(lastSpan = name.span);
+    var equals = state.nextToken(TokenType.assign);
 
-    if (colonEquals != null) {
-      span = span.expand(lastSpan = colonEquals.span);
+    if (equals != null) {
+      span = span.expand(lastSpan = equals.span);
     }
     // TODO: Pass these to type parser
     var type = state.typeParser.parse(comments: state.parseComments());

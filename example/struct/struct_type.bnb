@@ -12,12 +12,12 @@ type Foo = {
 // In this example, we declare a type that expects to have a function named 'go'.
 type Runner = {
     speed: Double
-    fn go(): Double
+    fn go(a, b: Int): Double
 }
 
 // The above is syntactic sugar, a shorthand for the following,
 // which is equally valid
 type Runner2 = {
-    speed: Double,
+    speed: Double
     go: fn(): Double
 }

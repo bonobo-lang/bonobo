@@ -39,8 +39,8 @@ class Parser extends BaseParser {
     final typedefs = <TypedefContext>[];
 
     while (!done) {
-      Token t = peek();
       var comments = parseComments();
+      Token t = peek();
 
       switch (t.type) {
         case TokenType.fn:
@@ -64,8 +64,9 @@ class Parser extends BaseParser {
           }*/
           break;
         default:
-          // TODO
-          throw new UnimplementedError(peek()?.span?.highlight());
+          errors.add(new BonoboError(BonoboErrorSeverity.warning,
+              "Unexpected token: ${t.type}", t.span));
+          consume();
           break;
       }
       if (errors.length != 0) {

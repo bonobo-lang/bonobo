@@ -171,8 +171,8 @@ class BinaryOperator {
         return logicalAnd;
       case TokenType.l_or:
         return logicalOr;
-      case TokenType.equals:
-        return equals;
+      //case TokenType.equals:
+      //  return equals;
       case TokenType.notEquals:
         return notEquals;
       case TokenType.lt:
