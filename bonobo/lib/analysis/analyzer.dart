@@ -268,6 +268,11 @@ class BonoboAnalyzer {
       }
 
       return new BonoboStructType(fields);
+    } else if (ctx is EnumTypeContext) {
+      var values = ctx.values
+          .map((v) => new BonoboEnumValue(v.name.name, v.index?.intValue))
+          .toList();
+      return new BonoboEnumType(values);
     } else if (ctx is TupleTypeContext) {
       var types = await Future.wait(ctx.items.map(resolveType));
       return new BonoboTupleType(types);

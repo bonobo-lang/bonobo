@@ -61,6 +61,7 @@ class TypeParser {
       // If we didn't find an identifier type,
       // try for a struct or parenthesized type, etc.
       return parseFunctionType(comments: comments, ignoreComma: ignoreComma) ??
+          parseEnumType(comments: comments) ??
           parseStructType(comments: comments) ??
           parseParenthesizedType(comments: comments);
     }
@@ -70,6 +71,74 @@ class TypeParser {
     } else {
       return new SimpleIdentifierTypeContext(name, comments ?? []);
     }
+  }
+
+  /// enum { a, b, c }
+  EnumTypeContext parseEnumType({List<Comment> comments}) {
+    var keyword = state.nextToken(TokenType.enum_),
+        span = keyword?.span,
+        lastSpan = span;
+
+    if (keyword == null) return null;
+
+    var lCurly = state.nextToken(TokenType.lCurly);
+
+    if (lCurly == null) {
+      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing '{' in enum type definition.", lastSpan));
+      return null;
+    }
+
+    span = span.expand(lastSpan = lCurly.span);
+    var values = <EnumValueContext>[];
+    var value = parseEnumValue(comments: state.parseComments());
+
+    while (value != null) {
+      values.add(value);
+      span = span.expand(lastSpan = value.span);
+
+      if (state.peek()?.type == TokenType.comma) {
+        span = span.expand(lastSpan = state.consume().span);
+        value = parseEnumValue(comments: state.parseComments());
+      } else {
+        break;
+      }
+    }
+
+    var rCurly = state.nextToken(TokenType.rCurly)?.span;
+
+    if (rCurly == null) {
+      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing '}' in enum type definition.", lastSpan));
+      return null;
+    }
+
+    return new EnumTypeContext(values, span.expand(rCurly), comments);
+  }
+
+  EnumValueContext parseEnumValue({List<Comment> comments}) {
+    var name = state.parseSimpleIdentifier(), span = name?.span;
+    NumberLiteralContext index;
+
+    if (name == null) return null;
+
+    // Index is optional
+    var assign = state.nextToken(TokenType.assign)?.span;
+
+    if (assign != null) {
+      span = span.expand(assign);
+      index = state.expressionParser.parseNumberLiteral();
+
+      if (index == null) {
+        state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+            "Missing index after '=' in enum type definition.", assign));
+        return null;
+      }
+
+      span = span.expand(index.span);
+    }
+
+    return new EnumValueContext(name, index, span, comments);
   }
 
   /// fn(Int, Int): Int

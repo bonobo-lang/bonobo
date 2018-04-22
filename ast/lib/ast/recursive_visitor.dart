@@ -264,4 +264,19 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
     visitType(ctx.type);
     return null;
   }
+
+  @override
+  T visitEnumValue(EnumValueContext ctx) {
+    if (ctx == null) return null;
+    visitSimpleIdentifier(ctx.name);
+    visitNumberLiteral(ctx.index);
+    return null;
+  }
+
+  @override
+  T visitEnumType(EnumTypeContext ctx) {
+    if (ctx == null) return null;
+    ctx.values.forEach(visitEnumValue);
+    return null;
+  }
 }

@@ -38,7 +38,7 @@ part 'compile.dart';
 
 part 'document.dart';
 
-part 'dump.dart';
+part 'info.dart';
 
 part 'explore.dart';
 

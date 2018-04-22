@@ -73,4 +73,8 @@ abstract class BonoboAstVisitor<T> {
   T visitStructType(StructTypeContext ctx);
 
   T visitStructField(StructFieldContext ctx);
+
+  T visitEnumType(EnumTypeContext ctx);
+
+  T visitEnumValue(EnumValueContext ctx);
 }
