@@ -9,7 +9,8 @@ class CompilationUnitContext extends AstNode {
       : super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitCompilationUnit(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitCompilationUnit(this);
 
   String toString() {
     var sb = new StringBuffer();

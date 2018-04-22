@@ -17,15 +17,17 @@ class StatementParser {
     if (exp == null) return null;
 
     Token peek = state.peek();
-    if (peek == null || !isAssignToken(peek.type))
-      return new ExpressionStatementContext(exp);
+    if (peek == null) return null;
 
-    AssignOperatorContext op = new AssignOperatorContext(
-        peek.span, [], AssignOperator.fromToken(peek.type));
+    AssignOperator opEnum = AssignOperator.fromToken(peek.type);
+    if (opEnum == null) return new ExpressionStatementContext(exp);
+
+    AssignOperatorContext op = new AssignOperatorContext(peek.span, [], opEnum);
     state.consume();
     ExpressionContext rhs = state.parseExpression();
     if (rhs == null) return null;
-    // TODO cascaded assignment
+
+    // TODO compound assignment
 
     return new AssignStatementContext(
         exp.span.expand(rhs.span), [], exp, op, rhs);

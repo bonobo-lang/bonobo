@@ -162,8 +162,8 @@ class VariableDeclarationContext extends AstNode {
   final ExpressionContext initializer;
   final VariableMutability mutability;
 
-  VariableDeclarationContext(FileSpan span, List<Comment> comments, this.mutability,
-      this.name, this.type, this.initializer)
+  VariableDeclarationContext(FileSpan span, List<Comment> comments,
+      this.mutability, this.name, this.type, this.initializer)
       : super(span, comments);
 
   bool get isImmutable => mutability >= VariableMutability.final_;

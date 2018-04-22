@@ -310,7 +310,8 @@ class IdentifierChainExpressionMemberPartContext
   final List<Comment> comments;
   final SimpleIdentifierContext member;
 
-  IdentifierChainExpressionMemberPartContext(this.span, this.comments, this.member);
+  IdentifierChainExpressionMemberPartContext(
+      this.span, this.comments, this.member);
 
   String get name => member.name;
 
@@ -355,7 +356,8 @@ class MapLiteralContext extends ExpressionContext {
   final List<ExpressionContext> keys;
   final List<ExpressionContext> values;
 
-  MapLiteralContext(FileSpan span, List<Comment> comments, this.keys, this.values)
+  MapLiteralContext(
+      FileSpan span, List<Comment> comments, this.keys, this.values)
       : super(span, comments);
 
   @override

@@ -220,20 +220,3 @@ class Token {
         .highlight()}';
   }
 }
-
-// TODO remove this
-bool isAssignToken(TokenType t) =>
-    {
-      TokenType.assign: true,
-      TokenType.assignAdd: true,
-      TokenType.assignSub: true,
-      TokenType.assignTimes: true,
-      TokenType.assignDiv: true,
-      TokenType.assignMod: true,
-      TokenType.assignAnd: true,
-      TokenType.assignOr: true,
-      TokenType.assignXor: true,
-      TokenType.assignShl: true,
-      TokenType.assignShr: true,
-    }[t] !=
-    null;

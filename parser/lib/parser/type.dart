@@ -51,8 +51,7 @@ class TypeParser {
     Token fn = state.nextToken(TokenType.fn);
     if (fn == null) return null;
 
-    FunctionSignatureContext signature =
-        state.functionParser.parseSignature(fn.span);
+    FunctionSignatureContext signature = state.functionParser.parseSignature();
     if (signature == null) return null;
 
     if (signature.returnType == null && signature.returnType == null) {

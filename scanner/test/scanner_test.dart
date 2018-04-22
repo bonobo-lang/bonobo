@@ -12,7 +12,8 @@ void main() {
     test('arrow', () => expect('=>', scansOne(TokenType.arrow, '=>')));
     test('colon', () => expect(':', scansOne(TokenType.colon, ':')));
     test('comma', () => expect(',', scansOne(TokenType.comma, ',')));
-    test('double_colon', () => expect('::', scansOne(TokenType.double_colon, '::')));
+    test('double_colon',
+        () => expect('::', scansOne(TokenType.double_colon, '::')));
     test('lCurly', () => expect('{', scansOne(TokenType.lCurly, '{')));
     test('rCurly', () => expect('}', scansOne(TokenType.rCurly, '}')));
     test('lParen', () => expect('(', scansOne(TokenType.lParen, '(')));
@@ -29,8 +30,10 @@ void main() {
           () => expect('-123', isNot(scansOne(TokenType.number, '123'))));
     });
 
-    test('single quoted string', () => expect("'foo'", scansOne(TokenType.string, "'foo'")));
-    test('double quoted string', () => expect('"foo"', scansOne(TokenType.string, '"foo"')));
+    test('single quoted string',
+        () => expect("'foo'", scansOne(TokenType.string, "'foo'")));
+    test('double quoted string',
+        () => expect('"foo"', scansOne(TokenType.string, '"foo"')));
     test('identifier',
         () => expect('foo', scansOne(TokenType.identifier, 'foo')));
   });
