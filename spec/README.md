@@ -24,11 +24,13 @@ MyProduction: "Foo" | Bar+ | Baz*
 ## Contents
 * [Compilation Unit](#compilation-unit)
     * [Relation to Modules](#relation-to-modules)
+* [Top Level Declaration](#top-level-declaration)
 
 # Compilation Unit
 Bonobo is a language expressed in *compilation units*. A
 compilation unit, simply put, is a file containing Bonobo code.
-A compilation unit may contain an infinite number of top-level declarations.
+A compilation unit may contain an infinite number of
+[top-level declarations](#top-level-declaration).
 
 ```ebnf
 CompilationUnit: TopLevelDeclaration*;
@@ -41,3 +43,14 @@ files in a given directory with the extension `.bnb`, after static analysis.
 These modules are a cumulative representation of code written by a user,
 and are the intermediate representation of code fed to Bonobo's compilation
 backend(s).
+
+# Top Level Declaration
+A *top-level declaration* is a mechanism for declaring symbols within a Bonobo
+[module](#relation-to-modules).
+
+```ebnf
+TopLevelDeclaration:
+    ImportDeclaration
+    | FunctionDeclaration
+    | TypedefDeclaration;
+```
