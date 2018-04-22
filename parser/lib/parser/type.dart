@@ -25,7 +25,6 @@ class TypeParser {
           var comma = state.consume();
           var nextType = parse(comments: state.parseComments());
           var span = type.span.expand(nextType.span);
-          nextType = nextType.innermost;
 
           if (nextType == null) {
             state.errors.add(new BonoboError(BonoboErrorSeverity.error,
@@ -33,15 +32,17 @@ class TypeParser {
             return null;
           }
 
+
           // If the other type is a tuple, combine the two.
           if (nextType is TupleTypeContext) {
-            type = new TupleTypeContext([type]..addAll(nextType.items), span,
-                []..addAll(comments)..addAll(nextType.comments));
+            var tup = nextType.innermost as TupleTypeContext;
+            type = new TupleTypeContext([type]..addAll(tup.items), span,
+                []..addAll(comments)..addAll(tup.comments));
           }
 
           // Otherwise, create a new one.
           else {
-            type = new TupleTypeContext([type, nextType], span, comments);
+            type = new TupleTypeContext([type.innermost, nextType.innermost], span, comments);
           }
           break;
         default:

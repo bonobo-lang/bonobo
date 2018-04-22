@@ -33,7 +33,7 @@ void main() {
     var tuple = exp as TupleTypeContext;
     expect(tuple.items.length, 3);
     expect(tuple.items[0], isIdentifierType('Foo'));
-    expect(tuple.items[1], isIdentifierType('Foo'));
+    expect(tuple.items[1], isIdentifierType('Bar'));
     expect(tuple.items[2], const isInstanceOf<TupleTypeContext>());
     var tup = tuple.items[2] as TupleTypeContext;
     expect(tup.items[0], isIdentifierType('Foo'));

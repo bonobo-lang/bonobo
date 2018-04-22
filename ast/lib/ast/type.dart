@@ -43,6 +43,11 @@ class TupleTypeContext extends TypeContext {
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitTupleType(this);
+
+  @override
+  String toString() {
+    return items.join(', ');
+  }
 }
 
 class TypedefContext extends AstNode {
@@ -65,6 +70,11 @@ class ParenthesizedTypeContext extends TypeContext {
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => innermost.accept(visitor);
+
+  @override
+  String toString() {
+    return '($innermost)';
+  }
 }
 
 class StructTypeContext extends TypeContext {
