@@ -77,7 +77,7 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
   @override
   T visitLambdaFunctionBody(LambdaFunctionBodyContext ctx) {
     if (ctx == null) return null;
-    ctx.expressions.forEach(visitExpression);
+    visitExpression(ctx.expression);
     return null;
   }
 
@@ -134,7 +134,7 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
 
   @override
   T visitReturnStatement(ReturnStatementContext ctx) {
-    ctx.expressions.forEach(visitExpression);
+    visitExpression(ctx.expression);
     return null;
   }
 
@@ -219,9 +219,34 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
 
   @override
   T visitClassDeclaration(ClassDeclarationContext ctx) {
-   visitSimpleIdentifier(ctx.name);
-   ctx.fields.forEach(visitVariableDeclarationStatement);
-   ctx.methods.forEach(visitFunction);
-   return null;
+    if (ctx == null) return null;
+    visitSimpleIdentifier(ctx.name);
+    ctx.fields.forEach(visitVariableDeclarationStatement);
+    ctx.methods.forEach(visitFunction);
+    return null;
+  }
+
+  @override
+  T visitRangeExpression(RangeExpressionContext ctx) {
+    if (ctx == null) return null;
+    visitExpression(ctx.start);
+    visitExpression(ctx.end);
+    visitExpression(ctx.step);
+    return null;
+  }
+
+  @override
+  T visitArrayLiteral(ArrayLiteralContext ctx) {
+    if (ctx == null) return null;
+    ctx.items.forEach(visitExpression);
+    return null;
+  }
+
+  @override
+  T visitObjectLiteral(ObjectLiteralContext ctx) {
+    if (ctx == null) return null;
+    ctx.keys.forEach(visitExpression);
+    ctx.values.forEach(visitExpression);
+    return null;
   }
 }

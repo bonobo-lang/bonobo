@@ -83,11 +83,12 @@ class AssignmentOperator {
   }
 }
 
-class AssignmentOperatorContext extends AstNode {
+class AssignmentOperatorContext {
+  final FileSpan span;
+  final List<Comment> comments;
   final AssignmentOperator op;
 
-  AssignmentOperatorContext(FileSpan span, List<Comment> comments, this.op)
-      : super(span, comments);
+  AssignmentOperatorContext(this.span, this.comments, this.op);
 
   String toString() => op.rep;
 }
@@ -117,10 +118,10 @@ class ExpressionStatementContext extends StatementContext {
 }
 
 class ReturnStatementContext extends StatementContext {
-  final List<ExpressionContext> expressions;
+  final ExpressionContext expression;
 
   ReturnStatementContext(
-      FileSpan span, List<Comment> comments, this.expressions)
+      FileSpan span, List<Comment> comments, this.expression)
       : super(span, comments);
 
   @override

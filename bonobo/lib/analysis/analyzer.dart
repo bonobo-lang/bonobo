@@ -379,7 +379,7 @@ class BonoboAnalyzer {
               ctx.comments,
               leftCtx,
               ctx.right,
-              op,
+              BinaryOperator.fromTokenType(ctx.operator.type),
             );
             value = await resolveExpression(binaryExpression, function, scope);
           }

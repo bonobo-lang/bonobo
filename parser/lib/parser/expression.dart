@@ -6,7 +6,7 @@ class ExpressionParser {
   ExpressionParser(this.state);
 
   ExpressionContext parse() {
-    ExpressionContext first = _parseSingleExpression();
+    ExpressionContext first = parseSingleExpression();
     if (first == null) return null;
 
     return _parsePartsWithPrecedence(null, first);
@@ -14,11 +14,11 @@ class ExpressionParser {
 
   ExpressionContext _parsePartsWithPrecedence(
       int precedence, ExpressionContext first) {
-    final parts = <ExpChainPartCtx>[];
+    final parts = <ExpressionChainPart>[];
 
-    ExpChainPartCtx prev;
+    ExpressionChainPart prev;
 
-    for (ExpChainPartCtx part = _parseExpPart();
+    for (ExpressionChainPart part = _parseExpPart();
         part != null;
         part = _parseExpPart()) {
       precedence ??= part.precedence;
@@ -26,9 +26,10 @@ class ExpressionParser {
         ExpressionContext exp = _parsePartsWithPrecedence(
             part.precedence,
             new ExpChainCtx(
-                prev.right.span.expand(part.span), [], prev.right, part));
-        part =
-            new ExpChainPartCtx(prev.span.expand(exp.span), [], prev.op, exp);
+                    prev.right.span.expand(part.span), [], prev.right, part)
+                .right);
+        part = new ExpressionChainPart(
+            prev.span.expand(exp.span), [], prev.op, exp);
         prev = null;
       }
 
@@ -41,26 +42,30 @@ class ExpressionParser {
 
     if (parts.length == 1)
       return new ExpChainCtx(
-          first.span.expand(parts[0].span), [], first, parts[0]);
+              first.span.expand(parts[0].span), [], first, parts[0])
+          .right;
 
     prev = parts[parts.length - 2];
-    ExpChainPartCtx cur = parts.last;
-    BinaryExpressionContext op = prev.op;
+    ExpressionChainPart cur = parts.last;
+    var op = prev.op;
     ExpressionContext exp = new ExpChainCtx(
-        prev.right.span.expand(cur.span), [], prev.right, parts.last);
+            prev.right.span.expand(cur.span), [], prev.right, parts.last)
+        .right;
     for (int i = parts.length - 2; i >= 1; i++) {
       prev = parts[i - 2];
       cur = parts[i - 1];
       exp = new ExpChainCtx(prev.right.span.expand(exp.span), [], prev.right,
-          new ExpChainPartCtx(op.span.expand(exp.span), [], op, exp));
+              new ExpressionChainPart(op.span.expand(exp.span), [], op, exp))
+          .right;
       op = prev.op;
     }
     exp = new ExpChainCtx(first.span.expand(exp.span), [], first,
-        new ExpChainPartCtx(op.span.expand(exp.span), [], op, exp));
+            new ExpressionChainPart(op.span.expand(exp.span), [], op, exp))
+        .right;
     return exp;
   }
 
-  ExpChainPartCtx _parseExpPart() {
+  ExpressionChainPart _parseExpPart() {
     Token peek = state.peek();
     if (peek == null) return null;
 
@@ -68,11 +73,10 @@ class ExpressionParser {
     if (op == null) return null;
     state.consume();
 
-    //var opCtx = new BinaryExpressionContext(span, [], left, right, op);
-    BinaryExpressionContext opCtx = new BinaryExpressionContext(peek.span, [], op);
+    var opCtx = new BinaryExpressionPartContext(peek.span, [], op);
     ExpressionContext exp = parseSingleExpression();
     if (exp == null) return null;
-    return new ExpChainPartCtx(peek.span.expand(exp.span), [], opCtx, exp);
+    return new ExpressionChainPart(peek.span.expand(exp.span), [], opCtx, exp);
   }
 
   ExpressionContext parseSingleExpression() {
@@ -89,7 +93,8 @@ class ExpressionParser {
         return new PrefixExpressionContext(
             token.span.expand(exp.span),
             [],
-            new PrefixOperatorContext(token.span, [], PrefixOperator.fromToken(token.type)),
+            new PrefixOperatorContext(
+                token.span, [], PrefixOperator.fromToken(token.type)),
             exp);
       case TokenType.lParen:
         return _parseParenExp();
@@ -136,7 +141,7 @@ class ExpressionParser {
     return exp; // TODO span the parenthesis
   }
 
-  TupleInitCtx _parseTuple(Token startTok, ExpressionContext first) {
+  TupleExpressionContext _parseTuple(Token startTok, ExpressionContext first) {
     state.consume();
 
     final exps = <ExpressionContext>[first];
@@ -149,10 +154,11 @@ class ExpressionParser {
     Token rParen = state.nextToken(TokenType.rParen);
     if (rParen == null) return null;
 
-    return new TupleInitCtx(startTok.span.expand(rParen.span), [], exps);
+    return new TupleExpressionContext(
+        exps, startTok.span.expand(rParen.span), []);
   }
 
-  ListInitCtx _parseList() {
+  ArrayLiteralContext _parseList() {
     Token lSq = state.nextToken(TokenType.lSq);
 
     final exps = <ExpressionContext>[];
@@ -165,10 +171,10 @@ class ExpressionParser {
     Token rParen = state.nextToken(TokenType.rParen);
     if (rParen == null) return null;
 
-    return new ListInitCtx(lSq.span.expand(rParen.span), [], exps);
+    return new ArrayLiteralContext(lSq.span.expand(rParen.span), [], exps);
   }
 
-  MapInitCtx _parseMap() {
+  ObjectLiteralContext _parseMap() {
     Token lCurly = state.nextToken(TokenType.lCurly);
 
     final keys = <ExpressionContext>[];
@@ -186,10 +192,12 @@ class ExpressionParser {
     Token rCurly = state.nextToken(TokenType.rCurly);
     if (rCurly == null) return null;
 
-    return new MapInitCtx(lCurly.span.expand(rCurly.span), [], keys, values);
+    return new ObjectLiteralContext(
+        lCurly.span.expand(rCurly.span), [], keys, values);
   }
 
-  RangeCtx _parseRange(Token startTok, ExpressionContext startRange) {
+  RangeExpressionContext _parseRange(
+      Token startTok, ExpressionContext startRange) {
     state.consume();
 
     ExpressionContext endRange = parse();
@@ -204,7 +212,7 @@ class ExpressionParser {
     Token rParen = state.nextToken(TokenType.rParen);
     if (rParen == null) return null;
 
-    return new RangeCtx(
+    return new RangeExpressionContext(
         startTok.span.expand(rParen.span), [], startRange, endRange, step);
   }
 
@@ -252,39 +260,53 @@ class ExpressionParser {
   }
 
   ExpressionContext parseChainExp() {
-    IdentifierContext id = state.parseIdentifier();
+    ExpressionContext target = state.parseIdentifier();
 
-    final parts = <IdChainExpPartCtx>[];
+    if (target == null) return null;
 
     Token peek = state.peek();
     while (peek != null) {
-      IdChainExpPartCtx now;
       switch (peek.type) {
         case TokenType.dot:
           state.consume();
-          SimpleIdentifierContext id = state.nextSimpleId();
-          if (id == null) return null;
-          now = new MemberIdChainExpPartCtx(peek.span.expand(id.span), [], id);
+          SimpleIdentifierContext id = state.parseSimpleIdentifier();
+
+          if (id == null) {
+            state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+                "Missing identifier after '.'.", peek.span));
+            return null;
+          }
+
+          target = new MemberExpressionContext(
+              target, id, target.span.expand(peek.span).expand(id.span), []);
           break;
         case TokenType.lParen:
-          now = _parseCallParams();
-          if (now == null) return null;
+          var args = _parseCallParams();
+          if (args == null) return null;
+          target = _callExpression(target, args);
           break;
+        /*
+        TODO: SubscriptExpressionContext
         case TokenType.lSq:
+          var sub = _parseSubscript();
           now = _parseSubscript();
           if (now == null) return null;
           break;
+        */
         // TODO cascade operator?
         default:
           break;
       }
-      if (now == null) break;
-      parts.add(now);
-      peek = state.peek();
     }
 
-    if (parts.length == 0) return id;
+    return target;
+  }
 
-    return new IdChainExpCtx(id.span.expand(parts.last.span), [], id, parts);
+  CallExpressionContext _callExpression(
+      IdentifierContext target, CallIdChainExpPartCtx chain) {
+    var tuple =
+        new TupleExpressionContext(chain.args, chain.span, chain.comments);
+    return new CallExpressionContext(
+        target, tuple, target.span.expand(tuple.span), target.comments);
   }
 }

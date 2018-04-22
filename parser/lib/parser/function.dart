@@ -125,7 +125,7 @@ class FunctionParser {
   FunctionBodyContext parseBody() {
     Token decider = state.peek();
 
-    if (decider.type == TokenType.arrow) return parseSameLineBody();
+    if (decider.type == TokenType.arrow) return parseLambdaBody();
     if (decider.type == TokenType.lCurly) return parseBlockFunctionBody();
 
     state.errors.add(new BonoboError(
@@ -133,27 +133,19 @@ class FunctionParser {
     return null;
   }
 
-  LambdaFunctionBodyContext parseSameLineBody() {
+  LambdaFunctionBodyContext parseLambdaBody() {
     Token arrow = state.nextToken(TokenType.arrow);
     if (arrow == null) return null;
 
-    final exps = <ExpressionContext>[];
+    var exp = state.parseExpression();
 
-    for (ExpressionContext exp = state.parseExpression();
-        exp != null;
-        exp = state.parseExpression()) {
-      exps.add(exp);
-      if (state.nextToken(TokenType.comma) == null) break;
-    }
-
-    if (exps.length == 0) {
+    if (exp == null) {
       state.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Missing expression after '=>'.", arrow.span));
       return null;
     }
 
-    return new LambdaFunctionBodyContext(
-        arrow.span.expand(exps.first.span), [], exps);
+    return new LambdaFunctionBodyContext(arrow.span.expand(exp.span), [], exp);
   }
 
   BlockFunctionBodyContext parseBlockFunctionBody() {

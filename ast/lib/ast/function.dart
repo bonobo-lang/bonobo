@@ -70,14 +70,14 @@ class BlockFunctionBodyContext extends FunctionBodyContext {
 }
 
 class LambdaFunctionBodyContext extends FunctionBodyContext {
-  final List<ExpressionContext> expressions;
+  final ExpressionContext expression;
 
-  LambdaFunctionBodyContext(FileSpan span, List<Comment> comments, this.expressions)
+  LambdaFunctionBodyContext(FileSpan span, List<Comment> comments, this.expression)
       : super(span, comments);
 
   @override
   List<StatementContext> get body =>
-      [new ReturnStatementContext(span, comments, expressions)];
+      [new ReturnStatementContext(span, comments, expression)];
       
       
 
@@ -85,7 +85,7 @@ class LambdaFunctionBodyContext extends FunctionBodyContext {
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitLambdaFunctionBody(this);
 
   String toString() {
-    return ' => ' + expressions.join(', ');
+    return ' => ' + expression.toString();
   }
 }
 

@@ -63,4 +63,10 @@ abstract class BonoboAstVisitor<T> {
   T visitParameter(ParameterContext ctx);
 
   T visitClassDeclaration(ClassDeclarationContext ctx);
+
+  T visitArrayLiteral(ArrayLiteralContext ctx);
+
+  T visitObjectLiteral(ObjectLiteralContext ctx);
+
+  T visitRangeExpression(RangeExpressionContext ctx);
 }

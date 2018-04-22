@@ -195,6 +195,14 @@ class BinaryOperator {
   }
 }
 
+class BinaryExpressionPartContext {
+  final FileSpan span;
+  final List<Comment> comments;
+  final BinaryOperator op;
+
+  BinaryExpressionPartContext(this.span, this.comments, this.op);
+}
+
 class BinaryExpressionContext extends ExpressionContext {
   final ExpressionContext left, right;
   final BinaryOperator op;
@@ -248,11 +256,12 @@ class PrefixOperator {
   static PrefixOperator fromToken(TokenType tok) => _map[tok];
 }
 
-class PrefixOperatorContext extends AstNode {
+class PrefixOperatorContext {
+  final FileSpan span;
+  final List<Comment> comments;
   final PrefixOperator op;
 
-  PrefixOperatorContext(FileSpan span, List<Comment> comments, this.op)
-      : super(span, comments);
+  PrefixOperatorContext(this.span, this.comments, this.op);
 
   String toString() => op.rep;
 }
@@ -334,57 +343,62 @@ class MemberExpressionContext extends ExpressionContext {
       visitor.visitMemberExpression(this);
 }
 
-class ExpChainPartCtx extends AstNode {
-  final BinaryExpression op;
+class ExpressionChainPart {
+  final FileSpan span;
+  final List<Comment> comments;
+  final BinaryExpressionPartContext op;
   final ExpressionContext right;
 
-  ExpChainPartCtx(FileSpan span, List<Comment> comments, this.op, this.right)
-      : super(span, comments);
+  ExpressionChainPart(this.span, this.comments, this.op, this.right);
 
-  int get precedence => op.precedence;
+  int get precedence => op.op.precedence;
 
   String toString() => '${op.op.rep} $right';
 }
 
-class ExpChainCtx extends ExpressionContext {
+class ExpChainCtx {
+  final FileSpan span;
+  final List<Comment> comments;
   final ExpressionContext left;
-  final ExpChainPartCtx rightPart;
+  final ExpressionChainPart rightPart;
 
-  ExpChainCtx(FileSpan span, List<Comment> comments, this.left, this.rightPart)
-      : super(span, comments);
+  ExpChainCtx(this.span, this.comments, this.left, this.rightPart);
 
-  BinaryExpression get op => rightPart.op;
+  BinaryExpressionPartContext get op => rightPart.op;
 
   ExpressionContext get right => rightPart.right;
 
   String toString() => '($left $rightPart)';
 }
 
-class IdChainExpCtx extends ExpressionContext {
+class IdChainExpCtx {
+  final FileSpan span;
+  final List<Comment> comments;
   final IdentifierContext target;
   final List<IdChainExpPartCtx> parts;
 
-  IdChainExpCtx(FileSpan span, List<Comment> comments, this.target, this.parts)
-      : super(span, comments);
+  IdChainExpCtx(this.span, this.comments, this.target, this.parts);
 
   String toString() => target.toString() + parts.join();
 }
 
-abstract class IdChainExpPartCtx implements AstNode {}
+abstract class IdChainExpPartCtx {
+  final FileSpan span;
+  final List<Comment> comments;
 
-class CallIdChainExpPartCtx extends AstNode implements IdChainExpPartCtx {
+  IdChainExpPartCtx(this.span, this.comments);
+}
+
+class CallIdChainExpPartCtx extends IdChainExpPartCtx {
   final List<ExpressionContext> args;
 
   CallIdChainExpPartCtx(FileSpan span, List<Comment> comments, this.args)
       : super(span, comments);
 
   String toString() => '(' + args.join(', ') + ')';
-<<<<<<< HEAD
-}
-=======
 }
 
-class MemberIdChainExpPartCtx extends AstNode implements IdChainExpPartCtx {
+class MemberIdChainExpPartCtx extends IdChainExpPartCtx {
   final SimpleIdentifierContext member;
 
   MemberIdChainExpPartCtx(FileSpan span, List<Comment> comments, this.member)
@@ -395,14 +409,60 @@ class MemberIdChainExpPartCtx extends AstNode implements IdChainExpPartCtx {
   String toString() => '.$name';
 }
 
-class SubscriptIdChainExpPartCtx extends AstNode implements IdChainExpPartCtx {
+class SubscriptIdChainExpPartCtx extends IdChainExpPartCtx {
   final List<ExpressionContext> indices;
 
-  SubscriptIdChainExpPartCtx(FileSpan span, List<Comment> comments, this.indices)
+  SubscriptIdChainExpPartCtx(
+      FileSpan span, List<Comment> comments, this.indices)
       : super(span, comments);
 
   String toString() => '(' + indices.join(':') + ')';
 }
 
+class ArrayLiteralContext extends ExpressionContext {
+  final List<ExpressionContext> items;
 
->>>>>>> 9b308b1da26ea97d8a4b7727109f0cf2b85f2840
+  ArrayLiteralContext(FileSpan span, List<Comment> comments, this.items)
+      : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitArrayLiteral(this);
+}
+
+class FunctionTypeContext extends TypeContext {
+  final List<TypeContext> parameters;
+  final TypeContext returnType;
+
+  FunctionTypeContext(
+      this.parameters, this.returnType, FileSpan span, List<Comment> comments)
+      : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitFunctionType(this);
+}
+
+class ObjectLiteralContext extends ExpressionContext {
+  final List<ExpressionContext> keys;
+  final List<ExpressionContext> values;
+
+  ObjectLiteralContext(FileSpan span, List<Comment> comments, this.keys, this.values)
+      : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitObjectLiteral(this);
+}
+
+class RangeExpressionContext extends ExpressionContext {
+  final ExpressionContext start;
+  final ExpressionContext end;
+  final ExpressionContext step;
+
+  RangeExpressionContext(
+      FileSpan span, List<Comment> comments, this.start, this.end, this.step)
+      : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitRangeExpression(this);
+
+
+}
