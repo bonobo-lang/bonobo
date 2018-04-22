@@ -1,1 +1,1 @@
-enum Foo { foo, bar, quux }
+enum Foo = { foo, bar, quux }

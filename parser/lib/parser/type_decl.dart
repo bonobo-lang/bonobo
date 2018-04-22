@@ -26,6 +26,9 @@ class TypeDeclarationParser {
     }
     lastSpan = name.span;
 
+    // Optional assign
+    state.nextToken(TokenType.assign);
+
     Token peek = state.peek();
 
     if (peek.type == TokenType.implements) {
@@ -123,6 +126,9 @@ class EnumDeclarationParser {
           "Missing name in enum declaration.", start.span));
       return null;
     }
+
+    // Optional assign
+    state.nextToken(TokenType.assign);
 
     var lCurly = state.nextToken(TokenType.lCurly);
     if (lCurly == null) {
