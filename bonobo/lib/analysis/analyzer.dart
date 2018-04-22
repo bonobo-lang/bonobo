@@ -260,6 +260,8 @@ class BonoboAnalyzer {
           "Unknown type '${ctx.identifier.name}'.", ctx.span));
 
       return BonoboType.Root;
+    } else if (ctx is StructTypeContext) {
+
     } else if (ctx is TupleTypeContext) {
       var types = await Future.wait(ctx.items.map(resolveType));
       return new BonoboTupleType(types);
