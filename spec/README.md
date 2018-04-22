@@ -25,6 +25,9 @@ MyProduction: "Foo" | Bar+ | Baz*
 * [Compilation Unit](#compilation-unit)
     * [Relation to Modules](#relation-to-modules)
 * [Top Level Declaration](#top-level-declaration)
+    * [Import Declaration](#import-declaration)
+    * [Function Declaration](#function-declaration)
+    * [Typedef Declaration](#typedef-declaration)
 
 # Compilation Unit
 Bonobo is a language expressed in *compilation units*. A
@@ -53,4 +56,19 @@ TopLevelDeclaration:
     ImportDeclaration
     | FunctionDeclaration
     | TypedefDeclaration;
+```
+
+## Import Declaration
+
+## Function Declaration
+
+## Typedef Declaration
+In Bonobo, all data can be classified into *types*.
+Some types are complex or composite, and explicitly typing
+them every time would be cumbersome. *Typedefs* are
+special declarations that can be used to assign an alias
+to an anonymous, or otherwise verbose, type.
+
+```ebnf
+TypedefDeclaration: "type" Identifier "="? Type;
 ```
