@@ -36,3 +36,5 @@ part 'type.dart';
 part 'typedef.dart';
 
 part 'usage.dart';
+
+part 'expression_analyzer.dart';

@@ -77,13 +77,13 @@ class ExploreCommand extends Command {
 
       if (parsed is VariableDeclarationStatementContext) {
         for (var decl in parsed.declarations) {
-          var expr = await analyzer.resolveExpression(
+          var expr = await analyzer.expressionAnalyzer.resolve(
               decl.initializer, null, analyzer.module.scope);
           analyzer.module.scope
               .create(decl.name.name, value: expr, constant: decl.mutability >= VariableMutability.final_);
         }
       } else if (parsed is ExpressionContext) {
-        var expr = await analyzer.resolveExpression(
+        var expr = await analyzer.expressionAnalyzer.resolve(
             parsed, null, analyzer.module.scope);
 
         errors = analyzer.errors

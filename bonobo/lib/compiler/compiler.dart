@@ -127,7 +127,7 @@ class BonoboCCompiler {
 
         // Declare all variables
         for (var decl in stmt.declarations) {
-          var value = await analyzer.resolveExpression(
+          var value = await analyzer.expressionAnalyzer.resolve(
               decl.initializer, function, scope);
           var cExpression =
               await compileExpression(decl.initializer, function, out, scope);
@@ -179,7 +179,7 @@ class BonoboCCompiler {
 
     if (ctx is MemberExpressionContext) {
       // TODO: better handle this
-      var value = await analyzer.resolveExpression(ctx, function, scope);
+      var value = await analyzer.expressionAnalyzer.resolve(ctx, function, scope);
       return await compileObject(value, function, body, scope);
     }
 
