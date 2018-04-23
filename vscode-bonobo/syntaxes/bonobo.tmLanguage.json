@@ -69,7 +69,7 @@
           }
         },
         {
-          "match": "\\b[A-Z_]+\\b",
+          "match": "\\b[A-Z][A-Za-z0-9_]*\\b",
           "name": "entity.name.class.bonobo"
         }
       ]
@@ -78,7 +78,7 @@
       "patterns": [
         {
           "name": "keyword.control.bonobo",
-          "match": "\\b(enum|fn|if|import|for|print|ret|type|v|while)\\b"
+          "match": "\\b(enum|const|final|fn|if|import|for|print|ret|type|var|while)\\b"
         }
       ]
     },

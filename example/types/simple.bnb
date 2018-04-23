@@ -1,7 +1,7 @@
 type Point {
-  x: Int, y: Int
-
-  fn length: Double => x + y
+  x: Int
+  y: Int
+  fn length: Double
 }
 
 fn main => 'Hello!'
