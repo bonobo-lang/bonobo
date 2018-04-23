@@ -3,4 +3,5 @@ targets:
     builders:
       angel_serialize_generator|angel_serialize:
         generate_for:
+          - "lib/compiler/ll/*.dart"
           - "lib/ir/*.dart"
