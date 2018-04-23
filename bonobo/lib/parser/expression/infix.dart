@@ -6,7 +6,7 @@ abstract class InfixParser<T extends AstNode> {
 
   int get precedence;
 
-  bool eligible({bool ignoreComma: false});
+  bool eligible(T left, {bool ignoreComma: false});
 
   T parse(Parser parser, T left,
       {List<Comment> comments, bool ignoreComma: false});
@@ -39,9 +39,44 @@ List<InfixParser<ExpressionContext>> _createInfixExpressionParsers() {
 
   // TODO: Call expressions
 
+  parsers.add(new _MemberExpressionParser(precedence++));
+
   parsers.add(new _TupleExpressionParser(precedence++));
 
   return parsers;
+}
+
+class _MemberExpressionParser implements InfixParser<ExpressionContext> {
+  final int precedence;
+
+  const _MemberExpressionParser(this.precedence);
+
+  @override
+  TokenType get leading => TokenType.dot;
+
+  @override
+  bool eligible(ExpressionContext left, {bool ignoreComma: false}) => true;
+
+  @override
+  ExpressionContext parse(Parser parser, ExpressionContext left,
+      {List<Comment> comments, bool ignoreComma: false}) {
+    if (ignoreComma) return null;
+    if (parser.peek()?.type != leading) return null;
+
+    var dot = parser.consume(),
+        lastSpan = dot.span,
+        span = left.span.expand(lastSpan);
+    var id = parser.parseSimpleIdentifier(comments: parser.parseComments());
+
+    if (id == null) {
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing identifier after '.'.", lastSpan));
+      return null;
+    }
+
+    span = span.expand(id.span);
+    return new MemberExpressionContext(left, id, span, comments ?? []);
+  }
 }
 
 class _TupleExpressionParser implements InfixParser<ExpressionContext> {
@@ -50,7 +85,8 @@ class _TupleExpressionParser implements InfixParser<ExpressionContext> {
   const _TupleExpressionParser(this.precedence);
 
   @override
-  bool eligible({bool ignoreComma: false}) => !ignoreComma;
+  bool eligible(ExpressionContext left, {bool ignoreComma: false}) =>
+      !ignoreComma;
 
   @override
   TokenType get leading => TokenType.comma;
@@ -85,7 +121,8 @@ class _TupleExpressionParser implements InfixParser<ExpressionContext> {
           comments ?? []);
     }
 
-    return new TupleExpressionContext([left.innermost, right.innermost], span, comments ?? []);
+    return new TupleExpressionContext(
+        [left.innermost, right.innermost], span, comments ?? []);
   }
 }
 
@@ -97,7 +134,7 @@ class _BinaryExpressionParser implements InfixParser<ExpressionContext> {
   const _BinaryExpressionParser(this.leading, this.precedence);
 
   @override
-  bool eligible({bool ignoreComma: false}) => true;
+  bool eligible(ExpressionContext left, {bool ignoreComma: false}) => true;
 
   @override
   ExpressionContext parse(Parser parser, ExpressionContext left,

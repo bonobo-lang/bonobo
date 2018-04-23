@@ -24,12 +24,15 @@ class ExpressionParser {
     return 0;
   }
 
-  InfixParser<ExpressionContext> peekInfix({bool ignoreComma: false}) {
+  InfixParser<ExpressionContext> peekInfix(ExpressionContext left,
+      {bool ignoreComma: false}) {
     var peek = parser.peek();
 
     if (peek != null) {
       return infixExpressionParsers.firstWhere(
-          (p) => p.leading == peek.type && p.eligible(ignoreComma: ignoreComma),
+          (p) =>
+              p.leading == peek.type &&
+              p.eligible(left, ignoreComma: ignoreComma),
           orElse: () => null);
     }
 
@@ -48,7 +51,7 @@ class ExpressionParser {
     if (left == null) return null;
 
     while (precedence < getPrecedence()) {
-      var infix = peekInfix(ignoreComma: ignoreComma);
+      var infix = peekInfix(left, ignoreComma: ignoreComma);
       if (infix == null) break;
       left = infix.parse(parser, left,
           comments: parser.parseComments(), ignoreComma: ignoreComma);

@@ -1,6 +1,6 @@
 library bonobo.src.ast;
 
-import 'package:bonobo/bonobo.dart';
+import 'package:bonobo/analysis/analysis.dart';
 import 'package:source_span/source_span.dart';
 import 'package:symbol_table/symbol_table.dart';
 import '../scanner/scanner.dart';

@@ -105,16 +105,16 @@ class Parser extends BaseParser {
   }
 
   /// Parses function name
-  SimpleIdentifierContext parseSimpleIdentifier() {
+  SimpleIdentifierContext parseSimpleIdentifier({List<Comment> comments}) {
     if (peek()?.type == TokenType.identifier)
-      return new SimpleIdentifierContext(consume().span, []);
+      return new SimpleIdentifierContext(consume().span, comments ?? []);
     return null;
   }
 
   IdentifierContext parseIdentifier({List<Comment> comments}) =>
       const _IdentifierParser().parse(this, comments: comments);
 
-  /*
+/*
   TypeDeclarationParser _typeDeclarationParser;
 
   TypeDeclarationParser get typeDeclarationParser =>

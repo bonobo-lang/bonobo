@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'package:bonobo/bonobo.dart';
+import 'package:bonobo/analysis/analysis.dart';
+import 'package:bonobo/commands/commands.dart';
 import 'package:charcode/charcode.dart';
 import 'package:file/file.dart' show File;
 import 'package:file/local.dart';
