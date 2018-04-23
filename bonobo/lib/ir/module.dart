@@ -21,6 +21,7 @@ class _FunctionIR {
   _Identifier name;
   List<_Parameter> parameters;
   _Type returnType;
+  List<_Statement> body;
 }
 
 @Serializable(autoIdAndDateFields: false)
