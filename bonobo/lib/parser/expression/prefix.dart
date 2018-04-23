@@ -2,14 +2,14 @@ part of '../parser.dart';
 
 const List<PrefixParser<ExpressionContext>> prefixParsers = const [
   const _IdentifierParser(),
+  const _StringLiteralParser(),
   const _NumberLiteralParser(),
   const _ParenthesesParser(),
 ];
 
 /// Standalone expressions/types.
 abstract class PrefixParser<T> {
-  T parse(Parser parser,
-      {List<Comment> comments, bool ignoreComma: false});
+  T parse(Parser parser, {List<Comment> comments, bool ignoreComma: false});
 }
 
 class _IdentifierParser implements PrefixParser<ExpressionContext> {
@@ -59,6 +59,19 @@ class _IdentifierParser implements PrefixParser<ExpressionContext> {
         new SimpleIdentifierContext(identifiers.last.span, []),
         span,
         comments ?? []);
+  }
+}
+
+class _StringLiteralParser implements PrefixParser<ExpressionContext> {
+  const _StringLiteralParser();
+
+  @override
+  ExpressionContext parse(Parser parser,
+      {List<Comment> comments, bool ignoreComma: false}) {
+    var string = parser.nextToken(TokenType.string);
+    return string == null
+        ? null
+        : new StringLiteralContext(string.span, comments ?? []);
   }
 }
 
