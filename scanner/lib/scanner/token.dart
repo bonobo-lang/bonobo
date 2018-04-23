@@ -87,8 +87,7 @@ final Map<Pattern, TokenType> normalPatterns = {
 
   // Data
   new RegExp(r'[0-9]+((\.[0-9]+)|b)?'): TokenType.number,
-  new RegExp(r'([A-Fa-f0-9]+)[Hh]'): TokenType.hex,
-  new RegExp(r'0x([A-Fa-f0-9]+)'): TokenType.hex_0x,
+  new RegExp(r'0x([A-Fa-f0-9]+)'): TokenType.hex,
   singleQuotedString: TokenType.string,
   doubleQuotedString: TokenType.string,
   new RegExp(r'[A-Za-z_][A-Za-z0-9_]*'): TokenType.identifier,
@@ -97,8 +96,8 @@ final Map<Pattern, TokenType> normalPatterns = {
 enum TokenType {
   // Misc.
   comment,
-
   // Symbols
+
   arrow,
   colon,
   comma,
@@ -180,7 +179,6 @@ enum TokenType {
   // Data
   number,
   hex,
-  hex_0x,
   string,
   identifier,
 }

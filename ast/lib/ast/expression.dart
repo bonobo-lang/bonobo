@@ -67,7 +67,7 @@ class HexLiteralContext extends NumberLiteralContext {
 
   @override
   int get intValue {
-    return int.parse(span.text.substring(0, span.length - 1), radix: 16);
+    return int.parse(span.text.substring(2), radix: 16);
   }
 
   @override
@@ -76,14 +76,6 @@ class HexLiteralContext extends NumberLiteralContext {
   @override
   double get doubleValue => throw new ArgumentError(
       'Hex number literals cannot be interpreted as doubles.');
-}
-
-class Hex0xLiteralContext extends HexLiteralContext {
-  Hex0xLiteralContext(FileSpan span, List<Comment> comments)
-      : super(span, comments);
-
-  @override
-  int get intValue => int.parse(span.text.substring(2), radix: 16);
 }
 
 class StringLiteralContext extends ExpressionContext {
