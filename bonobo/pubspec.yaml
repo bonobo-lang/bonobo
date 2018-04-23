@@ -1,5 +1,6 @@
 name: bonobo
 dependencies:
+  angel_serialize: ^2.0.0
   args: ^1.0.0
   c_builder: ^1.0.0
   dart_language_server: ^0.1.9
@@ -16,6 +17,8 @@ dependencies:
   ast:
     path: ../ast
 dev_dependencies:
+  angel_serialize_generator: ^2.0.0
+  build_runner: ^0.8.0
   test: ^0.12.0
 executables:
   bonobo: bonobo
