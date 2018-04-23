@@ -8,6 +8,7 @@ void main() {
   });
 
   test('namespaced identifier', () {
-    expect(parse('foo::bar::baz').typeParser.parse(), isNamedType('foo::bar::baz', namespaced: true));
+    expect(parse('foo::bar::baz').typeParser.parse(),
+        isNamedType('foo::bar::baz', namespaced: true));
   });
 }
