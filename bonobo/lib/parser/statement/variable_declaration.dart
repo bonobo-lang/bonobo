@@ -65,7 +65,8 @@ class VariableDeclarationParser {
   VariableDeclarationContext parseVariableDeclaration(
       {List<Comment> comments}) {
     var name = parser.parseSimpleIdentifier(),
-        span = name?.span;
+        span = name?.span,
+        lastSpan = span;
     if (name == null) return null;
 
     // Type annotation is optional
@@ -83,6 +84,16 @@ class VariableDeclarationParser {
             colon));
         return null;
       }
+
+      lastSpan = type.span;
+    }
+
+    var assign = parser.nextToken(TokenType.assign);
+
+    if (assign == null) {
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing '=' in variable declaration.", lastSpan));
+      return null;
     }
 
     var expression =
