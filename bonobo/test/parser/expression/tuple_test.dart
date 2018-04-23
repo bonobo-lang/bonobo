@@ -9,7 +9,7 @@ void main() {
   });
 
   test('two items', () {
-    var exp = parse('(1234, 4321)').expressionParser.parse(0);
+    var exp = parse('(1234, 4321)').expressionParser.parse(0).innermost;
     expect(exp, const isInstanceOf<TupleExpressionContext>());
     var tuple = exp as TupleExpressionContext;
     expect(tuple.expressions.length, 2);
@@ -18,7 +18,7 @@ void main() {
   });
 
   test('three items', () {
-    var exp = parse('(1234, 4321, 1234)').expressionParser.parse(0);
+    var exp = parse('(1234, 4321, 1234)').expressionParser.parse(0).innermost;
     expect(exp, const isInstanceOf<TupleExpressionContext>());
     var tuple = exp as TupleExpressionContext;
     expect(tuple.expressions.length, 3);
@@ -27,7 +27,7 @@ void main() {
   });
 
   test('tuple within tuple', () {
-    var exp = parse('(1234, 4321, (1234, 4321))').expressionParser.parse(0);
+    var exp = parse('(1234, 4321, (1234, 4321))').expressionParser.parse(0).innermost;
     expect(exp, const isInstanceOf<TupleExpressionContext>());
     var tuple = exp as TupleExpressionContext;
     expect(tuple.expressions.length, 3);
@@ -37,7 +37,7 @@ void main() {
   });
 
   test('tuple of tuples', () {
-    var exp = parse('((1234, 4321), (1234, 4321))').expressionParser.parse(0);
+    var exp = parse('((1234, 4321), (1234, 4321))').expressionParser.parse(0).innermost;
     expect(exp, const isInstanceOf<TupleExpressionContext>());
     var tuple = exp as TupleExpressionContext;
     expect(tuple.expressions.length, 2);

@@ -79,7 +79,7 @@ class _TupleExpressionParser implements InfixParser<ExpressionContext> {
           comments ?? []);
     }
 
-    return new TupleExpressionContext([left, right], span, comments ?? []);
+    return new TupleExpressionContext([left.innermost, right.innermost], span, comments ?? []);
   }
 }
 
