@@ -12,6 +12,28 @@ class ExpressionParser {
   NumberLiteralContext parseNumberLiteral({List<Comment> comments}) =>
       const _NumberLiteralParser().parse(parser, comments: comments);
 
+  int getPrecedence() {
+    var peek = parser.peek();
+
+    if (peek != null) {
+      var infix = infixExpressionParsers
+          .firstWhere((p) => p.leading == peek.type, orElse: () => null);
+      if (infix != null) return infix.precedence;
+    }
+
+    return 0;
+  }
+
+  InfixParser<ExpressionContext> peekInfix() {
+    var peek = parser.peek();
+
+    if (peek != null)
+      return infixExpressionParsers.firstWhere((p) => p.leading == peek.type,
+          orElse: () => null);
+
+    return null;
+  }
+
   ExpressionContext parse(int precedence,
       {List<Comment> comments, bool ignoreComma: false}) {
     // Get the first available expression.
@@ -23,7 +45,12 @@ class ExpressionParser {
 
     if (left == null) return null;
 
-    // TODO: Infix
+    while (precedence < getPrecedence()) {
+      var infix = peekInfix();
+      if (infix == null) break;
+      left = infix.parse(parser, left,
+          comments: parser.parseComments(), ignoreComma: ignoreComma);
+    }
 
     // TODO: Postfix
 

@@ -53,7 +53,11 @@ class _TupleExpressionParser implements InfixParser<ExpressionContext> {
   @override
   ExpressionContext parse(Parser parser, ExpressionContext left,
       {List<Comment> comments, bool ignoreComma: false}) {
-    var span = left.span, lastSpan = span;
+    if (parser.peek()?.type != leading) return null;
+
+    var comma = parser.consume(),
+        lastSpan = comma.span,
+        span = left.span.expand(lastSpan);
     var right = parser.expressionParser
         .parse(0, comments: parser.parseComments(), ignoreComma: false);
 
