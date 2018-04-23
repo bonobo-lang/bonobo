@@ -6,7 +6,7 @@ import 'package:ast/ast.dart';
 void main() {
   test('expression body', () {
     expect("fn main => 5 + 5", isLambdaFunctionBody());
-    expect("fn main => print('Hello, world!')", isLambdaFunctionBody());
+    expect("fn main => 'Hello, world!'", isLambdaFunctionBody());
   });
 }
 
