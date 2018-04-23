@@ -6,6 +6,8 @@ abstract class BonoboAstVisitor<T> {
 
   T visitCompilationUnit(CompilationUnitContext ctx);
 
+  T visitTypedef(TypedefContext ctx);
+
   // Expression
 
   T visitSimpleIdentifier(SimpleIdentifierContext ctx);
@@ -22,9 +24,15 @@ abstract class BonoboAstVisitor<T> {
 
   T visitIdentifierChainExpression(IdentifierChainExpressionContext ctx);
 
-  T visitTupleLiteral(ObjectLiteralContext ctx);
+  T visitTupleLiteral(TupleExpressionContext ctx);
 
-  T visitArrayLiteral(ArrayLiteralContext ctx);
+  T visitCallExpression(CallExpressionContext ctx);
+
+  T visitPostfixExpression(PostfixExpressionContext ctx);
+
+  T visitConditionalExpression(ConditionalExpressionContext ctx);
+
+  //T visitArrayLiteral(ArrayLiteralContext ctx);
 
   T visitMapLiteral(MapLiteralContext ctx);
 
@@ -38,7 +46,13 @@ abstract class BonoboAstVisitor<T> {
 
   T visitFunctionType(FunctionTypeContext ctx);
 
-  T visitAnonymousType(AnonymousTypeContext ctx);
+  T visitStructType(StructTypeContext ctx);
+
+  T visitStructField(StructFieldContext ctx);
+
+  T visitTupleType(TupleTypeContext ctx);
+
+  //T visitAnonymousType(AnonymousTypeContext ctx);
 
   // Function
 
@@ -52,7 +66,7 @@ abstract class BonoboAstVisitor<T> {
 
   T visitBlockFunctionBody(BlockFunctionBodyContext ctx);
 
-  T visitSameLineFunctionBody(SameLineFunctionBodyContext ctx);
+  T visitLambdaFunctionBody(ExpressionFunctionBodyContext ctx);
 
   // Statements
 
@@ -72,9 +86,16 @@ abstract class BonoboAstVisitor<T> {
 
   // Type declaration
 
+  /*
   T visitTypeDeclaration(TypeDeclarationContext ctx);
 
-  T visitEnumDeclaration(EnumDeclarationContext ctx);
+  T visitEnumDeclaration(EnumDeclarationContext ctx);*/
 
   T visitEnumValue(EnumValueContext ctx);
+
+  T visitTupleExpression(TupleExpressionContext ctx);
+
+  T visitMemberExpression(MemberExpressionContext ctx);
+
+  T visitEnumType(EnumTypeContext ctx);
 }

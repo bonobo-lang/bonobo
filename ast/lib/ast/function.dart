@@ -68,10 +68,10 @@ class BlockFunctionBodyContext extends FunctionBodyContext {
   String toString() => block.toString();
 }
 
-class LambdaFunctionBodyContext extends FunctionBodyContext {
+class ExpressionFunctionBodyContext extends FunctionBodyContext {
   final ExpressionContext expression;
 
-  LambdaFunctionBodyContext(
+  ExpressionFunctionBodyContext(
       FileSpan span, List<Comment> comments, this.expression)
       : super(span, comments);
 

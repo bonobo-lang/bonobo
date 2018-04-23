@@ -32,8 +32,10 @@ class StatementAnalyzer {
       flow.statements.add(stmt);
 
       if (stmt is ExpressionStatementContext) {
-        if (stmt.expression is! CallExpressionContext &&
-            stmt.expression is! AssignmentExpressionContext) {
+        if (stmt.expression is! CallExpressionContext
+            // TODO: Assignments?
+            //&& stmt.expression is! AssignmentExpressionContext
+            ) {
           analyzer.errors.add(new BonoboError(
               BonoboErrorSeverity.warning,
               'Dead code - expression is neither a call, nor an assignment.',
@@ -75,7 +77,7 @@ class StatementAnalyzer {
               decl.name.name,
               value: await analyzer.expressionAnalyzer
                   .resolve(decl.initializer, function, childScope),
-              constant: decl.isImmutable,
+              constant: stmt.mutability >= VariableMutability.final_,
             );
           } on StateError catch (e) {
             analyzer.errors.add(new BonoboError(

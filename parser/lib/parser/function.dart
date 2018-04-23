@@ -131,7 +131,7 @@ class FunctionParser {
     return null;
   }
 
-  LambdaFunctionBodyContext parseLambdaBody() {
+  ExpressionFunctionBodyContext parseLambdaBody() {
     Token arrow = state.nextToken(TokenType.arrow);
     if (arrow == null) return null;
 
@@ -143,7 +143,7 @@ class FunctionParser {
       return null;
     }
 
-    return new LambdaFunctionBodyContext(arrow.span.expand(exp.span), [], exp);
+    return new ExpressionFunctionBodyContext(arrow.span.expand(exp.span), [], exp);
   }
 
   BlockFunctionBodyContext parseBlockFunctionBody() {

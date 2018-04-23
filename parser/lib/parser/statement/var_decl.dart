@@ -24,9 +24,9 @@ class VariableDeclarationParser {
 
     var declarations = <VariableDeclarationContext>[];
 
-    for (VariableDeclarationContext declaration = parseADecl(mut);
+    for (VariableDeclarationContext declaration = parseADecl();
         declaration != null;
-        declaration = parseADecl(mut)) {
+        declaration = parseADecl()) {
       declarations.add(declaration);
       if (state.nextToken(TokenType.comma) == null) break;
     }
@@ -49,20 +49,17 @@ class VariableDeclarationParser {
     }
 
     return new VariableDeclarationStatementContext(
-      declarations,
-      context,
-      declarationSpan,
-      span,
-      comments,
-    );
+        mut, declarations, declarationSpan, context, span, comments);
   }
 
-  VariableDeclarationContext parseADecl(VariableMutability mut) {
-    SimpleIdentifierContext name = state.parseSimpleIdentifier();
+  VariableDeclarationContext parseADecl() {
+    var comments = state.parseComments();
+    var name = state.parseSimpleIdentifier(),
+        span = name?.span,
+        lastSpan = span;
     if (name == null) return null;
 
-    FileSpan lastSpan;
-
+    /*
     // Variable type
     TypeContext type;
     if (state.peek().type == TokenType.colon) {
@@ -71,11 +68,11 @@ class VariableDeclarationParser {
           .parse(comments: state.parseComments(), ignoreComma: true);
       // TODO error message
       if (type == null) return null;
-      lastSpan = type.span;
-    }
+      span = span.expand(lastSpan = type.span);
+    }*/
 
     ExpressionContext expression;
-    if (state.nextToken(TokenType.assign) == null) {
+    /*if (state.nextToken(TokenType.assign) == null) {
       if (type == null) {
         state.errors.add(new BonoboError(
             BonoboErrorSeverity.error,
@@ -83,18 +80,17 @@ class VariableDeclarationParser {
             name.span));
         return null;
       }
-    } else {
-      expression = state.parseExpression();
+    } else {*/
+    expression = state.parseExpression();
 
-      if (expression == null) {
-        state.errors.add(new BonoboError(
-            BonoboErrorSeverity.error, "Missing initialization.", name.span));
-        return null;
-      }
-      lastSpan = expression.span;
+    if (expression == null) {
+      state.errors.add(new BonoboError(
+          BonoboErrorSeverity.error, "Missing initialization.", name.span));
+      return null;
     }
+    span = span.expand(lastSpan = expression.span);
+    //}
 
-    return new VariableDeclarationContext(
-        name.span.expand(lastSpan), name, type, expression, mut, []);
+    return new VariableDeclarationContext(name, expression, span, comments);
   }
 }

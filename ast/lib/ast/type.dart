@@ -1,18 +1,21 @@
 part of bonobo.src.ast;
 
-abstract class TypeContext implements AstNode {}
+abstract class TypeContext extends AstNode {
+  TypeContext(FileSpan span, List<Comment> comments) : super(span, comments);
 
-class NamedTypeContext extends AstNode implements TypeContext {
-  final NamespacedIdentifierContext typeName;
+  TypeContext get innermost => this;
+}
+
+class NamedTypeContext extends TypeContext {
+  final IdentifierContext identifier;
   final List<TypeContext> generics; // TODO List<NamedTypeContext>?
 
-  NamedTypeContext(FileSpan span, List<Comment> comments, this.typeName,
+  NamedTypeContext(this.identifier, FileSpan span, List<Comment> comments,
       {this.generics: const []})
       : super(span, comments);
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitNamedType(this);
-  
 }
 
 class TupleTypeContext extends TypeContext {
@@ -100,6 +103,7 @@ class EnumValueContext extends AstNode {
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitEnumValue(this);
 }
 
+/*
 class ClassDeclarationContext extends TypeContext {
   final SimpleIdentifierContext name;
 
@@ -133,20 +137,24 @@ class ClassDeclarationContext extends TypeContext {
     }
     return sb.toString();
   }
-}
+}*/
 
-class FunctionTypeContext extends AstNode implements TypeContext {
-  final FunctionSignatureContext signature;
+class FunctionTypeContext extends TypeContext {
+  final List<TypeContext> parameters;
+  final TypeContext returnType;
+
   // TODO modifiers?
 
-  FunctionTypeContext(FileSpan span, List<Comment> comments, this.signature)
+  FunctionTypeContext(
+      this.parameters, this.returnType, FileSpan span, List<Comment> comments)
       : super(span, comments);
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitFunctionType(this);
 }
 
-class AnonymousTypeContext extends AstNode implements TypeContext {
+/*
+class AnonymousTypeContext extends TypeContext {
   final VariableDeclarationStatementContext fields;
 
   AnonymousTypeContext(FileSpan span, List<Comment> comments, this.fields)
@@ -155,3 +163,4 @@ class AnonymousTypeContext extends AstNode implements TypeContext {
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitAnonymousType(this);
 }
+*/

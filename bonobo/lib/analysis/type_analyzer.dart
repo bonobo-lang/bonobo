@@ -8,7 +8,7 @@ class TypeAnalyzer {
   Future<BonoboType> resolve(TypeContext ctx) async {
     if (ctx == null)
       return BonoboType.Root;
-    else if (ctx is SimpleIdentifierTypeContext) {
+    else if (ctx is NamedTypeContext) {
       BonoboModule m = analyzer.module;
 
       do {

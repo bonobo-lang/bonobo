@@ -14,8 +14,8 @@ void main() {
     expect(exp, const isInstanceOf<TupleTypeContext>());
     var tuple = exp as TupleTypeContext;
     expect(tuple.items.length, 2);
-    expect(tuple.items[0], isIdentifierType('Foo'));
-    expect(tuple.items[1], isIdentifierType('Bar'));
+    expect(tuple.items[0], isNamedType('Foo'));
+    expect(tuple.items[1], isNamedType('Bar'));
   });
 
   test('three items', () {
@@ -23,8 +23,8 @@ void main() {
     expect(exp, const isInstanceOf<TupleTypeContext>());
     var tuple = exp as TupleTypeContext;
     expect(tuple.items.length, 3);
-    expect(tuple.items[0], isIdentifierType('Foo'));
-    expect(tuple.items[1], isIdentifierType('Bar'));
+    expect(tuple.items[0], isNamedType('Foo'));
+    expect(tuple.items[1], isNamedType('Bar'));
   });
 
   test('tuple within tuple', () {
@@ -32,12 +32,12 @@ void main() {
     expect(exp, const isInstanceOf<TupleTypeContext>());
     var tuple = exp as TupleTypeContext;
     expect(tuple.items.length, 3);
-    expect(tuple.items[0], isIdentifierType('Foo'));
-    expect(tuple.items[1], isIdentifierType('Bar'));
+    expect(tuple.items[0], isNamedType('Foo'));
+    expect(tuple.items[1], isNamedType('Bar'));
     expect(tuple.items[2], const isInstanceOf<TupleTypeContext>());
     var tup = tuple.items[2] as TupleTypeContext;
-    expect(tup.items[0], isIdentifierType('Foo'));
-    expect(tup.items[1], isIdentifierType('Bar'));
+    expect(tup.items[0], isNamedType('Foo'));
+    expect(tup.items[1], isNamedType('Bar'));
   });
 
   test('tuple of tuples', () {
@@ -48,8 +48,8 @@ void main() {
     expect(tuple.items, everyElement(const isInstanceOf<TupleTypeContext>()));
 
     for (TupleTypeContext tup in tuple.items) {
-      expect(tup.items[0], isIdentifierType('Foo'));
-      expect(tup.items[1], isIdentifierType('Bar'));
+      expect(tup.items[0], isNamedType('Foo'));
+      expect(tup.items[1], isNamedType('Bar'));
     }
   });
 }

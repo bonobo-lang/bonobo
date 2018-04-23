@@ -1,5 +1,6 @@
 part of 'parser.dart';
 
+/*a
 class TypeDeclarationParser {
   final Parser state;
 
@@ -50,7 +51,6 @@ class TypeDeclarationParser {
 
     peek = state.nextToken(TokenType.lParen);
     if (peek != null) {
-<<<<<<< HEAD
       switch (state.peek().type) {
         case TokenType.let:
         case TokenType.var_:
@@ -66,10 +66,6 @@ class TypeDeclarationParser {
           fields.add(v);
           break;
       }
-=======
-      VariableDeclarationStatementContext v = parseDataClass();
-      if (v == null) return null;
->>>>>>> a74882f7d754f12d199f21700d9b663870b2711d
       peek = state.nextToken(TokenType.rParen);
       if (peek == null) return null;
       fields.add(v);
@@ -209,3 +205,4 @@ class EnumDeclarationParser {
     return new EnumValueContext(name, index, span, comments);
   }
 }
+*/

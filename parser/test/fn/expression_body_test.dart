@@ -29,7 +29,7 @@ Matcher isLambdaFunctionBody() {
 
     if (!equals('main').matches(unit.functions[0].name.name, {})) return false;
 
-    if (!const isInstanceOf<LambdaFunctionBodyContext>()
+    if (!const isInstanceOf<ExpressionFunctionBodyContext>()
         .matches(unit.functions[0].body, {})) return false;
 
     return true;

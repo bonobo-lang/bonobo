@@ -81,7 +81,7 @@ class ExploreCommand extends Command {
               .resolve(decl.initializer, null, analyzer.module.scope);
           analyzer.module.scope.create(decl.name.name,
               value: expr,
-              constant: decl.mutability >= VariableMutability.final_);
+              constant: parsed.mutability >= VariableMutability.final_);
         }
       } else if (parsed is ExpressionContext) {
         var expr = await analyzer.expressionAnalyzer

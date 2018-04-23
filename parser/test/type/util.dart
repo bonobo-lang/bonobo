@@ -1,5 +1,5 @@
 import 'package:ast/ast.dart';
 import 'package:matcher/matcher.dart';
 
-Matcher isIdentifierType(String name) => predicate(
-    (x) => x is SimpleIdentifierTypeContext && x.identifier.name == name);
+Matcher isNamedType(String name) => predicate(
+    (x) => x is NamedTypeContext && x.identifier.name == name);

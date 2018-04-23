@@ -29,11 +29,12 @@ class ExpressionAnalyzer {
       return resolveNamespacedIdentifierContext(ctx, defaultObject);
     }
 
+    /*
     // Other expressions, lexicographical order
     if (ctx is AssignmentExpressionContext) {
       return await resolveAssignmentExpression(
           ctx, function, scope, defaultObject);
-    }
+    }*/
 
     if (ctx is BinaryExpressionContext) {
       var left = await resolve(ctx.left, function, scope);
@@ -240,6 +241,7 @@ class ExpressionAnalyzer {
     return new BonoboObject(f.returnType, ctx.span);
   }
 
+  /*
   Future<BonoboObject> resolveAssignmentExpression(
       AssignmentExpressionContext ctx,
       BonoboFunction function,
@@ -289,7 +291,7 @@ class ExpressionAnalyzer {
     }
 
     return defaultObject;
-  }
+  }*/
 
   Future<BonoboObject> resolveSimpleIdentifier(SimpleIdentifierContext ctx,
       SymbolTable<BonoboObject> scope, BonoboObject defaultObject) async {

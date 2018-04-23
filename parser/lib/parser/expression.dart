@@ -9,9 +9,11 @@ class ExpressionParser {
     ExpressionContext first = _parseSingleExpression();
     if (first == null) return null;
 
-    return _parsePartsWithPrecedence(null, first);
+    return null;
+    //return _parsePartsWithPrecedence(null, first);
   }
 
+  /*
   ExpressionContext _parsePartsWithPrecedence(
       int precedence, ExpressionContext first) {
     final parts = <BinaryExpressionPartContext>[];
@@ -77,7 +79,7 @@ class ExpressionParser {
     if (exp == null) return null;
     return new BinaryExpressionPartContext(
         peek.span.expand(exp.span), [], opCtx, exp);
-  }
+  }*/
 
   ExpressionContext _parseSingleExpression() {
     Token token = state.peek();
@@ -99,9 +101,11 @@ class ExpressionParser {
       case TokenType.lParen:
         return _parseParenExp();
       case TokenType.lSq:
-        return _parseList();
+        return null;
+        //return _parseList();
       case TokenType.lCurly:
-        return _parseMap();
+        return null;
+        //return _parseMap();
       case TokenType.number:
         return parseNumberLiteral();
       case TokenType.string:
@@ -170,6 +174,7 @@ class ExpressionParser {
         exps, startTok.span.expand(rParen.span), []);
   }
 
+  /*
   ArrayLiteralContext _parseList() {
     Token lSq = state.nextToken(TokenType.lSq);
 
@@ -184,8 +189,9 @@ class ExpressionParser {
     if (rParen == null) return null;
 
     return new ArrayLiteralContext(lSq.span.expand(rParen.span), [], exps);
-  }
+  }*/
 
+  /*
   ObjectLiteralContext _parseMap() {
     Token lCurly = state.nextToken(TokenType.lCurly);
 
@@ -206,7 +212,7 @@ class ExpressionParser {
 
     return new ObjectLiteralContext(
         lCurly.span.expand(rCurly.span), [], keys, values);
-  }
+  }*/
 
   RangeLiteralContext _parseRange(
       Token startTok, ExpressionContext startRange) {
@@ -311,11 +317,12 @@ class ExpressionParser {
         id.span.expand(parts.last.span), [], id, parts);
   }
 
+  /*
   CallExpressionContext _callExpression(
       IdentifierContext target, CallIdChainExpPartCtx chain) {
     var tuple =
         new TupleExpressionContext(chain.args, chain.span, chain.comments);
     return new CallExpressionContext(
         target, tuple, target.span.expand(tuple.span), target.comments);
-  }
+  }*/
 }

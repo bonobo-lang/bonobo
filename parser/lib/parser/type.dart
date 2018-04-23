@@ -67,11 +67,7 @@ class TypeParser {
           parseParenthesizedType(comments: comments);
     }
 
-    if (name is NamespacedIdentifierContext) {
-      return new NamespacedIdentifierTypeContext(name, comments ?? []);
-    } else {
-      return new SimpleIdentifierTypeContext(name, comments ?? []);
-    }
+    return new NamedTypeContext(name, name.span, comments ?? []);
   }
 
   /// enum { a, b, c }
@@ -91,7 +87,7 @@ class TypeParser {
     }
 
     span = span.expand(lastSpan = lCurly.span);
-    var values = <EnumValueContext>[];
+    var values = [];
     var value = parseEnumValue(comments: state.parseComments());
 
     while (value != null) {
@@ -309,7 +305,7 @@ class TypeParser {
         signature.parameterList?.parameters
                 ?.map((p) =>
                     p.type ??
-                    new SimpleIdentifierTypeContext(p.name, p.comments))
+                    new NamedTypeContext(p.name, p.span, p.comments))
                 ?.toList() ??
             [],
         signature.returnType,

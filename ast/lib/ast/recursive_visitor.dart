@@ -8,9 +8,8 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
   @override
   T visitCompilationUnit(CompilationUnitContext ctx) {
     if (ctx == null) return null;
-    ctx
-      ..functions.forEach(visitFunction)
-      ..classes.forEach(visitTypeDeclaration);
+    ctx..functions.forEach(visitFunction)..typedefs.forEach(visitTypedef);
+    //..classes.forEach(visitTypeDeclaration);
     return null;
   }
 
@@ -56,6 +55,7 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
     return null;
   }
 
+  /*
   T visitTupleLiteral(ObjectLiteralContext ctx) {
     if (ctx == null) return null;
     ctx.items.forEach(visitExpression);
@@ -67,7 +67,7 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
     if (ctx == null) return null;
     ctx.items.forEach(visitExpression);
     return null;
-  }
+  }*/
 
   T visitMapLiteral(MapLiteralContext ctx) {
     if (ctx == null) return null;
@@ -128,7 +128,7 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
   T visitFunctionBody(FunctionBodyContext ctx) => ctx?.accept(this);
 
   @override
-  T visitSameLineFunctionBody(SameLineFunctionBodyContext ctx) {
+  T visitLambdaFunctionBody(ExpressionFunctionBodyContext ctx) {
     if (ctx == null) return null;
     visitExpression(ctx.expression);
     return null;
@@ -191,25 +191,28 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
 
   T visitNamedType(NamedTypeContext ctx) {
     if (ctx == null) return null;
-    visitNamespacedIdentifier(ctx.typeName);
+    // TODO: Add visitIdentifier stub
+    ctx.identifier.accept(this);
     ctx.generics.forEach(visitType);
     return null;
   }
 
   T visitFunctionType(FunctionTypeContext ctx) {
     if (ctx == null) return null;
-    visitFunctionSignature(ctx.signature);
+
     return null;
   }
 
+  /*
   T visitAnonymousType(AnonymousTypeContext ctx) {
     if (ctx == null) return null;
     visitVariableDeclarationStatement(ctx.fields);
     return null;
-  }
+  }*/
 
   // Classes
 
+  /*
   @override
   T visitTypeDeclaration(TypeDeclarationContext ctx) {
     if (ctx == null) return null;
@@ -217,7 +220,7 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
     ctx.fields.forEach(visitVariableDeclarationStatement);
     ctx.methods.forEach(visitFunction);
     return null;
-  }
+  }*/
 
   @override
   T visitEnumValue(EnumValueContext ctx) {
@@ -228,9 +231,70 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
   }
 
   @override
+  T visitTupleExpression(TupleExpressionContext ctx) {
+    if (ctx == null) return null;
+    ctx.expressions.forEach(visitExpression);
+  }
+
+  @override
+  T visitTupleType(TupleTypeContext ctx) {
+    if (ctx == null) return null;
+    ctx.items.forEach(visitType);
+  }
+
+  @override
+  T visitStructField(StructFieldContext ctx) {
+    if (ctx == null) return null;
+    visitSimpleIdentifier(ctx.name);
+    visitType(ctx.type);
+  }
+
+  @override
+  T visitStructType(StructTypeContext ctx) {
+    if (ctx == null) return null;
+
+  }
+
+  @override
+  T visitConditionalExpression(ConditionalExpressionContext ctx) {
+    if (ctx == null) return null;
+  }
+
+  @override
+  T visitPostfixExpression(PostfixExpressionContext ctx) {
+    if (ctx == null) return null;
+  }
+
+  @override
+  T visitCallExpression(CallExpressionContext ctx) {
+    if (ctx == null) return null;
+  }
+
+  @override
+  T visitTupleLiteral(TupleExpressionContext ctx) {
+    if (ctx == null) return null;
+  }
+
+  @override
+  T visitTypedef(TypedefContext ctx) {
+    if (ctx == null) return null;
+  }
+
+  @override
+  T visitEnumType(EnumTypeContext ctx) {
+
+  }
+
+  @override
+  T visitMemberExpression(MemberExpressionContext ctx) {
+
+  }
+
+/*
+  @override
   T visitEnumDeclaration(EnumDeclarationContext ctx) {
     if (ctx == null) return null;
     ctx.values.forEach(visitEnumValue);
     return null;
-  }
+  }*/
 }

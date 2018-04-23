@@ -1,5 +1,6 @@
 part of bonobo.src.ast;
 
+/*
 class TypeDeclarationContext extends AstNode {
   final SimpleIdentifierContext name;
 
@@ -87,3 +88,4 @@ class EnumDeclarationContext extends AstNode {
     return sb.toString();
   }
 }
+*/
