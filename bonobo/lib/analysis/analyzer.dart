@@ -4,6 +4,7 @@ class BonoboAnalyzer {
   final List<BonoboError> errors = [];
   final BonoboModuleSystem moduleSystem;
   ExpressionAnalyzer expressionAnalyzer;
+  TypeAnalyzer typeAnalyzer;
 
   //final Parser parser;
   BonoboModule module;
@@ -12,6 +13,7 @@ class BonoboAnalyzer {
 
   BonoboAnalyzer(this.moduleSystem) {
     expressionAnalyzer = new ExpressionAnalyzer(this);
+    typeAnalyzer = new TypeAnalyzer(this);
   }
 
   // TODO: Find unused symbols
@@ -67,7 +69,7 @@ class BonoboAnalyzer {
     for (var typedef in compilationUnit.typedefs) {
       var type = module.types[typedef.name.name];
       if (type is BonoboTypedef) {
-        type.type = await resolveType(typedef.type);
+        type.type = await typeAnalyzer.resolve(typedef.type);
       }
     }
 
@@ -122,7 +124,7 @@ class BonoboAnalyzer {
     for (int i = 0; i < function.parameters.length; i++) {
       var p = function.parameters[i];
       var decl = function.declaration.signature.parameterList.parameters[i];
-      p.type = await resolveType(decl.type);
+      p.type = await typeAnalyzer.resolve(decl.type);
       function.scope.assign(p.name, new BonoboObject(p.type, p.span))
         ..value
             .usages
@@ -136,7 +138,7 @@ class BonoboAnalyzer {
 
     if (function.declaration.signature.returnType != null) {
       function.returnType =
-          await resolveType(function.declaration.signature.returnType);
+          await typeAnalyzer.resolve(function.declaration.signature.returnType);
       function.returnType.usages.add(new SymbolUsage(SymbolUsageType.read,
           function.declaration.signature.returnType.span));
     } else
@@ -244,49 +246,5 @@ class BonoboAnalyzer {
     }
 
     return flow;
-  }
-
-  Future<BonoboType> resolveType(TypeContext ctx) async {
-    if (ctx == null)
-      return BonoboType.Root;
-    else if (ctx is SimpleIdentifierTypeContext) {
-      BonoboModule m = module;
-
-      do {
-        var existing = m.types[ctx.identifier.name];
-
-        if (existing != null) return existing;
-        m = m.parent;
-      } while (m != null);
-
-      errors.add(new BonoboError(BonoboErrorSeverity.error,
-          "Unknown type '${ctx.identifier.name}'.", ctx.span));
-
-      return BonoboType.Root;
-    } else if (ctx is StructTypeContext) {
-      var fields = <String, BonoboType>{};
-
-      for (var field in ctx.fields) {
-        fields[field.name.name] = await resolveType(field.type);
-      }
-
-      return new BonoboStructType(fields);
-    } else if (ctx is EnumTypeContext) {
-      var values = ctx.values
-          .map((v) => new BonoboEnumValue(v.name.name, v.index?.intValue))
-          .toList();
-      return new BonoboEnumType(values);
-    } else if (ctx is TupleTypeContext) {
-      var types = await Future.wait(ctx.items.map(resolveType));
-      return new BonoboTupleType(types);
-    } else if (ctx is FunctionTypeContext) {
-      var parameters = await Future.wait(ctx.parameters.map(resolveType));
-      var returnType = await resolveType(ctx.returnType);
-      return new BonoboFunctionType(parameters, returnType);
-    } else {
-      errors.add(new BonoboError(BonoboErrorSeverity.warning,
-          'Unsupported type: ${ctx.runtimeType}', ctx.span));
-      return BonoboType.Root;
-    }
   }
 }
