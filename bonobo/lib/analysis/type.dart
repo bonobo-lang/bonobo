@@ -71,7 +71,7 @@ abstract class BonoboType {
   }
 
   /// Returns the type of the result of applying the given binary [operator].
-  BonoboType binaryOp(BinaryOperator operator, FileSpan span, BonoboType other,
+  BonoboType binaryOp(Token operator, FileSpan span, BonoboType other,
       BonoboAnalyzer analyzer) {
     // Booleans should return bool
     // TODO: Bool type
@@ -91,12 +91,11 @@ abstract class BonoboType {
     return Root;
   }
 
-  BonoboType unsupportedBinaryOperator(BinaryOperator operator, FileSpan span,
+  BonoboType unsupportedBinaryOperator(Token operator, FileSpan span,
       BonoboType other, BonoboAnalyzer analyzer) {
     analyzer.errors.add(new BonoboError(
         BonoboErrorSeverity.error,
-        "$name does not support running the '${operator
-            .rep}' operator against ${other.name}.",
+        "$name does not support running the '${operator.span.text}' operator against ${other.name}.",
         span));
     return Root;
   }
@@ -135,7 +134,7 @@ class BonoboInheritedType extends BonoboType {
   bool get isRoot => false;
 
   @override
-  BonoboType unsupportedBinaryOperator(BinaryOperator operator, FileSpan span,
+  BonoboType unsupportedBinaryOperator(Token operator, FileSpan span,
       BonoboType other, BonoboAnalyzer analyzer) {
     return parent.unsupportedBinaryOperator(operator, span, other, analyzer);
   }
@@ -146,7 +145,7 @@ class BonoboInheritedType extends BonoboType {
   }
 
   @override
-  BonoboType binaryOp(BinaryOperator operator, FileSpan span, BonoboType other,
+  BonoboType binaryOp(Token operator, FileSpan span, BonoboType other,
       BonoboAnalyzer analyzer) {
     return parent.binaryOp(operator, span, other, analyzer);
   }

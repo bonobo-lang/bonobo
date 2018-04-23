@@ -34,7 +34,7 @@ class BonoboTypedef extends BonoboType {
   }
 
   @override
-  BonoboType binaryOp(BinaryOperator operator, FileSpan span, BonoboType other,
+  BonoboType binaryOp(Token operator, FileSpan span, BonoboType other,
       BonoboAnalyzer analyzer) {
     return type.binaryOp(operator, span, other, analyzer);
   }
@@ -58,7 +58,7 @@ class BonoboTypedef extends BonoboType {
   String toString() => type.toString();
 
   @override
-  BonoboType unsupportedBinaryOperator(BinaryOperator operator, FileSpan span,
+  BonoboType unsupportedBinaryOperator(Token operator, FileSpan span,
       BonoboType other, BonoboAnalyzer analyzer) {
     return type.unsupportedBinaryOperator(operator, span, other, analyzer);
   }

@@ -20,19 +20,19 @@ class _BonoboByteType extends BonoboInheritedType {
   }
 
   @override
-  BonoboType binaryOp(BinaryOperator operator, FileSpan span, BonoboType other,
+  BonoboType binaryOp(Token operator, FileSpan span, BonoboType other,
       BonoboAnalyzer analyzer) {
-    var shiftOps = [BinaryOperator.shl, BinaryOperator.shr];
+    var shiftOps = [TokenType.shl, TokenType.shr];
     var supportedOps = [
-      BinaryOperator.pow,
-      BinaryOperator.times,
-      BinaryOperator.div,
-      BinaryOperator.mod,
-      BinaryOperator.plus,
-      BinaryOperator.minus,
-      BinaryOperator.xor,
-      BinaryOperator.and,
-      BinaryOperator.or,
+      TokenType.pow,
+      TokenType.times,
+      TokenType.div,
+      TokenType.mod,
+      TokenType.plus,
+      TokenType.minus,
+      TokenType.xor,
+      TokenType.and,
+      TokenType.or,
     ];
 
     // TODO: Use `Int`, instead of `Num`, which is being phased out.
