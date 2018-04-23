@@ -1,6 +1,10 @@
+import 'package:code_buffer/code_buffer.dart';
+import 'asm.dart';
+
 /// Represents an abstract machine architecture, i.e. x86.
 abstract class Architecture {
   Registers get registers;
+  void compile(Assembly assembly, CodeBuffer buffer);
 }
 
 abstract class Registers {
