@@ -1,1 +1,7 @@
-enum Foo = { foo, bar, quux }
+// Bonobo supports enumerations, which are special types
+// with a known set of predefined numerical values.
+type Foo = enum { foo, bar, quux = 3 }
+
+// If you think the above is verbose, the following syntactic sugar
+// is a shorthand for the above:
+enum Bar { foo, bar, quux = 3 }

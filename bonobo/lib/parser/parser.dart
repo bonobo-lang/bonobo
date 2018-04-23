@@ -87,7 +87,8 @@ class Parser extends BaseParser {
           break;*/
         default:
           // TODO
-          throw new UnimplementedError();
+          errors.add(new BonoboError(BonoboErrorSeverity.warning,
+              "Unexpected text '${t.span.text}'.", t.span));
           break;
       }
       if (errors.length != 0) {
