@@ -9,9 +9,9 @@ import 'package:path/path.dart' as p;
 import 'package:resource/resource.dart';
 import 'package:source_span/source_span.dart';
 import 'package:symbol_table/symbol_table.dart';
-import 'package:ast/ast.dart';
-import 'package:scanner/scanner.dart';
-import 'package:parser/parser.dart';
+import '../ast/ast.dart';
+import '../scanner/scanner.dart';
+import '../parser/parser.dart';
 
 part 'analyzer.dart';
 part 'byte.dart';

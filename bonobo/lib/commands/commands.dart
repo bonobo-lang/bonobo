@@ -27,9 +27,9 @@ import 'package:tuple/tuple.dart';
 import 'package:bonobo/bonobo.dart';
 import 'package:c_builder/c_builder.dart' as c;
 import 'package:source_span/source_span.dart';
-import 'package:ast/ast.dart';
-import 'package:scanner/scanner.dart';
-import 'package:parser/parser.dart';
+import '../ast/ast.dart';
+import '../scanner/scanner.dart';
+import '../parser/parser.dart';
 import '../language_server/language_server.dart';
 
 part 'bonobo_command.dart';

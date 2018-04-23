@@ -1,6 +1,7 @@
 import 'package:string_scanner/string_scanner.dart';
 import 'package:source_span/source_span.dart';
 import 'token.dart';
+export 'token.dart';
 
 class Scanner {
   final List<BonoboError> errors = [];

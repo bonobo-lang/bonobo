@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:source_span/source_span.dart';
-import 'package:scanner/scanner.dart';
-import 'package:ast/ast.dart';
+import '../ast/ast.dart';
+import '../scanner/scanner.dart';
 
 part 'expression/prefix.dart';
 

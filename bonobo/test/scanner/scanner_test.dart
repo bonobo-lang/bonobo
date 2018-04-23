@@ -1,4 +1,4 @@
-import 'package:scanner/scanner.dart';
+import 'package:bonobo/scanner/scanner.dart';
 import 'package:test/test.dart';
 import 'util.dart';
 

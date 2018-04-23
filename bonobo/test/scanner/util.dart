@@ -1,5 +1,5 @@
 import 'package:matcher/matcher.dart';
-import 'package:scanner/scanner.dart';
+import 'package:bonobo/scanner/scanner.dart';
 
 Matcher scans({int count, List<TokenType> tokens, List<String> text}) {
   assert(count != null || tokens != null || text != null);

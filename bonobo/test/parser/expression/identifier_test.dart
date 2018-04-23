@@ -1,4 +1,4 @@
-import 'package:ast/ast.dart';
+import 'package:bonobo/ast/ast.dart';
 import 'package:test/test.dart';
 import '../util.dart';
 

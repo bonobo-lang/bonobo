@@ -3,7 +3,7 @@ library bonobo.src.ast;
 import 'package:bonobo/bonobo.dart';
 import 'package:source_span/source_span.dart';
 import 'package:symbol_table/symbol_table.dart';
-import 'package:scanner/scanner.dart';
+import '../scanner/scanner.dart';
 
 part 'unit.dart';
 part 'expression.dart';

@@ -1,7 +1,7 @@
-import 'package:parser/parser.dart';
-import 'package:scanner/scanner.dart';
+import 'package:bonobo/parser/parser.dart';
+import 'package:bonobo/scanner/scanner.dart';
 import 'package:test/test.dart';
-import 'package:ast/ast.dart';
+import 'package:bonobo/ast/ast.dart';
 
 void main() {
   group('fn', () {

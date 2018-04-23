@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io' hide Directory, File, FileMode;
 import 'dart:io' as io show File;
 import 'package:args/command_runner.dart';
-import 'package:ast/ast.dart';
 import 'package:bonobo/bonobo.dart';
 import 'package:charcode/charcode.dart';
 import 'package:file/file.dart'
@@ -18,11 +17,12 @@ import 'package:dart_language_server/src/protocol/language_server/wireformat.dar
     as lsp;
 import 'package:dart_language_server/dart_language_server.dart' as lsp;
 import 'package:logging/logging.dart';
-import 'package:parser/parser.dart';
-import 'package:scanner/scanner.dart';
 import 'package:source_span/source_span.dart';
 import 'package:symbol_table/symbol_table.dart';
 import 'package:tuple/tuple.dart';
+import '../ast/ast.dart';
+import '../parser/parser.dart';
+import '../scanner/scanner.dart';
 
 class BonoboLanguageServer extends lsp.LanguageServer {
   static const Duration queueTime = const Duration(seconds: 10);

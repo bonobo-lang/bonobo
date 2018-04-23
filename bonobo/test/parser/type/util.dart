@@ -1,4 +1,4 @@
-import 'package:ast/ast.dart';
+import 'package:bonobo/ast/ast.dart';
 import 'package:matcher/matcher.dart';
 
 Matcher isNamedType(String name) => predicate(
