@@ -15,5 +15,7 @@ dependencies:
     path: ../parser
   ast:
     path: ../ast
+dev_dependencies:
+  test: ^0.12.0
 executables:
   bonobo: bonobo
