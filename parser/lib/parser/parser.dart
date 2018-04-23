@@ -3,6 +3,10 @@ import 'package:source_span/source_span.dart';
 import 'package:scanner/scanner.dart';
 import 'package:ast/ast.dart';
 
+part 'expression/prefix.dart';
+part 'expression/infix.dart';
+part 'expression/postfix.dart';
+
 part 'base.dart';
 
 part 'function.dart';
@@ -104,10 +108,6 @@ class Parser extends BaseParser {
     return null;
   }
 
-  IdentifierContext parseIdentifier() => identifierParser.parse();
-
-  ExpressionContext parseExpression() => expressionParser.parse();
-
   /*
   TypeDeclarationParser _typeDeclarationParser;
 
@@ -123,11 +123,6 @@ class Parser extends BaseParser {
   FunctionParser _funcParser;
 
   FunctionParser get functionParser => _funcParser ??= new FunctionParser(this);
-
-  IdentifierParser _idParser;
-
-  IdentifierParser get identifierParser =>
-      _idParser ??= new IdentifierParser(this);
 
   ExpressionParser _expParser;
 

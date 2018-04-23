@@ -18,8 +18,8 @@ void main() {
     test('rCurly', () => expect('}', scansOne(TokenType.rCurly, '}')));
     test('lParen', () => expect('(', scansOne(TokenType.lParen, '(')));
     test('rParen', () => expect(')', scansOne(TokenType.rParen, ')')));
-    test('lSq', () => expect('[', scansOne(TokenType.lSq, '[')));
-    test('rSq', () => expect(']', scansOne(TokenType.rSq, ']')));
+    test('lSq', () => expect('[', scansOne(TokenType.lBracket, '[')));
+    test('rSq', () => expect(']', scansOne(TokenType.rBracket, ']')));
   });
 
   group('assignments', () {

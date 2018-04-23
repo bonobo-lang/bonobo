@@ -19,8 +19,8 @@ final Map<Pattern, TokenType> normalPatterns = {
   '}': TokenType.rCurly,
   '(': TokenType.lParen,
   ')': TokenType.rParen,
-  '[': TokenType.lSq,
-  ']': TokenType.rSq,
+  '[': TokenType.lBracket,
+  ']': TokenType.rBracket,
 
   // Reserved
   'enum': TokenType.enum_,
@@ -106,8 +106,8 @@ enum TokenType {
   rCurly,
   lParen,
   rParen,
-  lSq,
-  rSq,
+  lBracket,
+  rBracket,
   parentheses,
 
   // Reserved

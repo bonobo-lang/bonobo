@@ -9,7 +9,21 @@ class ExpressionParser {
 
   ExpressionParser(this.parser);
 
-  ExpressionContext parse({List<Comment> comments, bool ignoreComma: false}) {
-    
+  ExpressionContext parse(int precedence,
+      {List<Comment> comments, bool ignoreComma: false}) {
+    // Get the first available expression.
+    ExpressionContext left;
+
+    for (var prefix in prefixParsers) {
+      if ((left = prefix.parse(parser)) != null) break;
+    }
+
+    if (left == null) return null;
+
+    // TODO: Infix
+
+    // TODO: Postfix
+
+    return left;
   }
 }

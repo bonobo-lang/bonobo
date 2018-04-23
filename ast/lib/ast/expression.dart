@@ -3,6 +3,20 @@ part of bonobo.src.ast;
 abstract class ExpressionContext extends AstNode {
   ExpressionContext(FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  ExpressionContext get innermost => this;
+}
+
+class ParenthesizedExpressionContext extends ExpressionContext {
+  final ExpressionContext innermost;
+
+  ParenthesizedExpressionContext(
+      this.innermost, FileSpan span, List<Comment> comments)
+      : super(span, comments);
+
+  @override
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitParenthesizedExpression(this);
 }
 
 abstract class IdentifierContext extends ExpressionContext {
@@ -364,6 +378,7 @@ class IdentifierChainExpressionContext extends ExpressionContext {
 
 abstract class IdentifierChainExpressionPartContext {
   FileSpan get span;
+
   List<Comment> get comments;
 }
 
