@@ -32,7 +32,6 @@ class TypeParser {
             return null;
           }
 
-
           // If the other type is a tuple, combine the two.
           if (nextType is TupleTypeContext) {
             var tup = nextType.innermost as TupleTypeContext;
@@ -42,7 +41,8 @@ class TypeParser {
 
           // Otherwise, create a new one.
           else {
-            type = new TupleTypeContext([type.innermost, nextType.innermost], span, comments);
+            type = new TupleTypeContext(
+                [type.innermost, nextType.innermost], span, comments);
           }
           break;
         default:

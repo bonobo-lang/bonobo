@@ -112,7 +112,8 @@ class ExpressionStatementContext extends StatementContext {
       : super(expression.span, expression.comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitExpressionStatement(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitExpressionStatement(this);
 
   String toString() => expression.toString();
 }
@@ -120,12 +121,12 @@ class ExpressionStatementContext extends StatementContext {
 class ReturnStatementContext extends StatementContext {
   final ExpressionContext expression;
 
-  ReturnStatementContext(
-      FileSpan span, List<Comment> comments, this.expression)
+  ReturnStatementContext(FileSpan span, List<Comment> comments, this.expression)
       : super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitReturnStatement(this);
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitReturnStatement(this);
 }
 
 /*
@@ -187,8 +188,8 @@ class VariableDeclarationContext extends AstNode {
   final ExpressionContext initializer;
   final VariableMutability mutability;
 
-  VariableDeclarationContext(FileSpan span, this.name, this.type, this.initializer,
-      this.mutability, List<Comment> comments)
+  VariableDeclarationContext(FileSpan span, this.name, this.type,
+      this.initializer, this.mutability, List<Comment> comments)
       : super(span, comments);
 
   bool get isImmutable => mutability >= VariableMutability.final_;

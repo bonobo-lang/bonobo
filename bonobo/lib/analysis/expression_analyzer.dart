@@ -5,8 +5,8 @@ class ExpressionAnalyzer {
 
   ExpressionAnalyzer(this.analyzer);
 
-  Future<BonoboObject> resolve(ExpressionContext ctx,
-      BonoboFunction function, SymbolTable<BonoboObject> scope) async {
+  Future<BonoboObject> resolve(ExpressionContext ctx, BonoboFunction function,
+      SymbolTable<BonoboObject> scope) async {
     //return expressionCache[ctx.span.start] ??=
     return await _resolveExpression(ctx, function, scope);
   }
@@ -14,7 +14,7 @@ class ExpressionAnalyzer {
   Future<BonoboObject> _resolveExpression(ExpressionContext ctx,
       BonoboFunction function, SymbolTable<BonoboObject> scope) async {
     final BonoboObject defaultObject =
-    new BonoboObject(BonoboType.Root, ctx.span);
+        new BonoboObject(BonoboType.Root, ctx.span);
 
     // Literals
     if (ctx is NumberLiteralContext) {
@@ -163,8 +163,7 @@ class ExpressionAnalyzer {
 
       for (int i = 0; i < ctx.arguments.expressions.length; i++) {
         var p = f.parameters[i],
-            arg = await resolve(
-                ctx.arguments.expressions[i], function, scope);
+            arg = await resolve(ctx.arguments.expressions[i], function, scope);
 
         if (arg.type != BonoboType.Root && !arg.type.isAssignableTo(p.type)) {
           analyzer.errors.add(new BonoboError(
@@ -264,8 +263,8 @@ class ExpressionAnalyzer {
     }
 
     if (ctx is TupleExpressionContext) {
-      var expressions = await Future.wait(
-          ctx.expressions.map((e) => resolve(e, function, scope)));
+      var expressions = await Future
+          .wait(ctx.expressions.map((e) => resolve(e, function, scope)));
       var type = new BonoboTupleType(expressions.map((e) => e.type).toList());
       return new BonoboObject(type, ctx.span);
     }

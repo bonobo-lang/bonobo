@@ -12,8 +12,8 @@ class _BonoboNumType extends BonoboInheritedType {
   c.CType get ctype => _cType;
 
   @override
-  BonoboType binaryOp(
-      BinaryOperator operator, FileSpan span, BonoboType other, BonoboAnalyzer analyzer) {
+  BonoboType binaryOp(BinaryOperator operator, FileSpan span, BonoboType other,
+      BonoboAnalyzer analyzer) {
     if (other.isAssignableTo(this)) return this;
     return unsupportedBinaryOperator(operator, span, other, analyzer);
   }

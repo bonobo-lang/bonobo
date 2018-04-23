@@ -3,8 +3,7 @@ part of bonobo.src.commands;
 class InfoCommand extends Command {
   String get name => 'info';
 
-  String get description =>
-      'Prints information about the current module.';
+  String get description => 'Prints information about the current module.';
 
   bool initialized = false;
   BonoboAnalyzer analyzer;
@@ -14,9 +13,9 @@ class InfoCommand extends Command {
     analyzer = await analyze(this);
 
     var errors =
-    analyzer.errors.where((e) => e.severity == BonoboErrorSeverity.error);
+        analyzer.errors.where((e) => e.severity == BonoboErrorSeverity.error);
     var warnings =
-    analyzer.errors.where((e) => e.severity == BonoboErrorSeverity.warning);
+        analyzer.errors.where((e) => e.severity == BonoboErrorSeverity.warning);
 
     printErrors(errors);
     printErrors(warnings);

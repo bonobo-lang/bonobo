@@ -26,14 +26,17 @@ void main() {
     test('assign', () => expect('=', scansOne(TokenType.assign, '=')));
     test('assignAdd', () => expect('+=', scansOne(TokenType.assignAdd, '+=')));
     test('assignSub', () => expect('-=', scansOne(TokenType.assignSub, '-=')));
-    test('assignTimes', () => expect('*=', scansOne(TokenType.assignTimes, '*=')));
+    test('assignTimes',
+        () => expect('*=', scansOne(TokenType.assignTimes, '*=')));
     test('assignDiv', () => expect('/=', scansOne(TokenType.assignDiv, '/=')));
     test('assignMod', () => expect('%=', scansOne(TokenType.assignMod, '%=')));
     test('assignAnd', () => expect('&=', scansOne(TokenType.assignAnd, '&=')));
     test('assignOr', () => expect('|=', scansOne(TokenType.assignOr, '|=')));
     test('assignXor', () => expect('^=', scansOne(TokenType.assignXor, '^=')));
-    test('assignShl', () => expect('<<=', scansOne(TokenType.assignShl, '<<=')));
-    test('assignShr', () => expect('>>=', scansOne(TokenType.assignShr, '>>=')));
+    test(
+        'assignShl', () => expect('<<=', scansOne(TokenType.assignShl, '<<=')));
+    test(
+        'assignShr', () => expect('>>=', scansOne(TokenType.assignShr, '>>=')));
   });
 
   group('data', () {

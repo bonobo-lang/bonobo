@@ -34,7 +34,8 @@ void main() {
     expect(structType.fields[1].name.name, 'baz');
     expect(structType.fields[1].type, isIdentifierType('Quux'));
     expect(structType.fields[2].name.name, 'yes');
-    expect(structType.fields[2].type, const isInstanceOf<FunctionTypeContext>());
+    expect(
+        structType.fields[2].type, const isInstanceOf<FunctionTypeContext>());
     var fnType = structType.fields[2].type as FunctionTypeContext;
     expect(fnType.parameters, hasLength(0));
     expect(fnType.returnType, isIdentifierType('No'));

@@ -6,13 +6,13 @@ class FunctionAnalyzer {
   FunctionAnalyzer(this.analyzer);
 
   BonoboFunction preliminaryAnalyzeFunction(FunctionContext ctx) {
-    var function = new BonoboFunction(
-        ctx.name.name, analyzer.module.scope.createChild(), ctx, analyzer.module);
+    var function = new BonoboFunction(ctx.name.name,
+        analyzer.module.scope.createChild(), ctx, analyzer.module);
     function.usages
         .add(new SymbolUsage(SymbolUsageType.declaration, ctx.name.span));
 
-    var symbol =
-    analyzer.module.scope.create(ctx.name.name, value: function, constant: true);
+    var symbol = analyzer.module.scope
+        .create(ctx.name.name, value: function, constant: true);
 
     if (ctx.isHidden) {
       symbol.visibility = Visibility.private;

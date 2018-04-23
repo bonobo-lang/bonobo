@@ -25,7 +25,7 @@ class StatementAnalyzer {
         continue;
       } else if (deadCode) {
         deadCodeSpan =
-        deadCodeSpan == null ? stmt.span : deadCodeSpan.expand(stmt.span);
+            deadCodeSpan == null ? stmt.span : deadCodeSpan.expand(stmt.span);
         continue;
       }
 
@@ -40,11 +40,13 @@ class StatementAnalyzer {
               stmt.expression.span));
         }
 
-        await analyzer.expressionAnalyzer.resolve(stmt.expression, function, scope);
+        await analyzer.expressionAnalyzer
+            .resolve(stmt.expression, function, scope);
       }
 
       if (stmt is ReturnStatementContext) {
-        var value = await analyzer.expressionAnalyzer.resolve(stmt.expression, function, scope);
+        var value = await analyzer.expressionAnalyzer
+            .resolve(stmt.expression, function, scope);
         deadCode = true;
 
         if (function.returnType != null) {
@@ -54,8 +56,8 @@ class StatementAnalyzer {
             analyzer.errors.add(new BonoboError(
                 BonoboErrorSeverity.error,
                 "'${function.name}' is declared to return a value of type "
-                    "'${function.returnType}', but it "
-                    "returns a value of type '${value.type}'.",
+                "'${function.returnType}', but it "
+                "returns a value of type '${value.type}'.",
                 stmt.expression.span));
             flow.returnType = BonoboType.Root;
           }
@@ -71,8 +73,8 @@ class StatementAnalyzer {
           try {
             childScope.create(
               decl.name.name,
-              value: await analyzer.expressionAnalyzer.resolve(
-                  decl.initializer, function, childScope),
+              value: await analyzer.expressionAnalyzer
+                  .resolve(decl.initializer, function, childScope),
               constant: decl.isImmutable,
             );
           } on StateError catch (e) {
@@ -85,7 +87,7 @@ class StatementAnalyzer {
         }
 
         var childFlow = stmt.flow =
-        await analyzeBlock(stmt.context, function, childScope, deadCode);
+            await analyzeBlock(stmt.context, function, childScope, deadCode);
         flow.children.add(childFlow);
       }
     }

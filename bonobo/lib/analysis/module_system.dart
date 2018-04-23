@@ -135,7 +135,7 @@ class BonoboModuleSystem {
     for (var part in parts) {
       var name = p.basenameWithoutExtension(part);
       var child =
-      module.children.firstWhere((m) => m.name == name, orElse: () => null);
+          module.children.firstWhere((m) => m.name == name, orElse: () => null);
 
       if (child == null) {
         // If no such module exists, then first resolve a directory.
@@ -168,8 +168,7 @@ class BonoboModuleSystem {
 
     void prinDent(int indent, [int n = 1]) {
       for (int i = 0; i < n; i++) {
-        for (int j = 0; j < indent; j++)
-          b.write('  ');
+        for (int j = 0; j < indent; j++) b.write('  ');
       }
     }
 

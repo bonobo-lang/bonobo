@@ -14,9 +14,9 @@ class ExploreCommand extends Command {
     analyzer = await analyze(this);
 
     var errors =
-    analyzer.errors.where((e) => e.severity == BonoboErrorSeverity.error);
+        analyzer.errors.where((e) => e.severity == BonoboErrorSeverity.error);
     var warnings =
-    analyzer.errors.where((e) => e.severity == BonoboErrorSeverity.warning);
+        analyzer.errors.where((e) => e.severity == BonoboErrorSeverity.warning);
 
     printErrors(errors);
     printErrors(warnings);
@@ -28,7 +28,7 @@ class ExploreCommand extends Command {
       var scanner = new Scanner(source, sourceUrl: 'stdin')..scan();
 
       var errors =
-      scanner.errors.where((e) => e.severity == BonoboErrorSeverity.error);
+          scanner.errors.where((e) => e.severity == BonoboErrorSeverity.error);
       var warnings = scanner.errors
           .where((e) => e.severity == BonoboErrorSeverity.warning);
       printErrors(errors);
@@ -77,14 +77,15 @@ class ExploreCommand extends Command {
 
       if (parsed is VariableDeclarationStatementContext) {
         for (var decl in parsed.declarations) {
-          var expr = await analyzer.expressionAnalyzer.resolve(
-              decl.initializer, null, analyzer.module.scope);
-          analyzer.module.scope
-              .create(decl.name.name, value: expr, constant: decl.mutability >= VariableMutability.final_);
+          var expr = await analyzer.expressionAnalyzer
+              .resolve(decl.initializer, null, analyzer.module.scope);
+          analyzer.module.scope.create(decl.name.name,
+              value: expr,
+              constant: decl.mutability >= VariableMutability.final_);
         }
       } else if (parsed is ExpressionContext) {
-        var expr = await analyzer.expressionAnalyzer.resolve(
-            parsed, null, analyzer.module.scope);
+        var expr = await analyzer.expressionAnalyzer
+            .resolve(parsed, null, analyzer.module.scope);
 
         errors = analyzer.errors
             .where((e) => e.severity == BonoboErrorSeverity.error);

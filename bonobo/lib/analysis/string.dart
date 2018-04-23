@@ -12,8 +12,8 @@ class _BonoboStringType extends BonoboInheritedType {
   c.CType get ctype => _cType;
 
   @override
-  BonoboType binaryOp(
-      BinaryOperator operator, FileSpan, BonoboType other, BonoboAnalyzer analyzer) {
+  BonoboType binaryOp(BinaryOperator operator, FileSpan, BonoboType other,
+      BonoboAnalyzer analyzer) {
     return this;
   }
 }

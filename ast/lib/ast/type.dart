@@ -80,7 +80,8 @@ class ParenthesizedTypeContext extends TypeContext {
 class StructTypeContext extends TypeContext {
   final List<StructFieldContext> fields;
 
-  StructTypeContext(this.fields, FileSpan span, List<Comment> comments) : super(span, comments);
+  StructTypeContext(this.fields, FileSpan span, List<Comment> comments)
+      : super(span, comments);
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitStructType(this);
@@ -101,7 +102,8 @@ class StructFieldContext extends AstNode {
 class EnumTypeContext extends TypeContext {
   final List<EnumValueContext> values;
 
-  EnumTypeContext(this.values, FileSpan span, List<Comment> comments) : super(span, comments);
+  EnumTypeContext(this.values, FileSpan span, List<Comment> comments)
+      : super(span, comments);
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitEnumType(this);
@@ -111,7 +113,8 @@ class EnumValueContext extends AstNode {
   final SimpleIdentifierContext name;
   final NumberLiteralContext index;
 
-  EnumValueContext(this.name, this.index, FileSpan span, List<Comment> comments) : super(span, comments);
+  EnumValueContext(this.name, this.index, FileSpan span, List<Comment> comments)
+      : super(span, comments);
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitEnumValue(this);

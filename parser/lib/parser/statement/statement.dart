@@ -18,7 +18,7 @@ class StatementParser {
 
     //Token peek = state.peek();
     //if (peek == null || !isAssignToken(peek.type))
-      return new ExpressionStatementContext(exp);
+    return new ExpressionStatementContext(exp);
 
     // TODO: Assignments should be expressions, not statements
 

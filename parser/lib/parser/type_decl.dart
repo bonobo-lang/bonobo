@@ -56,8 +56,8 @@ class TypeDeclParser {
           fields.add(v);
           break;
         default:
-          var v =
-          state.statementParser.variableDeclarationParser.parse(mut: VariableMutability.var_);
+          var v = state.statementParser.variableDeclarationParser
+              .parse(mut: VariableMutability.var_);
           if (v == null) return null;
           fields.add(v);
           break;
@@ -87,8 +87,8 @@ class TypeDeclParser {
             methods.add(f);
             break;
           default:
-            var v =
-                state.statementParser.variableDeclarationParser.parse(mut: VariableMutability.var_);
+            var v = state.statementParser.variableDeclarationParser
+                .parse(mut: VariableMutability.var_);
             if (v == null) return null;
             fields.add(v);
             break;

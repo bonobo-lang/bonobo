@@ -720,7 +720,8 @@ class BonoboLanguageServer extends lsp.LanguageServer {
   }
 
   @override
-  Future<List<lsp.Location>> textDocumentImplementation(lsp.TextDocumentIdentifier documentId, lsp.Position position) {
+  Future<List<lsp.Location>> textDocumentImplementation(
+      lsp.TextDocumentIdentifier documentId, lsp.Position position) {
     // TODO: implement textDocumentImplementation
   }
 

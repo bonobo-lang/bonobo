@@ -13,8 +13,8 @@ class TypedefParser {
     var name = state.parseSimpleIdentifier();
 
     if (name == null) {
-      state.errors.add(new BonoboError(
-          BonoboErrorSeverity.error, 'Missing identifier in typedef.', lastSpan));
+      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          'Missing identifier in typedef.', lastSpan));
       return null;
     }
 

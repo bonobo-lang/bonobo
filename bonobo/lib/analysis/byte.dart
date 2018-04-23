@@ -8,7 +8,11 @@ class _BonoboByteType extends BonoboInheritedType {
 
   @override
   BonoboType prefixOp(PrefixOperatorContext operator, BonoboAnalyzer analyzer) {
-    var supportedOps = [PrefixOperator.complement, PrefixOperator.plus, PrefixOperator.minus];
+    var supportedOps = [
+      PrefixOperator.complement,
+      PrefixOperator.plus,
+      PrefixOperator.minus
+    ];
 
     if (supportedOps.contains(operator)) return this;
 
@@ -16,8 +20,8 @@ class _BonoboByteType extends BonoboInheritedType {
   }
 
   @override
-  BonoboType binaryOp(
-      BinaryOperator operator, FileSpan span, BonoboType other, BonoboAnalyzer analyzer) {
+  BonoboType binaryOp(BinaryOperator operator, FileSpan span, BonoboType other,
+      BonoboAnalyzer analyzer) {
     var shiftOps = [BinaryOperator.shl, BinaryOperator.shr];
     var supportedOps = [
       BinaryOperator.pow,
@@ -32,8 +36,8 @@ class _BonoboByteType extends BonoboInheritedType {
     ];
 
     // TODO: Use `Int`, instead of `Num`, which is being phased out.
-    if (shiftOps.contains(operator) &&
-        other.isAssignableTo(BonoboType.Num)) return this;
+    if (shiftOps.contains(operator) && other.isAssignableTo(BonoboType.Num))
+      return this;
 
     if (supportedOps.contains(operator) && other.isAssignableTo(this))
       return this;

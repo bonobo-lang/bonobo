@@ -25,12 +25,14 @@ class _Scans extends Matcher {
     if (count != null) matches = scanner.tokens.length == count;
 
     if (tokens != null)
-      matches = matches && equals(tokens)
-          .matches(scanner.tokens.map((t) => t.type).toList(), matchState);
+      matches = matches &&
+          equals(tokens)
+              .matches(scanner.tokens.map((t) => t.type).toList(), matchState);
 
     if (text != null)
-      matches = matches && equals(text)
-          .matches(scanner.tokens.map((t) => t.span.text).toList(), matchState);
+      matches = matches &&
+          equals(text).matches(
+              scanner.tokens.map((t) => t.span.text).toList(), matchState);
 
     return matches;
   }

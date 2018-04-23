@@ -13,7 +13,8 @@ void main() {
     expect(exp, const isInstanceOf<TupleExpressionContext>());
     var tuple = exp as TupleExpressionContext;
     expect(tuple.expressions.length, 2);
-    expect(tuple.expressions, everyElement(const isInstanceOf<NumberLiteralContext>()));
+    expect(tuple.expressions,
+        everyElement(const isInstanceOf<NumberLiteralContext>()));
   });
 
   test('three items', () {
@@ -21,7 +22,8 @@ void main() {
     expect(exp, const isInstanceOf<TupleExpressionContext>());
     var tuple = exp as TupleExpressionContext;
     expect(tuple.expressions.length, 3);
-    expect(tuple.expressions, everyElement(const isInstanceOf<NumberLiteralContext>()));
+    expect(tuple.expressions,
+        everyElement(const isInstanceOf<NumberLiteralContext>()));
   });
 
   test('tuple within tuple', () {
@@ -39,6 +41,7 @@ void main() {
     expect(exp, const isInstanceOf<TupleExpressionContext>());
     var tuple = exp as TupleExpressionContext;
     expect(tuple.expressions.length, 2);
-    expect(tuple.expressions, everyElement(const isInstanceOf<TupleExpressionContext>()));
+    expect(tuple.expressions,
+        everyElement(const isInstanceOf<TupleExpressionContext>()));
   });
 }

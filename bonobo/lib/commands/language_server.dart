@@ -22,17 +22,17 @@ class LanguageServerCommand extends Command {
   run() {
     var zone = Zone.current.fork(
         specification: new ZoneSpecification(
-          print: (self, parent, zone, line) {
-            logger.info(line);
-          },
-          handleUncaughtError: (self, parent, zone, error, stackTrace) {
-            if (error is! UnimplementedError)
-              logger.severe('FATAL ERROR', error, stackTrace);
-          },
-          errorCallback: (self, parent, zone, error, stackTrace) {
-            self.handleUncaughtError(error, null);
-          },
-        ));
+      print: (self, parent, zone, line) {
+        logger.info(line);
+      },
+      handleUncaughtError: (self, parent, zone, error, stackTrace) {
+        if (error is! UnimplementedError)
+          logger.severe('FATAL ERROR', error, stackTrace);
+      },
+      errorCallback: (self, parent, zone, error, stackTrace) {
+        self.handleUncaughtError(error, null);
+      },
+    ));
 
     return zone.run(() {
       var server = new BonoboLanguageServer(logger);
