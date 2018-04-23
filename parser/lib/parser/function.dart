@@ -10,7 +10,7 @@ class FunctionParser {
 
     if (state.nextToken(TokenType.fn) == null) return null;
 
-    bool isPriv = state.nextToken(TokenType.hide_) != null;
+    bool isHidden = state.nextToken(TokenType.hide_) != null;
 
     // TODO constexpr modifier
 
@@ -42,7 +42,7 @@ class FunctionParser {
 
     return new FunctionContext(
         name, signature, body, startSpan.expand(body.span), comments,
-        isHidden: isPriv);
+        isHidden: isHidden);
   }
 
   FunctionSignatureContext parseSignature() {
@@ -100,7 +100,7 @@ class FunctionParser {
   }
 
   ParameterContext parseParameter() {
-    SimpleIdentifierContext id = state.parseIdentifier();
+    SimpleIdentifierContext id = state.parseSimpleIdentifier();
     if (id == null) return null;
 
     FileSpan span = id.span;

@@ -4,24 +4,15 @@ import 'package:scanner/scanner.dart';
 import 'package:ast/ast.dart';
 
 part 'base.dart';
-
 part 'function.dart';
-
 part 'expression.dart';
-
 part 'identifier.dart';
-
 part 'type_decl.dart';
-
 part 'type.dart';
-
-part 'typedef.dart';
-
 part 'statement/statement.dart';
-
 part 'statement/var_decl.dart';
 
-CompilationUnitContext parseUnit(Scanner scanner) =>
+CompilationUnitContext parseCompilationUnit(Scanner scanner) =>
     new Parser(scanner).parseCompilationUnit();
 
 class Parser extends BaseParser {
@@ -30,43 +21,40 @@ class Parser extends BaseParser {
   CompilationUnitContext parseCompilationUnit() {
     // TODO reset?
 
-    var span = peek()?.span, lastSpan = span;
-
-    if (span == null) return null;
+    FileSpan startSpan = peek().span;
+    FileSpan lastSpan = startSpan;
 
     final functions = <FunctionContext>[];
-    final classes = <ClassDeclarationContext>[];
-    final typedefs = <TypedefContext>[];
+    final classes = <TypeDeclarationContext>[];
+    final enums = <EnumDeclarationContext>[];
 
     while (!done) {
-      var comments = parseComments();
       Token t = peek();
-
       switch (t.type) {
         case TokenType.fn:
           FunctionContext f = parseFunction();
           if (f != null) {
             functions.add(f);
-            span = span.expand(lastSpan = f.span);
+            lastSpan = f.span;
           }
           break;
         case TokenType.type:
-          var typedef = parseTypedef(comments: comments);
-          if (typedef != null) {
-            typedefs.add(typedef);
-            span = span.expand(lastSpan = typedef.span);
-          }
-          /*
-          ClassDeclarationContext c = parseClass();
+          TypeDeclarationContext c = parseTypeDeclaration();
           if (c != null) {
             classes.add(c);
             lastSpan = c.span;
-          }*/
+          }
+          break;
+        case TokenType.enum_:
+          EnumDeclarationContext c = parsEnumDeclaration();
+          if (c != null) {
+            enums.add(c);
+            lastSpan = c.span;
+          }
           break;
         default:
-          errors.add(new BonoboError(BonoboErrorSeverity.warning,
-              "Unexpected token: ${t.type}", t.span));
-          consume();
+          // TODO
+          throw new UnimplementedError();
           break;
       }
       if (errors.length != 0) {
@@ -75,13 +63,8 @@ class Parser extends BaseParser {
       }
     }
 
-    return new CompilationUnitContext(
-      span,
-      [],
-      functions: functions,
-      classes: classes,
-      typedefs: typedefs,
-    );
+    return new CompilationUnitContext(startSpan.expand(lastSpan), [],
+        functions: functions, classes: classes, enums: enums);
   }
 
   FunctionContext parseFunction({List<Comment> comments}) {
@@ -89,9 +72,17 @@ class Parser extends BaseParser {
     return functionParser.parse();
   }
 
-  TypedefContext parseTypedef({List<Comment> comments}) {
-    return typedefParser.parse(comments: comments);
+  TypeDeclarationContext parseTypeDeclaration() {
+    // TODO comments
+    return typeDeclarationParser.parse();
   }
+
+  EnumDeclarationContext parsEnumDeclaration() {
+    // TODO comments
+    return enumDeclarationParser.parse();
+  }
+
+  TypeContext parseType() => typeParser.parse();
 
   StatementContext parseStatement() => statementParser.parse();
 
@@ -106,9 +97,15 @@ class Parser extends BaseParser {
 
   ExpressionContext parseExpression() => expressionParser.parse();
 
-  TypeDeclParser _classParser;
+  TypeDeclarationParser _typeDeclarationParser;
 
-  TypeDeclParser get classParser => _classParser ??= new TypeDeclParser(this);
+  TypeDeclarationParser get typeDeclarationParser =>
+      _typeDeclarationParser ??= new TypeDeclarationParser(this);
+
+  EnumDeclarationParser _enumDeclarationParser;
+
+  EnumDeclarationParser get enumDeclarationParser =>
+      _enumDeclarationParser ??= new EnumDeclarationParser(this);
 
   FunctionParser _funcParser;
 
@@ -132,8 +129,4 @@ class Parser extends BaseParser {
   TypeParser _typeParser;
 
   TypeParser get typeParser => _typeParser ??= new TypeParser(this);
-
-  TypedefParser _typedefParser;
-
-  TypedefParser get typedefParser => _typedefParser ??= new TypedefParser(this);
 }

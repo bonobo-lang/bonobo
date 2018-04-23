@@ -6,7 +6,7 @@ class ExpressionParser {
   ExpressionParser(this.state);
 
   ExpressionContext parse() {
-    ExpressionContext first = parseSingleExpression();
+    ExpressionContext first = _parseSingleExpression();
     if (first == null) return null;
 
     return _parsePartsWithPrecedence(null, first);
@@ -14,21 +14,20 @@ class ExpressionParser {
 
   ExpressionContext _parsePartsWithPrecedence(
       int precedence, ExpressionContext first) {
-    final parts = <ExpressionChainPart>[];
+    final parts = <BinaryExpressionPartContext>[];
 
-    ExpressionChainPart prev;
+    BinaryExpressionPartContext prev;
 
-    for (ExpressionChainPart part = _parseExpPart();
+    for (BinaryExpressionPartContext part = _parseExpPart();
         part != null;
         part = _parseExpPart()) {
       precedence ??= part.precedence;
       if (part.precedence > precedence) {
         ExpressionContext exp = _parsePartsWithPrecedence(
             part.precedence,
-            new ExpChainCtx(
-                    prev.right.span.expand(part.span), [], prev.right, part)
-                .right);
-        part = new ExpressionChainPart(
+            new BinaryExpressionContext(
+                prev.right.span.expand(part.span), [], prev.right, part));
+        part = new BinaryExpressionPartContext(
             prev.span.expand(exp.span), [], prev.op, exp);
         prev = null;
       }
@@ -41,31 +40,31 @@ class ExpressionParser {
     if (parts.length == 0) return first;
 
     if (parts.length == 1)
-      return new ExpChainCtx(
-              first.span.expand(parts[0].span), [], first, parts[0])
-          .right;
+      return new BinaryExpressionContext(
+          first.span.expand(parts[0].span), [], first, parts[0]);
 
     prev = parts[parts.length - 2];
-    ExpressionChainPart cur = parts.last;
-    var op = prev.op;
-    ExpressionContext exp = new ExpChainCtx(
-            prev.right.span.expand(cur.span), [], prev.right, parts.last)
-        .right;
+    BinaryExpressionPartContext cur = parts.last;
+    BinaryOperatorContext op = prev.op;
+    ExpressionContext exp = new BinaryExpressionContext(
+        prev.right.span.expand(cur.span), [], prev.right, parts.last);
     for (int i = parts.length - 2; i >= 1; i++) {
       prev = parts[i - 2];
       cur = parts[i - 1];
-      exp = new ExpChainCtx(prev.right.span.expand(exp.span), [], prev.right,
-              new ExpressionChainPart(op.span.expand(exp.span), [], op, exp))
-          .right;
+      exp = new BinaryExpressionContext(
+          prev.right.span.expand(exp.span),
+          [],
+          prev.right,
+          new BinaryExpressionPartContext(
+              op.span.expand(exp.span), [], op, exp));
       op = prev.op;
     }
-    exp = new ExpChainCtx(first.span.expand(exp.span), [], first,
-            new ExpressionChainPart(op.span.expand(exp.span), [], op, exp))
-        .right;
+    exp = new BinaryExpressionContext(first.span.expand(exp.span), [], first,
+        new BinaryExpressionPartContext(op.span.expand(exp.span), [], op, exp));
     return exp;
   }
 
-  ExpressionChainPart _parseExpPart() {
+  BinaryExpressionPartContext _parseExpPart() {
     Token peek = state.peek();
     if (peek == null) return null;
 
@@ -73,13 +72,14 @@ class ExpressionParser {
     if (op == null) return null;
     state.consume();
 
-    var opCtx = new BinaryExpressionPartContext(peek.span, [], op);
-    ExpressionContext exp = parseSingleExpression();
+    BinaryOperatorContext opCtx = new BinaryOperatorContext(peek.span, [], op);
+    ExpressionContext exp = _parseSingleExpression();
     if (exp == null) return null;
-    return new ExpressionChainPart(peek.span.expand(exp.span), [], opCtx, exp);
+    return new BinaryExpressionPartContext(
+        peek.span.expand(exp.span), [], opCtx, exp);
   }
 
-  ExpressionContext parseSingleExpression() {
+  ExpressionContext _parseSingleExpression() {
     Token token = state.peek();
     if (token == null) return null;
 
@@ -88,7 +88,7 @@ class ExpressionParser {
       case TokenType.tilde:
       case TokenType.not:
         state.consume();
-        ExpressionContext exp = parseSingleExpression();
+        ExpressionContext exp = _parseSingleExpression();
         if (exp == null) return null;
         return new PrefixExpressionContext(
             token.span.expand(exp.span),
@@ -208,7 +208,7 @@ class ExpressionParser {
         lCurly.span.expand(rCurly.span), [], keys, values);
   }
 
-  RangeExpressionContext _parseRange(
+  RangeLiteralContext _parseRange(
       Token startTok, ExpressionContext startRange) {
     state.consume();
 
@@ -224,21 +224,17 @@ class ExpressionParser {
     Token rParen = state.nextToken(TokenType.rParen);
     if (rParen == null) return null;
 
-    return new RangeExpressionContext(
+    return new RangeLiteralContext(
         startTok.span.expand(rParen.span), [], startRange, endRange, step);
   }
 
-  CallIdChainExpPartCtx _parseCallParams() {
+  IdentifierChainExpressionCallPartContext _parseCallParams() {
     final args = <ExpressionContext>[];
 
     Token lParen = state.nextToken(TokenType.lParen);
-    var lastSpan = lParen?.span;
-
-    if (lParen == null) return null;
 
     for (ExpressionContext exp = parse(); exp != null; exp = parse()) {
       args.add(exp);
-      lastSpan = exp.span;
       if (state.nextToken(TokenType.comma) == null) break;
     }
 
@@ -246,14 +242,15 @@ class ExpressionParser {
 
     if (rParen == null) {
       state.errors.add(new BonoboError(BonoboErrorSeverity.error,
-          "Missing ')' after expression.", lastSpan));
+          "Missing ')' after expression.", lParen.span));
       return null;
     }
 
-    return new CallIdChainExpPartCtx(lParen.span.expand(rParen.span), [], args);
+    return new IdentifierChainExpressionCallPartContext(
+        lParen.span.expand(rParen.span), [], args);
   }
 
-  SubscriptIdChainExpPartCtx _parseSubscript() {
+  IdentifierChainExpressionSubscriptPartContext _parseSubscript() {
     final args = <ExpressionContext>[];
 
     Token lParen = state.nextToken(TokenType.lSq);
@@ -271,51 +268,47 @@ class ExpressionParser {
       return null;
     }
 
-    return new SubscriptIdChainExpPartCtx(
+    return new IdentifierChainExpressionSubscriptPartContext(
         lParen.span.expand(rParen.span), [], args);
   }
 
   ExpressionContext parseChainExp() {
-    ExpressionContext target = state.parseIdentifier();
+    IdentifierContext id = state.parseIdentifier();
 
-    if (target == null) return null;
+    final parts = <IdentifierChainExpressionPartContext>[];
 
     Token peek = state.peek();
     while (peek != null) {
+      IdentifierChainExpressionPartContext now;
       switch (peek.type) {
         case TokenType.dot:
           state.consume();
           SimpleIdentifierContext id = state.parseSimpleIdentifier();
-
-          if (id == null) {
-            state.errors.add(new BonoboError(BonoboErrorSeverity.error,
-                "Missing identifier after '.'.", peek.span));
-            return null;
-          }
-
-          target = new MemberExpressionContext(
-              target, id, target.span.expand(peek.span).expand(id.span), []);
+          if (id == null) return null;
+          now = new IdentifierChainExpressionMemberPartContext(
+              peek.span.expand(id.span), [], id);
           break;
         case TokenType.lParen:
-          var args = _parseCallParams();
-          if (args == null) return null;
-          target = _callExpression(target, args);
+          now = _parseCallParams();
+          if (now == null) return null;
           break;
-        /*
-        TODO: SubscriptExpressionContext
         case TokenType.lSq:
-          var sub = _parseSubscript();
           now = _parseSubscript();
           if (now == null) return null;
           break;
-        */
         // TODO cascade operator?
         default:
           break;
       }
+      if (now == null) break;
+      parts.add(now);
+      peek = state.peek();
     }
 
-    return target;
+    if (parts.length == 0) return id;
+
+    return new IdentifierChainExpressionContext(
+        id.span.expand(parts.last.span), [], id, parts);
   }
 
   CallExpressionContext _callExpression(

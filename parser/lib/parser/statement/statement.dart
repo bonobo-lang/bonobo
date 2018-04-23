@@ -16,22 +16,21 @@ class StatementParser {
     ExpressionContext exp = state.parseExpression();
     if (exp == null) return null;
 
-    //Token peek = state.peek();
-    //if (peek == null || !isAssignToken(peek.type))
-    return new ExpressionStatementContext(exp);
+    Token peek = state.peek();
+    if (peek == null) return null;
 
-    // TODO: Assignments should be expressions, not statements
+    AssignOperator opEnum = AssignOperator.fromToken(peek.type);
+    if (opEnum == null) return new ExpressionStatementContext(exp);
 
-    /*
-    AssignmentOperatorContext op = new AssignmentOperatorContext(
-        peek.span, [], AssignmentOperator.fromToken(peek.type));
+    AssignOperatorContext op = new AssignOperatorContext(peek.span, [], opEnum);
     state.consume();
     ExpressionContext rhs = state.parseExpression();
     if (rhs == null) return null;
-    // TODO cascaded assignment
 
-    return new AssignStCtx(exp.span.expand(rhs.span), [], exp, op, rhs);
-    */
+    // TODO compound assignment
+
+    return new AssignStatementContext(
+        exp.span.expand(rhs.span), [], exp, op, rhs);
   }
 
   ReturnStatementContext parseReturnStatement(List<Comment> comments) {

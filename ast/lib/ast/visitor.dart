@@ -6,17 +6,7 @@ abstract class BonoboAstVisitor<T> {
 
   T visitCompilationUnit(CompilationUnitContext ctx);
 
-  T visitTypedef(TypedefContext ctx);
-
-  T visitFunction(FunctionContext ctx);
-
-  T visitSimpleIdentifierType(SimpleIdentifierTypeContext ctx);
-
-  T visitNamespacedIdentifierType(NamespacedIdentifierTypeContext ctx);
-
-  T visitTupleType(TupleTypeContext ctx);
-
-  T visitFunctionType(FunctionTypeContext ctx);
+  // Expression
 
   T visitSimpleIdentifier(SimpleIdentifierContext ctx);
 
@@ -28,21 +18,43 @@ abstract class BonoboAstVisitor<T> {
 
   T visitPrefixExpression(PrefixExpressionContext ctx);
 
-  T visitPostfixExpression(PostfixExpressionContext ctx);
-
-  T visitAssignmentExpression(AssignmentExpressionContext ctx);
-
   T visitBinaryExpression(BinaryExpressionContext ctx);
 
-  T visitConditionalExpression(ConditionalExpressionContext ctx);
+  T visitIdentifierChainExpression(IdentifierChainExpressionContext ctx);
 
-  T visitTupleExpression(TupleExpressionContext ctx);
+  T visitTupleLiteral(ObjectLiteralContext ctx);
 
-  T visitCallExpression(CallExpressionContext ctx);
+  T visitArrayLiteral(ArrayLiteralContext ctx);
 
-  T visitMemberExpression(MemberExpressionContext ctx);
+  T visitMapLiteral(MapLiteralContext ctx);
 
-  T visitBlock(BlockContext ctx);
+  T visitRangeLiteral(RangeLiteralContext ctx);
+
+  // Types
+
+  T visitType(TypeContext ctx);
+
+  T visitNamedType(NamedTypeContext ctx);
+
+  T visitFunctionType(FunctionTypeContext ctx);
+
+  T visitAnonymousType(AnonymousTypeContext ctx);
+
+  // Function
+
+  T visitFunction(FunctionContext ctx);
+
+  T visitFunctionSignature(FunctionSignatureContext ctx);
+
+  T visitParameterList(ParameterListContext ctx);
+
+  T visitParameter(ParameterContext ctx);
+
+  T visitBlockFunctionBody(BlockFunctionBodyContext ctx);
+
+  T visitSameLineFunctionBody(SameLineFunctionBodyContext ctx);
+
+  // Statements
 
   T visitExpressionStatement(ExpressionStatementContext ctx);
 
@@ -52,29 +64,17 @@ abstract class BonoboAstVisitor<T> {
 
   T visitVariableDeclaration(VariableDeclarationContext ctx);
 
-  T visitFunctionSignature(FunctionSignatureContext ctx);
+  T visitAssignStatement(AssignStatementContext ctx);
 
-  T visitBlockFunctionBody(BlockFunctionBodyContext ctx);
+  T visitForStatement(ForStatementContext ctx);
 
-  T visitLambdaFunctionBody(LambdaFunctionBodyContext ctx);
+  T visitBlock(BlockContext ctx);
 
-  T visitParameterList(ParameterListContext ctx);
+  // Type declaration
 
-  T visitParameter(ParameterContext ctx);
+  T visitTypeDeclaration(TypeDeclarationContext ctx);
 
-  T visitClassDeclaration(ClassDeclarationContext ctx);
-
-  T visitArrayLiteral(ArrayLiteralContext ctx);
-
-  T visitObjectLiteral(ObjectLiteralContext ctx);
-
-  T visitRangeExpression(RangeExpressionContext ctx);
-
-  T visitStructType(StructTypeContext ctx);
-
-  T visitStructField(StructFieldContext ctx);
-
-  T visitEnumType(EnumTypeContext ctx);
+  T visitEnumDeclaration(EnumDeclarationContext ctx);
 
   T visitEnumValue(EnumValueContext ctx);
 }

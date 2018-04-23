@@ -18,17 +18,6 @@ class BaseParser {
     return scanner.tokens.skip(_index).toList();
   }
 
-  /*
-  /// Computes the current Pratt expression parser precedence.
-  int getPrecedence() {
-    return _infixParselets[peek()?.type]?.precedence ?? 0;
-  }
-
-  /// Computes the current Pratt type parser precedence.
-  int getTypePrecedence() {
-    return _typeInfixParselets[peek()?.type]?.precedence ?? 0;
-  }*/
-
   /// Joins the [tokens] into a single [FileSpan].
   FileSpan spanFrom(Iterable<Token> tokens) {
     return tokens.map((t) => t.span).reduce((a, b) => a.expand(b));
@@ -73,6 +62,17 @@ class BaseParser {
   Token nextToken(TokenType type) {
     return next([type])?.removeFirst();
     //return peek()?.type == type ? consume() : null;
+  }
+
+  Token nextIfOneOf(Iterable<TokenType> token) {
+    Token t = peek();
+    for (TokenType ch in token) {
+      if (t.type == ch) {
+        consume();
+        return t;
+      }
+    }
+    return null;
   }
 
   /// Parses available comments.

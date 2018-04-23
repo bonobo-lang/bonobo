@@ -1,13 +1,12 @@
 part of bonobo.src.ast;
 
 class CompilationUnitContext extends AstNode {
-  final List<TypedefContext> typedefs;
   final List<FunctionContext> functions;
-
-  final List<ClassDeclarationContext> classes;
+  final List<TypeDeclarationContext> classes;
+  final List<EnumDeclarationContext> enums;
 
   CompilationUnitContext(FileSpan span, List<Comment> comments,
-      {this.typedefs, this.functions, this.classes})
+      {this.functions: const [], this.classes: const [], this.enums: const []})
       : super(span, comments);
 
   @override
@@ -17,8 +16,13 @@ class CompilationUnitContext extends AstNode {
   String toString() {
     var sb = new StringBuffer();
 
-    for (ClassDeclarationContext cl in classes) {
+    for (TypeDeclarationContext cl in classes) {
       sb.writeln(cl);
+      sb.writeln();
+    }
+
+    for (EnumDeclarationContext en in enums) {
+      sb.writeln(en);
       sb.writeln();
     }
 
