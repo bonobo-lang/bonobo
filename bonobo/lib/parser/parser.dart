@@ -23,7 +23,7 @@ part 'typedef.dart';
 
 part 'statement/statement.dart';
 
-part 'statement/var_decl.dart';
+part 'statement/variable_declaration.dart';
 
 CompilationUnitContext parseCompilationUnit(Scanner scanner) =>
     new Parser(scanner).parseCompilationUnit();

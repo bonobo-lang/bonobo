@@ -155,7 +155,7 @@ class VariableDeclarationStatementContext extends StatementContext {
 
   bool get isFinal => mutability.type == TokenType.final_;
 
-  bool get isImmutable => isConst | isFinal;
+  bool get isImmutable => isConst || isFinal;
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) =>

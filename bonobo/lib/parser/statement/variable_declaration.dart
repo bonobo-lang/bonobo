@@ -93,7 +93,7 @@ class VariableDeclarationParser {
           "Missing expression in variable declaration.", name.span));
       return null;
     }
-    span = span.expand(lastSpan = expression.span);
+    span = span.expand(expression.span);
 
     return new VariableDeclarationContext(
         name, type, expression, span, comments ?? []);

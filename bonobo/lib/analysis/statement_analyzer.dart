@@ -77,7 +77,7 @@ class StatementAnalyzer {
               decl.name.name,
               value: await analyzer.expressionAnalyzer
                   .resolve(decl.expression, function, childScope),
-              constant: stmt.mutability >= VariableMutability.final_,
+              constant: stmt.isImmutable,
             );
           } on StateError catch (e) {
             analyzer.errors.add(new BonoboError(
