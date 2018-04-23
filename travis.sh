@@ -8,8 +8,8 @@ function run_tests() {
   cd $DIRNAME
 }
 
-run_tests ast
+# run_tests ast
 run_tests scanner
 run_tests parser
-run_tests bonobo
+# run_tests bonobo
 
