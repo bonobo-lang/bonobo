@@ -97,8 +97,6 @@ class Parser extends BaseParser {
     return functionParser.parse();
   }
 
-  TypeContext parseType() => typeParser.parse();
-
   StatementContext parseStatement() => statementParser.parse();
 
   /// Parses function name
