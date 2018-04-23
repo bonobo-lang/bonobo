@@ -226,23 +226,17 @@ class BinaryOperator {
   }
 }
 
-class BinaryExpressionPartContext {
-  final FileSpan span;
-  final List<Comment> comments;
-  final BinaryOperator op;
-
-  BinaryExpressionPartContext(this.span, this.comments, this.op);
-}
-
 class BinaryExpressionContext extends ExpressionContext {
   final ExpressionContext left, right;
-  final BinaryOperator op;
+  final Token op;
 
   BinaryExpressionContext(
-      FileSpan span, List<Comment> comments, this.left, this.right, this.op)
-      : super(span, comments);
-
-  int get precedence => op.precedence;
+    this.left,
+    this.right,
+    this.op,
+    FileSpan span,
+    List<Comment> comments,
+  ) : super(span, comments);
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) =>
