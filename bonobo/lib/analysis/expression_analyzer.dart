@@ -58,6 +58,9 @@ class ExpressionAnalyzer {
       return new BonoboObject(type, ctx.span);
     }
 
+    if (ctx is ParenthesizedExpressionContext)
+      return await resolve(ctx.innermost, function, scope);
+
     analyzer.errors.add(new BonoboError(
         BonoboErrorSeverity.error,
         "Cannot resolve type of expression '${ctx.span.text}' (${ctx
