@@ -10,12 +10,6 @@ dependencies:
   source_span: ^1.0.0
   symbol_table: ^1.0.0
   tuple: ^1.0.0
-  scanner:
-    path: ../scanner
-  parser:
-    path: ../parser
-  ast:
-    path: ../ast
 dev_dependencies:
   angel_serialize_generator: ^2.0.0
   build_runner: ^0.8.0
