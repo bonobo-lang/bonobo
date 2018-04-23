@@ -14,6 +14,14 @@
             * [Block Function Body](#block-function-body)
                 * [Block](#block)
     * [Typedef Declaration](#typedef-declaration)
+    * [Sugared Enumeration Type Declaration](#sugared-enumeration-type-declaration)
+* [Type](#type)
+    * [Named Type](#named-type)
+    * [Enumeration Type](#enumeration-type)
+    * [Tuple Type](#tuple-type)
+    * [Struct Type](#struct-type)
+    * [Array Type](#named-type)
+    * [Parameterized Type](#parameterized-type)
 
  ## About
 This document defines the *syntax* of Bonobo, a strongly-typed
@@ -62,7 +70,8 @@ A *top-level declaration* is a mechanism for declaring symbols within a Bonobo
 TopLevelDeclaration:
     ImportDeclaration
     | FunctionDeclaration
-    | TypedefDeclaration;
+    | TypedefDeclaration
+    | SugaredEnumTypeDeclaration;
 ```
 
 ## Import Declaration
@@ -133,3 +142,71 @@ to an anonymous, or otherwise verbose, type.
 ```ebnf
 TypedefDeclaration: "type" SimpleIdentifier "="? Type;
 ```
+
+## Sugared Enumeration Type Declaration
+Bonobo also supports a shorthand syntax for declaring enumeration types
+types. While I personally don't think it's very necessary, it's
+clear that people coming from languages like C or C++ might find
+[the original syntax](#enumeration-type) verbose.
+
+```ebnf
+SugaredEnumTypeDeclaration: "enum" SimpleIdentifier "{" ( (EnumValue ",")* EnumValue )? "}";
+```
+
+# Type
+Bonobo supports a rich type system, in the hopes that allowing great expressiveness
+will give the language room to grow autonomously, along with its community.
+
+```ebnf
+Type:
+    NamedType
+    | EnumType
+    | TupleType
+    | StructType
+    | ArrayType
+    | ParameterizedType
+    | "(" Type ")";
+```
+
+## Named Type
+A *named type* in itself is not a type, but a reference to another type,
+either one defined in the standard library, or one defined in a [typedef](#typedef-declaration).
+
+```ebnf
+NamedType: Identifier;
+```
+
+## Enumeration Type
+An *enumeration type* (*enum type* for short) is a type that contains a defined
+set of possible values, known both to the user and to the compiler.
+
+
+```ebnf
+EnumType: "enum" SimpleIdentifier "{" ( (EnumValue ",")* EnumValue )? "}";
+```
+
+### Enum Value
+An *enumeration value* has an associated integer value. This can be inferred from
+its index within the containing enumeration, or manually specified.
+
+```ebnf
+EnumValue: SimpleIdentifier ("=" NumberLiteral)?;
+```
+
+## Tuple Type
+A *tuple type* is a composite type consisting of two or more types.
+Any expression of this tuple type must contain an equal number of members,
+with types in the exact order as defined in the tuple literal.
+
+For example, take the tuple type `Int, String`. The [tuple expression](#tuple-expression)
+ `2, "two"` would be a valid expression, but `"two", 2` would not.
+
+```ebnf
+TupleType: "(" ( (Type ",")* Type )? ")";
+```
+
+## Struct Type
+
+## Array Type
+
+## Parameterized Type
