@@ -140,7 +140,7 @@ class _Repl {
     var ctrl = new StreamController();
     submitted = false;
     scheduleMicrotask(() async {
-      bool newline = true;
+      //bool newline = true;
 
       //if (false)
       stdin
@@ -162,7 +162,7 @@ class _Repl {
           index++;
           if (index >= history.length) history.add(new StringBuffer());
           stdout.writeln();
-          newline = true;
+          //newline = true;
         } else {
           ctrl.add(line.substring(0, line.length - 1));
         }

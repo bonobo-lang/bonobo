@@ -24,8 +24,6 @@ abstract class BonoboAstVisitor<T> {
 
   T visitIdentifierChainExpression(IdentifierChainExpressionContext ctx);
 
-  T visitTupleLiteral(TupleExpressionContext ctx);
-
   T visitCallExpression(CallExpressionContext ctx);
 
   T visitPostfixExpression(PostfixExpressionContext ctx);
