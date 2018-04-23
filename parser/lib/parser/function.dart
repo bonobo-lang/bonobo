@@ -68,8 +68,6 @@ class FunctionParser {
       span = span.expand(returnType.span);
     }
 
-    if (parameterList == null && returnType == null) return null;
-
     return new FunctionSignatureContext(parameterList, returnType, span, []);
   }
 

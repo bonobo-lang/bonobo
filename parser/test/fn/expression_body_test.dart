@@ -4,33 +4,34 @@ import 'package:test/test.dart';
 import 'package:ast/ast.dart';
 
 void main() {
-  group('fn', () {
-    group('SingleLine', () {
-      test('No exp', () {
-        var scanner = new Scanner("fn pub main => print('Hello, world!')",
-            sourceUrl: 'main.bnb');
-        scanner.scan();
+  test('expression body', () {
+    expect("fn main => 5 + 5", isLambdaFunctionBody());
+    expect("fn main => print('Hello, world!')", isLambdaFunctionBody());
+  });
+}
 
-        var parser = new Parser(scanner);
-        CompilationUnitContext unit = parser.parseCompilationUnit();
-        expect(parser.errors.length, 0);
-        expect(unit.functions.length, 1);
-        expect(unit.toString(), "fn pub main => print('Hello, world!')\n\n");
-      });
-    });
+Matcher isLambdaFunctionBody() {
+  return predicate((x) {
+    var scanner = new Scanner(x.toString())..scan();
+    var parser = new Parser(scanner);
+    CompilationUnitContext unit = parser.parseCompilationUnit();
 
-    group('SingleLine', () {
-      test('exp', () {
-        var scanner =
-            new Scanner("fn pub main => 5 + 5", sourceUrl: 'main.bnb');
-        scanner.scan();
+    if (parser.errors.isNotEmpty) {
+      for (var error in parser.errors) {
+        print(error.message);
+        print(error.span.highlight());
+      }
 
-        var parser = new Parser(scanner);
-        CompilationUnitContext unit = parser.parseCompilationUnit();
-        expect(parser.errors.length, 0);
-        expect(unit.functions.length, 1);
-        expect(unit.toString(), "fn pub main => print('Hello, world!')\n\n");
-      });
-    });
+      return false;
+    }
+
+    if (unit.functions.isEmpty) return false;
+
+    if (!equals('main').matches(unit.functions[0].name.name, {})) return false;
+
+    if (!const isInstanceOf<LambdaFunctionBodyContext>()
+        .matches(unit.functions[0].body, {})) return false;
+
+    return true;
   });
 }
