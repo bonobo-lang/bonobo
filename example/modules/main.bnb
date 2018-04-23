@@ -1,1 +1,1 @@
-fn main => print(foo::bar())
+fn main: String => foo::bar()

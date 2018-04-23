@@ -32,6 +32,14 @@
         {
           "name": "constant.numeric.bonobo",
           "match": "\\b([0-9]+(\\.[0-9]+)?)\\b"
+        },
+        {
+          "name": "constant.numeric.bonobo",
+          "match": "\\b0x([A-Fa-f0-9]+)\\b"
+        },
+        {
+          "name": "keyword.operator.bonobo",
+          "match": "(=>|\\*|\\/|%|\\+|-|&|\\||\\^|=|<<|>>|,)"
         }
       ]
     },
@@ -50,20 +58,23 @@
           }
         },
         {
-          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*=>",
+          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(=>)",
           "captures": {
             "1": {
               "name": "entity.name.function.bonobo"
+            },
+            "2": {
+              "name": "keyword.operator.bonobo"
             }
           }
         },
         {
-          "match": "\\bf\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*:",
+          "match": "\\b(fn)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*:",
           "captures": {
-            "0": {
+            "1": {
               "name": "keyword.control.bonobo"
             },
-            "1": {
+            "2": {
               "name": "entity.name.function.bonobo"
             }
           }

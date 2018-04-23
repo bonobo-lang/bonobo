@@ -1,10 +1,5 @@
-<<<<<<< HEAD
+// Bonobo supports a wide array of binary operators.
 fn main {
-    // Bonobo supports a wide array of binary operators.
-    //ret 1 ~ 1 ** 1 * 1 / 1 % 1 + 1 - 1 && 1 || 1 ^ 1 & 1 | 1 ±=
-=======
-fn main {
-    // Bonobo supports a wide array of binary operators.
-    //ret 1 ~ 1 ** 1 * 1 / 1 % 1 + 1 - 1 && 1 || 1 ^ 1 & 1 | 1 ±=
->>>>>>> 7ae4b23a50a45f8590a820e076523d7447a2e1d3
+    ret 1 * 1 / 1 % 1 + 1 - 1
+    //ret 1 ~ 1 ** 1 * 1 / 1 % 1 + 1 - 1 && 1 || 1 ^ 1 & 1 | 1 ±=1
 }

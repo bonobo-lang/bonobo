@@ -6,7 +6,7 @@ type TupleOfTwoBytes = (Byte, Byte)
 
 type FunctionOfTupleOfTwoBytes = (fn : TupleOfTwoBytes)
 
-fn main : TupleOfTwoBytes => (0b, 1b)
+fn main : TupleOfTwoBytes => (0xa, 0x10)
 
 fn returnMain : FunctionOfTupleOfTwoBytes => main
 
