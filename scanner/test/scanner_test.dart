@@ -42,7 +42,7 @@ void main() {
       test('0x', () => expect('0x123', scansOne(TokenType.hex_0x, '0x123')));
       test('positive', () => expect('123', scansOne(TokenType.number, '123')));
       test('no negative',
-          () => expect('-123', isNot(scansOne(TokenType.number, '123'))));
+          () => expect('-123', isNot(scansOne(TokenType.number, '-123'))));
     });
 
     test('single quoted string',

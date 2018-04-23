@@ -117,6 +117,20 @@ class ExpressionParser {
   NumberLiteralContext parseNumberLiteral() {
     if (state.peek()?.type == TokenType.number)
       return new NumberLiteralContext(state.consume().span, []);
+    return _parseHex() ?? _parseHex0x();
+  }
+
+  NumberLiteralContext _parseHex() {
+    if (state.peek()?.type == TokenType.hex) {
+      return new HexLiteralContext(state.consume().span, []);
+    }
+    return null;
+  }
+
+  NumberLiteralContext _parseHex0x() {
+    if (state.peek()?.type == TokenType.hex_0x) {
+      return new Hex0xLiteralContext(state.consume().span, []);
+    }
     return null;
   }
 

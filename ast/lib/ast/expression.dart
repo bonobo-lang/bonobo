@@ -61,6 +61,31 @@ class NumberLiteralContext extends ExpressionContext {
   String toString() => span.text;
 }
 
+class HexLiteralContext extends NumberLiteralContext {
+  HexLiteralContext(FileSpan span, List<Comment> comments)
+      : super(span, comments);
+
+  @override
+  int get intValue {
+    return int.parse(span.text.substring(0, span.length - 1), radix: 16);
+  }
+
+  @override
+  bool get isByte => intValue.bitLength <= 8;
+
+  @override
+  double get doubleValue => throw new ArgumentError(
+      'Hex number literals cannot be interpreted as doubles.');
+}
+
+class Hex0xLiteralContext extends HexLiteralContext {
+  Hex0xLiteralContext(FileSpan span, List<Comment> comments)
+      : super(span, comments);
+
+  @override
+  int get intValue => int.parse(span.text.substring(2), radix: 16);
+}
+
 class StringLiteralContext extends ExpressionContext {
   static final RegExp _unicode = new RegExp(r'\\u([A-Fa-f0-9]+)');
   String _value;
@@ -445,7 +470,8 @@ class ObjectLiteralContext extends ExpressionContext {
   final List<ExpressionContext> keys;
   final List<ExpressionContext> values;
 
-  ObjectLiteralContext(FileSpan span, List<Comment> comments, this.keys, this.values)
+  ObjectLiteralContext(
+      FileSpan span, List<Comment> comments, this.keys, this.values)
       : super(span, comments);
 
   @override
@@ -462,7 +488,6 @@ class RangeExpressionContext extends ExpressionContext {
       : super(span, comments);
 
   @override
-  T accept<T>(BonoboAstVisitor<T> visitor) => visitor.visitRangeExpression(this);
-
-
+  T accept<T>(BonoboAstVisitor<T> visitor) =>
+      visitor.visitRangeExpression(this);
 }
