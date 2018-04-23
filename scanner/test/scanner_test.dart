@@ -38,7 +38,6 @@ void main() {
 
   group('data', () {
     group('numbers', () {
-      test('hex', () => expect('123ah', scansOne(TokenType.hex, '123ah')));
       test('positive', () => expect('123', scansOne(TokenType.number, '123')));
       test('no negative',
           () => expect('-123', isNot(scansOne(TokenType.number, '-123'))));
