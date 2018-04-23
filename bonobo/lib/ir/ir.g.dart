@@ -201,7 +201,8 @@ class Typedef extends _Typedef {
 }
 
 class FunctionIR extends _FunctionIR {
-  FunctionIR({this.span, this.name, this.parameters, this.returnType});
+  FunctionIR(
+      {this.span, this.name, this.parameters, this.returnType, this.body});
 
   @override
   final _Span span;
@@ -215,16 +216,21 @@ class FunctionIR extends _FunctionIR {
   @override
   final _Type returnType;
 
+  @override
+  final List<_Statement> body;
+
   FunctionIR copyWith(
       {_Span span,
       _Identifier name,
       List<_Parameter> parameters,
-      _Type returnType}) {
+      _Type returnType,
+      List<_Statement> body}) {
     return new FunctionIR(
         span: span ?? this.span,
         name: name ?? this.name,
         parameters: parameters ?? this.parameters,
-        returnType: returnType ?? this.returnType);
+        returnType: returnType ?? this.returnType,
+        body: body ?? this.body);
   }
 
   Map<String, dynamic> toJson() {

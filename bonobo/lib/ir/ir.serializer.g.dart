@@ -234,6 +234,9 @@ abstract class FunctionIRSerializer {
             : null,
         returnType: map['return_type'] != null
             ? TypeSerializer.fromMap(map['return_type'])
+            : null,
+        body: map['body'] is Iterable
+            ? map['body'].map(StatementSerializer.fromMap).toList()
             : null);
   }
 
@@ -242,7 +245,8 @@ abstract class FunctionIRSerializer {
       'span': SpanSerializer.toMap(model.span),
       'name': IdentifierSerializer.toMap(model.name),
       'parameters': model.parameters?.map(ParameterSerializer.toMap)?.toList(),
-      'return_type': TypeSerializer.toMap(model.returnType)
+      'return_type': TypeSerializer.toMap(model.returnType),
+      'body': model.body?.map(StatementSerializer.toMap)?.toList()
     };
   }
 }
@@ -255,6 +259,8 @@ abstract class FunctionIRFields {
   static const String parameters = 'parameters';
 
   static const String returnType = 'return_type';
+
+  static const String body = 'body';
 }
 
 abstract class ParameterSerializer {
