@@ -98,4 +98,6 @@ abstract class BonoboAstVisitor<T> {
   T visitMemberExpression(MemberExpressionContext ctx);
 
   T visitEnumType(EnumTypeContext ctx);
+
+  T visitParenthesizedExpression(ParenthesizedExpressionContext ctx);
 }

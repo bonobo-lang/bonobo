@@ -4,7 +4,9 @@ import 'package:scanner/scanner.dart';
 import 'package:ast/ast.dart';
 
 part 'expression/prefix.dart';
+
 part 'expression/infix.dart';
+
 part 'expression/postfix.dart';
 
 part 'base.dart';
@@ -12,8 +14,6 @@ part 'base.dart';
 part 'function.dart';
 
 part 'expression.dart';
-
-part 'identifier.dart';
 
 part 'type_decl.dart';
 
@@ -141,4 +141,7 @@ class Parser extends BaseParser {
   TypedefParser _typedefParser;
 
   TypedefParser get typedefParser => _typedefParser ??= new TypedefParser(this);
+
+  IdentifierContext parseIdentifier({List<Comment> comments}) =>
+      const _IdentifierParser().parse(this, comments: comments);
 }

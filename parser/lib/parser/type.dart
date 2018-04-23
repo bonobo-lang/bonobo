@@ -1,9 +1,9 @@
 part of 'parser.dart';
 
 class TypeParser {
-  final Parser state;
+  final Parser parser;
 
-  TypeParser(this.state);
+  TypeParser(this.parser);
 
   // When calling `parse` from methods within this class,
   // Be sure to forward the value of `ignoreComma`. Otherwise,
@@ -17,17 +17,17 @@ class TypeParser {
 
     if (type == null) return null;
 
-    while (!state.done) {
-      switch (state.peek()?.type) {
+    while (!parser.done) {
+      switch (parser.peek()?.type) {
         case TokenType.comma:
           if (ignoreComma == true) return type;
           // Consume the token, then read in the other type in this tuple.
-          var comma = state.consume();
-          var nextType = parse(comments: state.parseComments());
+          var comma = parser.consume();
+          var nextType = parse(comments: parser.parseComments());
           var span = type.span.expand(nextType.span);
 
           if (nextType == null) {
-            state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+            parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
                 "Missing type after ','.", comma.span));
             return null;
           }
@@ -56,7 +56,7 @@ class TypeParser {
 
   TypeContext parseSingleType(
       {List<Comment> comments, bool ignoreComma: false}) {
-    IdentifierContext name = state.parseIdentifier();
+    IdentifierContext name = parser.parseIdentifier(comments: comments);
 
     if (name == null) {
       // If we didn't find an identifier type,
@@ -72,40 +72,40 @@ class TypeParser {
 
   /// enum { a, b, c }
   EnumTypeContext parseEnumType({List<Comment> comments}) {
-    var keyword = state.nextToken(TokenType.enum_),
+    var keyword = parser.nextToken(TokenType.enum_),
         span = keyword?.span,
         lastSpan = span;
 
     if (keyword == null) return null;
 
-    var lCurly = state.nextToken(TokenType.lCurly);
+    var lCurly = parser.nextToken(TokenType.lCurly);
 
     if (lCurly == null) {
-      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Missing '{' in enum type definition.", lastSpan));
       return null;
     }
 
     span = span.expand(lastSpan = lCurly.span);
     var values = [];
-    var value = parseEnumValue(comments: state.parseComments());
+    var value = parseEnumValue(comments: parser.parseComments());
 
     while (value != null) {
       values.add(value);
       span = span.expand(lastSpan = value.span);
 
-      if (state.peek()?.type == TokenType.comma) {
-        span = span.expand(lastSpan = state.consume().span);
-        value = parseEnumValue(comments: state.parseComments());
+      if (parser.peek()?.type == TokenType.comma) {
+        span = span.expand(lastSpan = parser.consume().span);
+        value = parseEnumValue(comments: parser.parseComments());
       } else {
         break;
       }
     }
 
-    var rCurly = state.nextToken(TokenType.rCurly)?.span;
+    var rCurly = parser.nextToken(TokenType.rCurly)?.span;
 
     if (rCurly == null) {
-      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Missing '}' in enum type definition.", lastSpan));
       return null;
     }
@@ -114,20 +114,20 @@ class TypeParser {
   }
 
   EnumValueContext parseEnumValue({List<Comment> comments}) {
-    var name = state.parseSimpleIdentifier(), span = name?.span;
+    var name = parser.parseSimpleIdentifier(), span = name?.span;
     NumberLiteralContext index;
 
     if (name == null) return null;
 
     // Index is optional
-    var assign = state.nextToken(TokenType.assign)?.span;
+    var assign = parser.nextToken(TokenType.assign)?.span;
 
     if (assign != null) {
       span = span.expand(assign);
-      index = state.expressionParser.parseNumberLiteral();
+      index = parser.expressionParser.parseNumberLiteral();
 
       if (index == null) {
-        state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+        parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
             "Missing index after '=' in enum type definition.", assign));
         return null;
       }
@@ -141,33 +141,35 @@ class TypeParser {
   /// fn(Int, Int): Int
   FunctionTypeContext parseFunctionType(
       {List<Comment> comments, bool ignoreComma: false}) {
-    var fn = state.nextToken(TokenType.fn), span = fn?.span, lastSpan = span;
+    var fn = parser.nextToken(TokenType.fn), span = fn?.span, lastSpan = span;
 
     if (fn == null) return null;
 
     // The parameter list is optional.
     var parameters = <TypeContext>[];
 
-    if (state.peek()?.type == TokenType.lParen) {
-      span = span.expand(lastSpan = state.consume().span);
-      var parameter = parse(comments: state.parseComments(), ignoreComma: true);
+    if (parser.peek()?.type == TokenType.lParen) {
+      span = span.expand(lastSpan = parser.consume().span);
+      var parameter =
+          parse(comments: parser.parseComments(), ignoreComma: true);
 
       while (parameter != null) {
         parameters.add(parameter);
         span = span.expand(lastSpan = parameter.span);
 
-        if (state.peek()?.type == TokenType.comma) {
-          span = span.expand(lastSpan = state.consume().span);
-          parameter = parse(comments: state.parseComments(), ignoreComma: true);
+        if (parser.peek()?.type == TokenType.comma) {
+          span = span.expand(lastSpan = parser.consume().span);
+          parameter =
+              parse(comments: parser.parseComments(), ignoreComma: true);
         } else {
           break;
         }
       }
 
-      var rParen = state.nextToken(TokenType.rParen)?.span;
+      var rParen = parser.nextToken(TokenType.rParen)?.span;
 
       if (rParen == null) {
-        state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+        parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
             "Missing ')' in function type literal.", lastSpan));
         return null;
       }
@@ -176,19 +178,19 @@ class TypeParser {
     }
 
     // The return type is never optional.
-    var colon = state.nextToken(TokenType.colon);
+    var colon = parser.nextToken(TokenType.colon);
 
     if (colon == null) {
-      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Missing ':' in function type literal.", lastSpan));
     }
 
     span = span.expand(lastSpan = colon.span);
     var returnType =
-        parse(comments: state.parseComments(), ignoreComma: ignoreComma);
+        parse(comments: parser.parseComments(), ignoreComma: ignoreComma);
 
     if (returnType == null) {
-      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Missing return type after ':'.", lastSpan));
       return null;
     }
@@ -198,37 +200,37 @@ class TypeParser {
   }
 
   StructTypeContext parseStructType({List<Comment> comments}) {
-    var lCurly = state.nextToken(TokenType.lCurly),
+    var lCurly = parser.nextToken(TokenType.lCurly),
         span = lCurly?.span,
         lastSpan = span;
 
     if (lCurly == null) return null;
 
     var fields = <StructFieldContext>[],
-        field = parseStructField(comments: state.parseComments());
+        field = parseStructField(comments: parser.parseComments());
 
     while (field != null) {
       fields.add(field);
       span = span.expand(lastSpan = field.span);
 
       // Optional comma
-      if (state.peek()?.type == TokenType.comma) {
-        span = span.expand(lastSpan = state.consume().span);
-        field = parseStructField(comments: state.parseComments());
+      if (parser.peek()?.type == TokenType.comma) {
+        span = span.expand(lastSpan = parser.consume().span);
+        field = parseStructField(comments: parser.parseComments());
 
         if (field == null) {
-          state.errors.add(new BonoboError(
+          parser.errors.add(new BonoboError(
               BonoboErrorSeverity.error, "Missing field after ','.", lastSpan));
           return null;
         }
       } else
-        field = parseStructField(comments: state.parseComments());
+        field = parseStructField(comments: parser.parseComments());
     }
 
-    var rCurly = state.nextToken(TokenType.rCurly);
+    var rCurly = parser.nextToken(TokenType.rCurly);
 
     if (rCurly == null) {
-      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Missing '}' in struct type definition.", lastSpan));
       return null;
     }
@@ -237,29 +239,29 @@ class TypeParser {
   }
 
   StructFieldContext parseStructField({List<Comment> comments}) {
-    if (state.peek()?.type == TokenType.fn)
+    if (parser.peek()?.type == TokenType.fn)
       return parseStructFunctionField(comments: comments);
 
-    var name = state.parseSimpleIdentifier(),
+    var name = parser.parseSimpleIdentifier(),
         span = name?.span,
         lastSpan = span;
 
     if (name == null) return null;
 
-    var colon = state.nextToken(TokenType.colon);
+    var colon = parser.nextToken(TokenType.colon);
 
     if (colon == null) {
-      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Missing ':' after '${name.name}'.", lastSpan));
       return null;
     }
 
     span = span.expand(lastSpan = colon.span);
 
-    var type = parse(comments: state.parseComments(), ignoreComma: true);
+    var type = parse(comments: parser.parseComments(), ignoreComma: true);
 
     if (type == null) {
-      state.errors.add(new BonoboError(
+      parser.errors.add(new BonoboError(
           BonoboErrorSeverity.error, "Missing type after ':'.", colon.span));
       return null;
     }
@@ -276,24 +278,24 @@ class TypeParser {
   /// automatically maps to
   /// `{ myFn: fn(Int, String): Double }`.
   StructFieldContext parseStructFunctionField({List<Comment> comments}) {
-    var fn = state.nextToken(TokenType.fn);
+    var fn = parser.nextToken(TokenType.fn);
 
     if (fn == null) return null;
 
     var span = fn.span;
-    var name = state.parseSimpleIdentifier();
+    var name = parser.parseSimpleIdentifier();
 
     if (name == null) {
-      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Missing identifier after 'fn'.", fn.span));
       return null;
     }
 
     span = span.expand(name.span);
-    var signature = state.functionParser.parseSignature();
+    var signature = parser.functionParser.parseSignature();
 
     if (signature == null) {
-      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Missing function signature after '${name.name}'.", name.span));
       return null;
     }
@@ -304,8 +306,7 @@ class TypeParser {
     var functionType = new FunctionTypeContext(
         signature.parameterList?.parameters
                 ?.map((p) =>
-                    p.type ??
-                    new NamedTypeContext(p.name, p.span, p.comments))
+                    p.type ?? new NamedTypeContext(p.name, p.span, p.comments))
                 ?.toList() ??
             [],
         signature.returnType,
@@ -317,23 +318,23 @@ class TypeParser {
   }
 
   ParenthesizedTypeContext parseParenthesizedType({List<Comment> comments}) {
-    var span = state.nextToken(TokenType.lParen)?.span, lastSpan = span;
+    var span = parser.nextToken(TokenType.lParen)?.span, lastSpan = span;
 
     if (span == null) return null;
 
-    var inner = parse(comments: state.parseComments(), ignoreComma: false);
+    var inner = parse(comments: parser.parseComments(), ignoreComma: false);
 
     if (inner == null) {
-      state.errors.add(new BonoboError(
+      parser.errors.add(new BonoboError(
           BonoboErrorSeverity.error, "Missing type after '('.", lastSpan));
       return null;
     }
 
     span = span.expand(lastSpan = inner.span);
-    var rParen = state.nextToken(TokenType.rParen)?.span;
+    var rParen = parser.nextToken(TokenType.rParen)?.span;
 
     if (rParen == null) {
-      state.errors.add(
+      parser.errors.add(
           new BonoboError(BonoboErrorSeverity.error, "Missing ')'.", lastSpan));
       return null;
     }

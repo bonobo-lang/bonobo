@@ -9,6 +9,9 @@ class ExpressionParser {
 
   ExpressionParser(this.parser);
 
+  NumberLiteralContext parseNumberLiteral({List<Comment> comments}) =>
+      const _NumberLiteralParser().parse(parser, comments: comments);
+
   ExpressionContext parse(int precedence,
       {List<Comment> comments, bool ignoreComma: false}) {
     // Get the first available expression.

@@ -290,6 +290,13 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
 
   }
 
+  @override
+  T visitParenthesizedExpression(ParenthesizedExpressionContext ctx) {
+    if (ctx == null) return null;
+    visitExpression(ctx.innermost);
+    return null;
+  }
+
 /*
   @override
   T visitEnumDeclaration(EnumDeclarationContext ctx) {

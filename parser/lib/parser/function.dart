@@ -1,31 +1,31 @@
 part of 'parser.dart';
 
 class FunctionParser {
-  final Parser state;
+  final Parser parser;
 
-  FunctionParser(this.state);
+  FunctionParser(this.parser);
 
   FunctionContext parse({List<Comment> comments}) {
-    FileSpan startSpan = state.peek().span;
+    FileSpan startSpan = parser.peek().span;
 
-    if (state.nextToken(TokenType.fn) == null) return null;
+    if (parser.nextToken(TokenType.fn) == null) return null;
 
-    bool isHidden = state.nextToken(TokenType.hide_) != null;
+    bool isHidden = parser.nextToken(TokenType.hide_) != null;
 
     // TODO constexpr modifier
 
-    SimpleIdentifierContext name = state.parseSimpleIdentifier();
+    SimpleIdentifierContext name = parser.parseSimpleIdentifier();
 
     if (name == null) {
-      state.errors.add(new BonoboError(
+      parser.errors.add(new BonoboError(
           BonoboErrorSeverity.error,
           "Expected function name.",
-          state.peek().span /* TODO What if there is no token? */));
+          parser.peek().span /* TODO What if there is no token? */));
       return null;
     }
 
-    if (state.peek().type == TokenType.identifier) {
-      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+    if (parser.peek().type == TokenType.identifier) {
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Invalid function modifier ${name.name}.", name.span));
       return null;
     }
@@ -35,7 +35,7 @@ class FunctionParser {
     var body = parseBody();
 
     if (body == null) {
-      state.errors.add(new BonoboError(
+      parser.errors.add(new BonoboError(
           BonoboErrorSeverity.error, "Missing function body.", signature.span));
       return null;
     }
@@ -46,7 +46,7 @@ class FunctionParser {
   }
 
   FunctionSignatureContext parseSignature() {
-    Token peek = state.peek();
+    Token peek = parser.peek();
     if (peek == null) return null;
     FileSpan span = peek.span;
 
@@ -56,14 +56,14 @@ class FunctionParser {
       parameterList = parseParameterList();
       if (parameterList == null) return null;
       span = span.expand(parameterList.span);
-      peek = state.peek();
+      peek = parser.peek();
     }
 
     // Return type
     TypeContext returnType;
     if (peek.type == TokenType.colon) {
-      state.consume();
-      returnType = state.typeParser.parse(comments: state.parseComments());
+      parser.consume();
+      returnType = parser.typeParser.parse(comments: parser.parseComments());
       if (returnType == null) return null;
       span = span.expand(returnType.span);
     }
@@ -72,7 +72,7 @@ class FunctionParser {
   }
 
   ParameterListContext parseParameterList() {
-    Token lParen = state.nextToken(TokenType.lParen);
+    Token lParen = parser.nextToken(TokenType.lParen);
     if (lParen == null) return null;
 
     var span = lParen.span, lastSpan = span;
@@ -83,13 +83,13 @@ class FunctionParser {
         parameter = parseParameter()) {
       parameters.add(parameter);
       span = span.expand(lastSpan = parameter.span);
-      if (state.nextToken(TokenType.comma) == null) break;
+      if (parser.nextToken(TokenType.comma) == null) break;
     }
 
-    Token rParen = state.nextToken(TokenType.rParen);
+    Token rParen = parser.nextToken(TokenType.rParen);
 
     if (rParen == null) {
-      state.errors.add(
+      parser.errors.add(
           new BonoboError(BonoboErrorSeverity.error, "Missing ')'.", lastSpan));
       return null;
     }
@@ -100,17 +100,17 @@ class FunctionParser {
   }
 
   ParameterContext parseParameter() {
-    SimpleIdentifierContext id = state.parseSimpleIdentifier();
+    SimpleIdentifierContext id = parser.parseSimpleIdentifier();
     if (id == null) return null;
 
     FileSpan span = id.span;
-    Token colon = state.nextToken(TokenType.colon);
+    Token colon = parser.nextToken(TokenType.colon);
 
     if (colon == null) return new ParameterContext(id, null, span, []);
 
-    TypeContext type = state.typeParser.parse(comments: state.parseComments());
+    TypeContext type = parser.typeParser.parse(comments: parser.parseComments());
     if (type == null) {
-      state.errors.add(new BonoboError(
+      parser.errors.add(new BonoboError(
           BonoboErrorSeverity.error, "Missing type after ':'.", colon.span));
       return null;
     }
@@ -121,24 +121,24 @@ class FunctionParser {
   }
 
   FunctionBodyContext parseBody() {
-    Token decider = state.peek();
+    Token decider = parser.peek();
 
     if (decider.type == TokenType.arrow) return parseLambdaBody();
     if (decider.type == TokenType.lCurly) return parseBlockFunctionBody();
 
-    state.errors.add(new BonoboError(
+    parser.errors.add(new BonoboError(
         BonoboErrorSeverity.error, "Function body expected.", decider.span));
     return null;
   }
 
   ExpressionFunctionBodyContext parseLambdaBody() {
-    Token arrow = state.nextToken(TokenType.arrow);
+    Token arrow = parser.nextToken(TokenType.arrow);
     if (arrow == null) return null;
 
-    var exp = state.parseExpression();
+    var exp = parser.expressionParser.parse(0, comments: parser.parseComments());
 
     if (exp == null) {
-      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Missing expression after '=>'.", arrow.span));
       return null;
     }
@@ -152,24 +152,24 @@ class FunctionParser {
   }
 
   BlockContext parseBlock() {
-    Token lCurly = state.nextToken(TokenType.lCurly);
+    Token lCurly = parser.nextToken(TokenType.lCurly);
     if (lCurly == null) return null;
 
     FileSpan lastSpan = lCurly.span;
 
     var statements = <StatementContext>[];
 
-    for (StatementContext statement = state.parseStatement();
+    for (StatementContext statement = parser.parseStatement();
         statement != null;
-        statement = state.parseStatement()) {
+        statement = parser.parseStatement()) {
       statements.add(statement);
       lastSpan = statement.span;
     }
 
-    Token rCurly = state.consume();
+    Token rCurly = parser.consume();
 
     if (rCurly?.type != TokenType.rCurly) {
-      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Missing '}' in function body.", lastSpan));
       return null;
     }

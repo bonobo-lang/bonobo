@@ -1,30 +1,30 @@
 part of '../parser.dart';
 
 class StatementParser {
-  final Parser state;
+  final Parser parser;
 
-  StatementParser(this.state);
+  StatementParser(this.parser);
 
   StatementContext parse() {
-    List<Comment> comments = state.parseComments();
+    List<Comment> comments = parser.parseComments();
     return variableDeclarationParser.parse() ??
         parseExpressionStatement() ??
         parseReturnStatement(comments);
   }
 
   StatementContext parseExpressionStatement() {
-    ExpressionContext exp = state.parseExpression();
+    ExpressionContext exp = parser.expressionParser.parse(0, comments: parser.parseComments());
     if (exp == null) return null;
 
-    Token peek = state.peek();
+    Token peek = parser.peek();
     if (peek == null) return null;
 
     AssignOperator opEnum = AssignOperator.fromToken(peek.type);
     if (opEnum == null) return new ExpressionStatementContext(exp);
 
     AssignOperatorContext op = new AssignOperatorContext(peek.span, [], opEnum);
-    state.consume();
-    ExpressionContext rhs = state.parseExpression();
+    parser.consume();
+    ExpressionContext rhs = parser.expressionParser.parse(0, comments: parser.parseComments());
     if (rhs == null) return null;
 
     // TODO compound assignment
@@ -34,13 +34,13 @@ class StatementParser {
   }
 
   ReturnStatementContext parseReturnStatement(List<Comment> comments) {
-    Token start = state.nextToken(TokenType.ret);
+    Token start = parser.nextToken(TokenType.ret);
     if (start == null) return null;
 
-    var exp = state.parseExpression();
+    var exp = parser.expressionParser.parse(0, comments: parser.parseComments());
 
     if (exp == null) {
-      state.errors.add(new BonoboError(BonoboErrorSeverity.error,
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
           "Missing expression after keyword 'ret'.", start.span));
       return null;
     }
@@ -52,5 +52,5 @@ class StatementParser {
   VariableDeclarationParser _varDeclParser;
 
   VariableDeclarationParser get variableDeclarationParser =>
-      _varDeclParser ??= new VariableDeclarationParser(state);
+      _varDeclParser ??= new VariableDeclarationParser(parser);
 }
