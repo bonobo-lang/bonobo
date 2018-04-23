@@ -6,6 +6,8 @@ abstract class InfixParser<T extends AstNode> {
 
   int get precedence;
 
+  bool eligible({bool ignoreComma: false});
+
   T parse(Parser parser, T left,
       {List<Comment> comments, bool ignoreComma: false});
 }
@@ -48,11 +50,15 @@ class _TupleExpressionParser implements InfixParser<ExpressionContext> {
   const _TupleExpressionParser(this.precedence);
 
   @override
+  bool eligible({bool ignoreComma: false}) => !ignoreComma;
+
+  @override
   TokenType get leading => TokenType.comma;
 
   @override
   ExpressionContext parse(Parser parser, ExpressionContext left,
       {List<Comment> comments, bool ignoreComma: false}) {
+    if (ignoreComma) return null;
     if (parser.peek()?.type != leading) return null;
 
     var comma = parser.consume(),
@@ -89,6 +95,9 @@ class _BinaryExpressionParser implements InfixParser<ExpressionContext> {
   final int precedence;
 
   const _BinaryExpressionParser(this.leading, this.precedence);
+
+  @override
+  bool eligible({bool ignoreComma: false}) => true;
 
   @override
   ExpressionContext parse(Parser parser, ExpressionContext left,

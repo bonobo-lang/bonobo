@@ -16,7 +16,7 @@ class VariableDeclarationParser {
     while (declaration != null) {
       declarations.add(declaration);
       span = span.expand(declaration.span);
-      if (parser.nextToken(TokenType.comma) == null)
+      if (parser.peek()?.type != TokenType.comma)
         break;
       else {
         var comma = parser.consume().span;
@@ -58,8 +58,9 @@ class VariableDeclarationParser {
   }
 
   Token parseMutabilityToken() {
-    return parser.next(
-        [TokenType.var_, TokenType.const_, TokenType.final_])?.removeFirst();
+    return parser.nextToken(TokenType.const_) ??
+        parser.nextToken(TokenType.final_) ??
+        parser.nextToken(TokenType.var_);
   }
 
   VariableDeclarationContext parseVariableDeclaration(
@@ -96,8 +97,8 @@ class VariableDeclarationParser {
       return null;
     }
 
-    var expression =
-        parser.expressionParser.parse(0, comments: parser.parseComments());
+    var expression = parser.expressionParser
+        .parse(0, comments: parser.parseComments(), ignoreComma: true);
 
     if (expression == null) {
       parser.errors.add(new BonoboError(BonoboErrorSeverity.error,

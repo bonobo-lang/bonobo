@@ -27,6 +27,7 @@ final Map<Pattern, TokenType> normalPatterns = {
   'ret': TokenType.ret,
   'let': TokenType.let,
   'var': TokenType.var_,
+  'final': TokenType.final_,
   'const': TokenType.const_,
   'fn': TokenType.fn,
   'type': TokenType.type,
