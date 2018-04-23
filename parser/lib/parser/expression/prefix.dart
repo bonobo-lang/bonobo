@@ -1,18 +1,18 @@
 part of '../parser.dart';
 
-const List<PrefixParser> prefixParsers = const [
+const List<PrefixParser<ExpressionContext>> prefixParsers = const [
   const _IdentifierParser(),
   const _NumberLiteralParser(),
   const _ParenthesesParser(),
 ];
 
-/// Standalone expressions.
-abstract class PrefixParser {
-  ExpressionContext parse(Parser parser,
+/// Standalone expressions/types.
+abstract class PrefixParser<T> {
+  T parse(Parser parser,
       {List<Comment> comments, bool ignoreComma: false});
 }
 
-class _IdentifierParser implements PrefixParser {
+class _IdentifierParser implements PrefixParser<ExpressionContext> {
   const _IdentifierParser();
 
   @override
@@ -62,7 +62,7 @@ class _IdentifierParser implements PrefixParser {
   }
 }
 
-class _NumberLiteralParser implements PrefixParser {
+class _NumberLiteralParser implements PrefixParser<ExpressionContext> {
   const _NumberLiteralParser();
 
   @override
@@ -81,7 +81,7 @@ class _NumberLiteralParser implements PrefixParser {
   }
 }
 
-class _ParenthesesParser implements PrefixParser {
+class _ParenthesesParser implements PrefixParser<ExpressionContext> {
   const _ParenthesesParser();
 
   @override
