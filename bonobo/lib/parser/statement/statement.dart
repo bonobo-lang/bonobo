@@ -2,8 +2,11 @@ part of '../parser.dart';
 
 class StatementParser {
   final Parser parser;
+  VariableDeclarationParser variableDeclarationParser;
 
-  StatementParser(this.parser);
+  StatementParser(this.parser) {
+    variableDeclarationParser = new VariableDeclarationParser(parser);
+  }
 
   StatementContext parse({List<Comment> comments}) {
     return variableDeclarationParser.parse(comments: comments) ??
@@ -50,9 +53,4 @@ class StatementParser {
     return new ReturnStatementContext(
         start.span.expand(exp.span), comments, exp);
   }
-
-  VariableDeclarationParser _varDeclParser;
-
-  VariableDeclarationParser get variableDeclarationParser =>
-      _varDeclParser ??= new VariableDeclarationParser(parser);
 }
