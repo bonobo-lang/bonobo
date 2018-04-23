@@ -101,6 +101,13 @@ class _ParenthesesParser implements PrefixParser {
       return null;
     }
 
+    // Check for comma.
+    // If so, treat this as a tuple literal.
+    if (parser.peek()?.type == TokenType.comma) {
+      span = span.expand(lastSpan = parser.consume().span);
+      return parseTuple(parser, expression, span, lastSpan, comments);
+    }
+
     var rParen = parser.nextToken(TokenType.rParen)?.span;
     span = span.expand(lastSpan = expression.span);
 
@@ -112,5 +119,31 @@ class _ParenthesesParser implements PrefixParser {
 
     return new ParenthesizedExpressionContext(
         expression, span.expand(rParen), comments ?? []);
+  }
+
+  TupleExpressionContext parseTuple(Parser parser, ExpressionContext left,
+      FileSpan span, FileSpan lastSpan, List<Comment> comments) {
+    var right = parser.expressionParser
+        .parse(0, comments: parser.parseComments(), ignoreComma: false);
+
+    if (right == null) {
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing expression after ','.", lastSpan));
+      return null;
+    }
+
+    span = span.expand(lastSpan = right.span);
+
+    // Either combine two tuples, or make a new tuple.
+    if (right is TupleExpressionContext) {
+      return new TupleExpressionContext(
+          []
+            ..add(left)
+            ..addAll(right.expressions),
+          span,
+          comments ?? []);
+    }
+
+    return new TupleExpressionContext([left, right], span, comments ?? []);
   }
 }
