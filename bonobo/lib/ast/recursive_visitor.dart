@@ -161,7 +161,7 @@ class BonoboRecursiveAstVisitor<T> extends BonoboAstVisitor<T> {
   T visitVariableDeclaration(VariableDeclarationContext ctx) {
     if (ctx == null) return null;
     visitSimpleIdentifier(ctx.name);
-    visitExpression(ctx.initializer);
+    visitExpression(ctx.expression);
     return null;
   }
 

@@ -36,7 +36,7 @@ class ExploreCommand extends Command {
       if (errors.isNotEmpty) continue;
 
       var parser = new Parser(scanner);
-      var parsed = parser.parseFunction() ??
+      var parsed = parser.functionParser.parse() ??
           parser.statementParser.variableDeclarationParser.parse() ??
           parser.statementParser.parseExpressionStatement() ??
           parser.parseSimpleIdentifier();
@@ -78,7 +78,7 @@ class ExploreCommand extends Command {
       if (parsed is VariableDeclarationStatementContext) {
         for (var decl in parsed.declarations) {
           var expr = await analyzer.expressionAnalyzer
-              .resolve(decl.initializer, null, analyzer.module.scope);
+              .resolve(decl.expression, null, analyzer.module.scope);
           analyzer.module.scope.create(decl.name.name,
               value: expr,
               constant: parsed.mutability >= VariableMutability.final_);

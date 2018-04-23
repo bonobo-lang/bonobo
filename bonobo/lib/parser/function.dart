@@ -159,9 +159,9 @@ class FunctionParser {
 
     var statements = <StatementContext>[];
 
-    for (StatementContext statement = parser.parseStatement();
+    for (StatementContext statement = parser.statementParser.parse(comments: parser.parseComments());
         statement != null;
-        statement = parser.parseStatement()) {
+        statement = parser.statementParser.parse(comments: parser.parseComments())) {
       statements.add(statement);
       lastSpan = statement.span;
     }

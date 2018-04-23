@@ -29,7 +29,19 @@ CompilationUnitContext parseCompilationUnit(Scanner scanner) =>
     new Parser(scanner).parseCompilationUnit();
 
 class Parser extends BaseParser {
-  Parser(Scanner scanner) : super(scanner);
+  ExpressionParser expressionParser;
+  FunctionParser functionParser;
+  StatementParser statementParser;
+  TypeParser typeParser;
+  TypedefParser typedefParser;
+
+  Parser(Scanner scanner) : super(scanner) {
+    expressionParser = new ExpressionParser(this);
+    functionParser = new FunctionParser(this);
+    statementParser = new StatementParser(this);
+    typeParser = new TypeParser(this);
+    typedefParser = new TypedefParser(this);
+  }
 
   CompilationUnitContext parseCompilationUnit() {
     // TODO reset?
@@ -46,17 +58,17 @@ class Parser extends BaseParser {
       Token t = peek();
       switch (t.type) {
         case TokenType.fn:
-          FunctionContext f = parseFunction(comments: comments);
-          if (f != null) {
-            functions.add(f);
-            lastSpan = f.span;
+          var ctx = functionParser.parse(comments: comments);
+          if (ctx != null) {
+            functions.add(ctx);
+            lastSpan = ctx.span;
           }
           break;
         case TokenType.type:
-          var typedef_ = typedefParser.parse(comments: comments);
-          if (typedef_ != null) {
-            typedefs.add(typedef_);
-            lastSpan = typedef_.span;
+          var ctx = typedefParser.parse(comments: comments);
+          if (ctx != null) {
+            typedefs.add(ctx);
+            lastSpan = ctx.span;
           }
           break;
         /*case TokenType.type:
@@ -92,19 +104,15 @@ class Parser extends BaseParser {
         */
   }
 
-  FunctionContext parseFunction({List<Comment> comments}) {
-    // TODO comments
-    return functionParser.parse();
-  }
-
-  StatementContext parseStatement() => statementParser.parse();
-
   /// Parses function name
   SimpleIdentifierContext parseSimpleIdentifier() {
     if (peek()?.type == TokenType.identifier)
       return new SimpleIdentifierContext(consume().span, []);
     return null;
   }
+
+  IdentifierContext parseIdentifier({List<Comment> comments}) =>
+      const _IdentifierParser().parse(this, comments: comments);
 
   /*
   TypeDeclarationParser _typeDeclarationParser;
@@ -117,29 +125,4 @@ class Parser extends BaseParser {
   EnumDeclarationParser get enumDeclarationParser =>
       _enumDeclarationParser ??= new EnumDeclarationParser(this);
     */
-
-  FunctionParser _funcParser;
-
-  FunctionParser get functionParser => _funcParser ??= new FunctionParser(this);
-
-  ExpressionParser _expParser;
-
-  ExpressionParser get expressionParser =>
-      _expParser ??= new ExpressionParser(this);
-
-  StatementParser _statParser;
-
-  StatementParser get statementParser =>
-      _statParser ??= new StatementParser(this);
-
-  TypeParser _typeParser;
-
-  TypeParser get typeParser => _typeParser ??= new TypeParser(this);
-
-  TypedefParser _typedefParser;
-
-  TypedefParser get typedefParser => _typedefParser ??= new TypedefParser(this);
-
-  IdentifierContext parseIdentifier({List<Comment> comments}) =>
-      const _IdentifierParser().parse(this, comments: comments);
 }

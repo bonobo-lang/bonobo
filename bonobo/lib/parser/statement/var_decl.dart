@@ -5,92 +5,97 @@ class VariableDeclarationParser {
 
   VariableDeclarationParser(this.parser);
 
-  VariableDeclarationStatementContext parse({VariableMutability mut}) {
-    List<Comment> comments = parser.parseComments();
+  VariableDeclarationStatementContext parse({List<Comment> comments}) {
+    var mutability = parseMutabilityToken(), span = mutability?.span;
+    if (mutability == null) return null;
 
-    Token what;
-    if (mut == null) {
-      what = parser.next(
-          [TokenType.const_, TokenType.let, TokenType.var_])?.removeFirst();
-      if (what == null) return null;
-      mut = what.type == TokenType.const_
-          ? VariableMutability.const_
-          : what.type == TokenType.let
-              ? VariableMutability.final_
-              : VariableMutability.var_;
-    } else {
-      what = parser.peek();
-    }
+    var declarations = <VariableDeclarationContext>[],
+        declaration =
+            parseVariableDeclaration(comments: parser.parseComments());
 
-    var declarations = <VariableDeclarationContext>[];
-
-    for (VariableDeclarationContext declaration = parseADecl();
-        declaration != null;
-        declaration = parseADecl()) {
+    while (declaration != null) {
       declarations.add(declaration);
-      if (parser.nextToken(TokenType.comma) == null) break;
+      span = span.expand(declaration.span);
+      if (parser.nextToken(TokenType.comma) == null)
+        break;
+      else {
+        var comma = parser.consume().span;
+        span = span.expand(comma);
+        declaration =
+            parseVariableDeclaration(comments: parser.parseComments());
+
+        if (declaration == null) {
+          parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
+              "Expected a variable declaration after ','.", comma));
+          break;
+        }
+      }
     }
 
     if (declarations.isEmpty) {
       parser.errors.add(new BonoboError(
-          BonoboErrorSeverity.error, 'Expected an identifier.', what.span));
+          BonoboErrorSeverity.error,
+          "Expected an identifier after keyword '${mutability.span.text}'.",
+          mutability.span));
       return null;
     }
 
-    var declarationSpan = what.span.expand(declarations.last.span);
+    var declarationSpan = span;
+
     var context = <StatementContext>[];
-    var statement = parser.parseStatement();
-    var span = declarationSpan;
+    var statement =
+        parser.statementParser.parse(comments: parser.parseComments());
 
     while (statement != null) {
       span = span.expand(statement.span);
       context.add(statement);
-      statement = parser.parseStatement();
+      statement =
+          parser.statementParser.parse(comments: parser.parseComments());
     }
 
     return new VariableDeclarationStatementContext(
-        mut, declarations, declarationSpan, context, span, comments);
+        mutability, declarations, declarationSpan, context, span, comments);
   }
 
-  VariableDeclarationContext parseADecl() {
-    var comments = parser.parseComments();
+  Token parseMutabilityToken() {
+    return parser.next(
+        [TokenType.var_, TokenType.const_, TokenType.final_])?.removeFirst();
+  }
+
+  VariableDeclarationContext parseVariableDeclaration(
+      {List<Comment> comments}) {
     var name = parser.parseSimpleIdentifier(),
-        span = name?.span,
-        lastSpan = span;
+        span = name?.span;
     if (name == null) return null;
 
-    /*
-    // Variable type
+    // Type annotation is optional
     TypeContext type;
-    if (state.peek().type == TokenType.colon) {
-      state.consume();
-      type = state.typeParser
-          .parse(comments: state.parseComments(), ignoreComma: true);
-      // TODO error message
-      if (type == null) return null;
-      span = span.expand(lastSpan = type.span);
-    }*/
 
-    ExpressionContext expression;
-    /*if (state.nextToken(TokenType.assign) == null) {
-      if (type == null) {
-        state.errors.add(new BonoboError(
+    if (parser.peek()?.type == TokenType.colon) {
+      var colon = parser.consume().span;
+
+      if ((type = parser.typeParser
+              .parse(ignoreComma: true, comments: parser.parseComments())) ==
+          null) {
+        parser.errors.add(new BonoboError(
             BonoboErrorSeverity.error,
-            "Variable declaration requires type annotation or initialization.",
-            name.span));
+            "Missing type annotation after ':' in variable declaration.",
+            colon));
         return null;
       }
-    } else {*/
-    expression = parser.expressionParser.parse(0, comments: parser.parseComments());
+    }
+
+    var expression =
+        parser.expressionParser.parse(0, comments: parser.parseComments());
 
     if (expression == null) {
-      parser.errors.add(new BonoboError(
-          BonoboErrorSeverity.error, "Missing initialization.", name.span));
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing expression in variable declaration.", name.span));
       return null;
     }
     span = span.expand(lastSpan = expression.span);
-    //}
 
-    return new VariableDeclarationContext(name, expression, span, comments);
+    return new VariableDeclarationContext(
+        name, type, expression, span, comments ?? []);
   }
 }

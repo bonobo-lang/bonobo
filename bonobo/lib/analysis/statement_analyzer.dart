@@ -76,7 +76,7 @@ class StatementAnalyzer {
             childScope.create(
               decl.name.name,
               value: await analyzer.expressionAnalyzer
-                  .resolve(decl.initializer, function, childScope),
+                  .resolve(decl.expression, function, childScope),
               constant: stmt.mutability >= VariableMutability.final_,
             );
           } on StateError catch (e) {

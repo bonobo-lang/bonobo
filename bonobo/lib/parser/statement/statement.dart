@@ -5,15 +5,15 @@ class StatementParser {
 
   StatementParser(this.parser);
 
-  StatementContext parse() {
-    List<Comment> comments = parser.parseComments();
-    return variableDeclarationParser.parse() ??
-        parseExpressionStatement() ??
+  StatementContext parse({List<Comment> comments}) {
+    return variableDeclarationParser.parse(comments: comments) ??
+        parseExpressionStatement(comments: comments) ??
         parseReturnStatement(comments);
   }
 
-  StatementContext parseExpressionStatement() {
-    ExpressionContext exp = parser.expressionParser.parse(0, comments: parser.parseComments());
+  StatementContext parseExpressionStatement({List<Comment> comments}) {
+    ExpressionContext exp =
+        parser.expressionParser.parse(0, comments: comments);
     if (exp == null) return null;
 
     Token peek = parser.peek();
@@ -24,7 +24,8 @@ class StatementParser {
 
     AssignOperatorContext op = new AssignOperatorContext(peek.span, [], opEnum);
     parser.consume();
-    ExpressionContext rhs = parser.expressionParser.parse(0, comments: parser.parseComments());
+    ExpressionContext rhs =
+        parser.expressionParser.parse(0, comments: parser.parseComments());
     if (rhs == null) return null;
 
     // TODO compound assignment
@@ -37,7 +38,8 @@ class StatementParser {
     Token start = parser.nextToken(TokenType.ret);
     if (start == null) return null;
 
-    var exp = parser.expressionParser.parse(0, comments: parser.parseComments());
+    var exp =
+        parser.expressionParser.parse(0, comments: parser.parseComments());
 
     if (exp == null) {
       parser.errors.add(new BonoboError(BonoboErrorSeverity.error,

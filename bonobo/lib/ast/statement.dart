@@ -140,7 +140,7 @@ class VariableMutability {
 }
 
 class VariableDeclarationStatementContext extends StatementContext {
-  final VariableMutability mutability;
+  final Token mutability;
   final List<VariableDeclarationContext> declarations;
   final List<StatementContext> context;
   final FileSpan declarationSpan;
@@ -151,6 +151,12 @@ class VariableDeclarationStatementContext extends StatementContext {
       this.declarationSpan, this.context, FileSpan span, List<Comment> comments)
       : super(span, comments);
 
+  bool get isConst => mutability.type == TokenType.const_;
+
+  bool get isFinal => mutability.type == TokenType.final_;
+
+  bool get isImmutable => isConst | isFinal;
+
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) =>
       visitor.visitVariableDeclarationStatement(this);
@@ -158,20 +164,18 @@ class VariableDeclarationStatementContext extends StatementContext {
 
 class VariableDeclarationContext extends AstNode {
   final SimpleIdentifierContext name;
-  //final TypeContext type;
-  final ExpressionContext initializer;
+  final TypeContext type;
+  final ExpressionContext expression;
 
-  VariableDeclarationContext(this.name, this.initializer,
-      FileSpan span, List<Comment> comments)
+  VariableDeclarationContext(
+      this.name, this.type, this.expression, FileSpan span, List<Comment> comments)
       : super(span, comments);
-
-  //bool get isImmutable => mutability >= VariableMutability.final_;
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) =>
       visitor.visitVariableDeclaration(this);
 
-  /*
+/*
   String toString() {
     var sb = new StringBuffer();
     sb.write(name);

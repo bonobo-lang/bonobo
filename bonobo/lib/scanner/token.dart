@@ -114,6 +114,7 @@ enum TokenType {
   enum_,
   let,
   var_,
+  final_,
   const_,
   fn,
   lambda,
