@@ -5,6 +5,37 @@ class FunctionAnalyzer {
 
   FunctionAnalyzer(this.analyzer);
 
+  BonoboFunction preliminaryAnalyzeFunction(FunctionContext ctx) {
+    var function = new BonoboFunction(
+        ctx.name.name, analyzer.module.scope.createChild(), ctx, analyzer.module);
+    function.usages
+        .add(new SymbolUsage(SymbolUsageType.declaration, ctx.name.span));
+
+    var symbol =
+    analyzer.module.scope.create(ctx.name.name, value: function, constant: true);
+
+    if (ctx.isHidden) {
+      symbol.visibility = Visibility.private;
+    } else {
+      symbol.visibility = Visibility.public;
+    }
+
+    if (ctx.signature.parameterList != null) {
+      // Create parameters, without types
+      for (var p in ctx.signature.parameterList.parameters) {
+        function.parameters
+            .add(new BonoboFunctionParameter(p.name.name, p.span));
+      }
+
+      // Add the names of every parameter
+      for (var p in function.parameters) {
+        function.scope.create(p.name);
+      }
+    }
+
+    return function;
+  }
+
   Future populateFunctionSignature(BonoboFunction function) async {
     for (int i = 0; i < function.parameters.length; i++) {
       var p = function.parameters[i];

@@ -80,33 +80,7 @@ class BonoboAnalyzer {
     // Get the names of all functions
     for (var ctx in compilationUnit.functions) {
       try {
-        var function = new BonoboFunction(
-            ctx.name.name, module.scope.createChild(), ctx, module);
-        functions.add(function);
-        function.usages
-            .add(new SymbolUsage(SymbolUsageType.declaration, ctx.name.span));
-
-        var symbol =
-            module.scope.create(ctx.name.name, value: function, constant: true);
-
-        if (ctx.isHidden) {
-          symbol.visibility = Visibility.private;
-        } else {
-          symbol.visibility = Visibility.public;
-        }
-
-        if (ctx.signature.parameterList != null) {
-          // Create parameters, without types
-          for (var p in ctx.signature.parameterList.parameters) {
-            function.parameters
-                .add(new BonoboFunctionParameter(p.name.name, p.span));
-          }
-
-          // Add the names of every parameter
-          for (var p in function.parameters) {
-            function.scope.create(p.name);
-          }
-        }
+        functions.add(functionAnalyzer.preliminaryAnalyzeFunction(ctx));
       } on StateError catch (e) {
         errors.add(
             new BonoboError(BonoboErrorSeverity.error, e.message, ctx.span));
