@@ -4,7 +4,7 @@
 
 bvm::Object *bvm::parseBinary(std::istream &stream) {
     // The first 96 bits should be:
-    // * The magic number: 0xB090BO ("Bonobo")
+    // * The magic number: 0xB090B0 ("Bonobo")
     // * An arbitrary 32-bit number
     // * A checksum: (magic % arbitrary) >> 2
     //
@@ -18,7 +18,7 @@ bvm::Object *bvm::parseBinary(std::istream &stream) {
         return nullptr;
 
     // Verify the checksum.
-    if (checksum != ((magic % arbitrary) >> 2))
+    if (magic != 0xB090B0 || checksum != ((magic % arbitrary) >> 2))
         return nullptr;
 
     // Next, we expect:

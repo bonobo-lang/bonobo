@@ -21,6 +21,8 @@ class BinarySink extends StringSink {
 
   ByteData get byteData => _byteData ??= new ByteData.view(_list.buffer);
 
+  int get index => _index;
+
   @override
   void writeCharCode(int charCode) => addUint8(charCode);
 
