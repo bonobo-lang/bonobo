@@ -7,7 +7,7 @@ namespace bvm {
         char* parameters;
         char returnType;
         int number_of_parameters;
-    } FunctionSpec;
+    } Function;
 }
 
 #endif

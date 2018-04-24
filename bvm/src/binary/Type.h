@@ -5,7 +5,7 @@ namespace bvm {
     typedef struct {
         const char* name;
         int size;
-    } TypeSpec;
+    } Type;
 }
 
 #endif

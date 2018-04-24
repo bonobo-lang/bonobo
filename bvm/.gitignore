@@ -6,3 +6,8 @@ CMakeCache.txt
 *.check_cache
 CMakeFiles/
 cmake-build-debug
+*.a
+*.so
+*.dll
+*.o
+*.out

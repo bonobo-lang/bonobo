@@ -6,7 +6,7 @@ namespace bvm {
     public:
       const char* name;
       unsigned int size;
-  } ConstantSpec;
+  } Constant;
 }
 
 #endif

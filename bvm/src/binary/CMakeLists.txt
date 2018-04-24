@@ -1,8 +1,10 @@
 add_library(bvm_binary
     binary.h
-    BVMExecutable.h
-    ConstantSpec.h
-    FunctionSpec.h
+    Constant.h
+    Function.h
+    Object.h
     Opcode.h
-    TypeSpec.h
+    Type.h
+    parse_binary.h
+    parse_binary.cc
 )
