@@ -16,7 +16,7 @@ class BVMCompiler implements BonoboCompiler<Uint8List> {
     // Then the "checksum": (magic % arbitrary) >> 2
     var magic = 0xB090B0, arbitrary = 1337, checksum = (magic % arbitrary) >> 2;
     sink
-      ..addInt16(magic)
+      ..addInt32(magic)
       ..addInt32(arbitrary)
       ..addInt32(checksum);
 
