@@ -71,6 +71,13 @@ class Parser extends BaseParser {
             lastSpan = ctx.span;
           }
           break;
+        case TokenType.enum_:
+          var ctx = typedefParser.parseSugaredEnum(comments: comments);
+          if (ctx != null) {
+            typedefs.add(ctx);
+            lastSpan = ctx.span;
+          }
+          break;
         /*case TokenType.type:
           TypeDeclarationContext c = parseTypeDeclaration();
           if (c != null) {
