@@ -9,6 +9,11 @@ void main() {
     expect(id.name, 'foo');
   });
 
+  test('as expression', () {
+    var id = parse('foo').expressionParser.parse(0);
+    expect(id, isIdentifier('foo'));
+  });
+
   test('namespaced identifier', () {
     var id = parse('foo::bar::baz').parseIdentifier();
     expect(id, const isInstanceOf<NamespacedIdentifierContext>());

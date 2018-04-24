@@ -69,8 +69,8 @@ class _CallExpressionParser implements InfixParser<ExpressionContext> {
     FileSpan lastSpan = lParen, span = left.span.expand(lastSpan), exprSpan;
     var expressions = <ExpressionContext>[];
 
-    var expression =
-        parser.expressionParser.parse(0, comments: parser.parseComments());
+    var expression = parser.expressionParser
+        .parse(0, comments: parser.parseComments(), ignoreComma: true);
 
     while (expression != null) {
       expressions.add(expression);

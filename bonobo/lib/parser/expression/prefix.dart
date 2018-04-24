@@ -62,6 +62,8 @@ class _IdentifierParser implements PrefixParser<ExpressionContext> {
           comments ?? []);
     }
 
+    return out;
+
     /*
     // Potentially parse a call to a plain tuple
     var arguments = parser.lookAhead(() {
