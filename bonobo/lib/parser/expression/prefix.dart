@@ -62,10 +62,11 @@ class _IdentifierParser implements PrefixParser<ExpressionContext> {
           comments ?? []);
     }
 
+    /*
     // Potentially parse a call to a plain tuple
     var arguments = parser.lookAhead(() {
-      var exp =
-          parser.expressionParser.parse(0, comments: parser.parseComments());
+      var exp = parser.expressionParser
+          .parse(0, comments: parser.parseComments(), ignoreComma: ignoreComma);
       return exp is TupleExpressionContext ? exp : null;
     })?.innermost;
 
@@ -73,6 +74,7 @@ class _IdentifierParser implements PrefixParser<ExpressionContext> {
 
     return new CallExpressionContext(
         out, arguments, out.span.expand(arguments.span), comments ?? []);
+        */
   }
 }
 
