@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(bvm)
+set(${CMAKE_ARCHIVE_OUTPUT_DIRECTORY} "${CMAKE_CURRENT_LIST_DIR}/bin")
+set(${CMAKE_RUNTIME_OUTPUT_DIRECTORY} "${CMAKE_CURRENT_LIST_DIR}/bin")
 add_subdirectory(src)
 add_subdirectory(test)

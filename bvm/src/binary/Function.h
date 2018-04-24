@@ -9,7 +9,7 @@ namespace bvm {
         uint8_t* parameters;
         char returnType;
         int64_t number_of_parameters, number_of_instructions;
-        Opcode* instructions;
+        uint8_t * instructions;
         struct Function* next = nullptr;
     } Function;
 }

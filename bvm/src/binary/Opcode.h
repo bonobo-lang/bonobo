@@ -1,36 +1,47 @@
 #ifndef BVM_OPCODE_H
 #define BVM_OPCODE_H
+
 #include <stdint.h>
 
-namespace bvm {
-  enum class Opcode: uint8_t {
-    // Memory
-    NEW,
+namespace bvm
+{
+    enum class Opcode : uint8_t
+    {
+        // Constants
+                CONSTANT8,
+        CONSTANT16,
+        CONSTANT32,
+        CONSTANT64,
+        CONSTANT128,
 
-    // Stack
-    PUSH,
-    POP,
+        // Memory
+                GET_CONSTANT,
+        NEW,
 
-    // Math
-    POW,
-    MUL,
-    DIV,
-    MOD,
-    ADD,
-    SUB,
+        // Stack
+                PUSH,
+        POP,
 
-    // Control flow
-    IF,
-    ELIF,
-    ELSE,
-    CALL,
-    RET,
-    JMP,
+        // Math
+                POW,
+        MUL,
+        DIV,
+        MOD,
+        ADD,
+        SUB,
 
-    // Debugging, etc.
-    THROW,
-    SOURCE
-  };
+        // Control flow
+                IF,
+        ELIF,
+        ELSE,
+        CALL,
+        RET,
+        JMP,
+
+        // Debugging, etc.
+                THROW,
+        SOURCE
+    };
 }
 
 #endif

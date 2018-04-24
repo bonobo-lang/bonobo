@@ -1,4 +1,6 @@
-language: dart
+language:
+  - dart
+  - cpp
 dart:
   - dev
 script: bash -x ./travis.sh

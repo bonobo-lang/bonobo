@@ -11,3 +11,5 @@ cmake-build-debug
 *.dll
 *.o
 *.out
+Makefile
+*.cbp
