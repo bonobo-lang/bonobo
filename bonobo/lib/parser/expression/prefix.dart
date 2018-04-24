@@ -46,19 +46,33 @@ class _IdentifierParser implements PrefixParser<ExpressionContext> {
       }
     }
 
+    IdentifierContext out;
+
     if (identifiers.length == 1) {
-      return new SimpleIdentifierContext(span, comments ?? []);
+      out = new SimpleIdentifierContext(span, comments ?? []);
+    } else {
+      var parts = identifiers
+          .take(identifiers.length - 1)
+          .map((t) => new SimpleIdentifierContext(t.span, []))
+          .toList();
+      out = new NamespacedIdentifierContext(
+          parts,
+          new SimpleIdentifierContext(identifiers.last.span, []),
+          span,
+          comments ?? []);
     }
 
-    var parts = identifiers
-        .take(identifiers.length - 1)
-        .map((t) => new SimpleIdentifierContext(t.span, []))
-        .toList();
-    return new NamespacedIdentifierContext(
-        parts,
-        new SimpleIdentifierContext(identifiers.last.span, []),
-        span,
-        comments ?? []);
+    // Potentially parse a call to a plain tuple
+    var arguments = parser.lookAhead(() {
+      var exp =
+          parser.expressionParser.parse(0, comments: parser.parseComments());
+      return exp is TupleExpressionContext ? exp : null;
+    })?.innermost;
+
+    if (arguments == null) return out;
+
+    return new CallExpressionContext(
+        out, arguments, out.span.expand(arguments.span), comments ?? []);
   }
 }
 
