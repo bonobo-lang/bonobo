@@ -13,3 +13,5 @@ cmake-build-debug
 *.out
 Makefile
 *.cbp
+.vscode
+Testing/
