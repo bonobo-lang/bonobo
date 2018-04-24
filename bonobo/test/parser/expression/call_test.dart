@@ -1,5 +1,4 @@
 import 'package:bonobo/ast/ast.dart';
-import 'package:bonobo/parser/parser.dart';
 import 'package:test/test.dart';
 import '../util.dart';
 

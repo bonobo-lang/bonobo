@@ -56,6 +56,7 @@ class Scanner {
   ScannerState scanNormalToken() {
     var tokens = <Token>[];
 
+    if (scanner.matches('/*')) return ScannerState.multiLineComment;
     if (scanner.scan(whitespace) && scanner.isDone) return ScannerState.normal;
 
     normalPatterns.forEach((pattern, type) {
@@ -109,6 +110,7 @@ class Scanner {
         members.add(new NestedMultiLineComment(_scanMultilineComment()));
       } else {
         textStart ??= scanner.state;
+        scanner.readChar();
       }
     }
 

@@ -85,5 +85,5 @@ class NestedMultiLineComment extends MultiLineCommentMember {
   FileSpan get span => comment.span;
 
   @override
-  String get text => comment.toString();
+  String get text => comment.text;
 }
