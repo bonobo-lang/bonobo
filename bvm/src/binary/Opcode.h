@@ -1,10 +1,11 @@
 #ifndef BVM_OPCODE_H
 #define BVM_OPCODE_H
+#include <stdint.h>
 
 namespace bvm {
-  enum Opcode {
+  enum class Opcode: uint8_t {
     // Memory
-    NEW ,
+    NEW,
 
     // Stack
     PUSH,
@@ -19,9 +20,12 @@ namespace bvm {
     SUB,
 
     // Control flow
-    IF
+    IF,
     ELIF,
     ELSE,
+    CALL,
+    RET,
+    JMP,
 
     // Debugging, etc.
     THROW,

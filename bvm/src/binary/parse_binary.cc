@@ -77,7 +77,7 @@ bvm::Object *bvm::parseBinary(std::istream &stream)
         // Parse instructions.
         stream.read((char*) &len, sizeof(len));
         function->number_of_instructions = len;
-        function->instructions = new uint8_t[len];
+        function->instructions = new Opcode[len];
         stream.read((char*)function->instructions, len);
     }
 

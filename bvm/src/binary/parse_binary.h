@@ -2,6 +2,7 @@
 #define BVM_BVMBINARYREADER_H
 #include <istream>
 #include "Object.h"
+#include "Opcode.h"
 
 namespace bvm {
     /**
