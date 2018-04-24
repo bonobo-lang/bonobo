@@ -38,6 +38,21 @@ class Scanner {
     }
   }
 
+  void scan() {
+    while (!scanner.isDone) {
+      switch (state) {
+        case ScannerState.normal:
+          state = scanNormalToken();
+          break;
+        case ScannerState.multiLineComment:
+          state = scanMultiLineComment();
+          break;
+      }
+    }
+
+    flush();
+  }
+
   ScannerState scanNormalToken() {
     var tokens = <Token>[];
 
@@ -65,20 +80,14 @@ class Scanner {
     return ScannerState.normal;
   }
 
-  void scan() {
-    while (!scanner.isDone) {
-      switch (state) {
-        case ScannerState.normal:
-          state = scanNormalToken();
-          break;
-      }
-    }
+  ScannerState scanMultiLineComment() {
+    if (!scanner.scan('/*')) {
 
-    flush();
+    }
   }
 }
 
-enum ScannerState { normal }
+enum ScannerState { normal, multiLineComment }
 
 class BonoboError implements Exception {
   final BonoboErrorSeverity severity;
