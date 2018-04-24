@@ -2,9 +2,10 @@
 #define BVM_TYPESPEC_H
 
 namespace bvm {
-    typedef struct {
+    typedef struct Type {
         const char* name;
         uint8_t size;
+        struct Type* next = nullptr;
     } Type;
 }
 

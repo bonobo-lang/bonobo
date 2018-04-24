@@ -30,38 +30,40 @@ bvm::Object *bvm::parseBinary(std::istream &stream)
     stream.read((char*) &object->number_of_types, sizeof(int64_t));
     stream.read((char*) &object->number_of_functions, sizeof(int64_t));
 
-    object->constants = new bvm::Constant*[object->number_of_constants];
-    object->types = new bvm::Type*[object->number_of_types];
-    object->functions = new bvm::Function*[object->number_of_functions];
-
     // Parse constants.
+    Constant* constant;
+
     for (int64_t i = 0; i < object->number_of_constants; i++) {
         int64_t len;
         uint8_t size;
         stream.read((char*) &len, sizeof(len));
         stream.read((char*) &size, sizeof(size));
         auto *name = new char[len];
-        auto *constant = object->constants[i] = new bvm::Constant;
-        constant->name = name;
-        constant->size = size;
+        auto *newConstant = new bvm::Constant;
+        newConstant->name = name;
+        newConstant->size = size;
+        constant = object->constants == nullptr ? constant = newConstant : constant->next = newConstant;
     }
 
     // Parse types.
+    Type* type;
     for (int64_t i = 0; i < object->number_of_types; i++) {
         int64_t len;
         uint8_t size;
         stream.read((char*) &len, sizeof(len));
         stream.read((char*) &size, sizeof(size));
         auto *name = new char[len];
-        auto *type = object->types[i] = new bvm::Type;
-        type->name = name;
-        type->size = size;
+        auto *newType = new bvm::Type;
+        newType->name = name;
+        newType->size = size;
+        type = object->types == nullptr ? type = newType : type->next = newType;
     }
 
     // Parse functions.
+    Function *function;
     for (int64_t i = 0; i < object->number_of_functions; i++) {
         uint64_t len;
-        auto *function = object->functions[i] = new Function;
+        auto *newFunction = new Function;
 
         // Parse name.
         stream.read((char*) &len, sizeof(len));
@@ -79,6 +81,7 @@ bvm::Object *bvm::parseBinary(std::istream &stream)
         function->number_of_instructions = len;
         function->instructions = new Opcode[len];
         stream.read((char*)function->instructions, len);
+        function = object->functions == nullptr ? function = newFunction : function->next = newFunction;
     }
 
     return nullptr;
