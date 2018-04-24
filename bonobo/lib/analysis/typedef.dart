@@ -6,9 +6,10 @@ class BonoboTypedef extends BonoboType {
 
   final FileSpan span;
 
+  String _documentation;
   BonoboType _type;
 
-  BonoboTypedef(this.name, this.span);
+  BonoboTypedef(this.name, this._documentation, this.span);
 
   BonoboType get type => _type ?? BonoboType.Root;
 
@@ -26,7 +27,7 @@ class BonoboTypedef extends BonoboType {
   BonoboType get parent => type.parent;
 
   @override
-  String get documentation => type.documentation;
+  String get documentation => _documentation ?? type.documentation;
 
   @override
   BonoboType postfixOp(Token operator, BonoboAnalyzer analyzer) {

@@ -34,13 +34,16 @@ abstract class Comment extends Token {
   Comment(FileSpan span, Match match) : super(TokenType.comment, span, match);
 
   String get text;
+
+  @override
+  String toString() => text;
 }
 
 class SingleLineComment extends Comment {
   SingleLineComment(FileSpan span) : super(span, null);
 
   @override
-  String get text => span.text.substring(2).trim();
+  String get text => MultiLineComment.stripStars(span.text.substring(2)).trim();
 }
 
 class MultiLineComment extends Comment {

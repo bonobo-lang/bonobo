@@ -40,7 +40,9 @@ class BonoboFunction extends BonoboObject {
 
   String get documentation {
     if (declaration == null) return '';
-    return declaration.comments.map((c) => c.text).join('\n');
+    if (declaration.comments.isNotEmpty)
+      return declaration.comments.map((c) => c.text).join('\n');
+    return type.signature;
   }
 }
 

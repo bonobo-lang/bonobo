@@ -41,7 +41,7 @@ class FunctionParser {
     }
 
     return new FunctionContext(
-        name, signature, body, startSpan.expand(body.span), comments,
+        name, signature, body, startSpan.expand(body.span), comments ?? [],
         isHidden: isHidden);
   }
 

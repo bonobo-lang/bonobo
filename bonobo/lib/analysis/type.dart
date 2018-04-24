@@ -10,7 +10,7 @@ abstract class BonoboType {
   static final BonoboType String$ = new _BonoboStringType();
   final List<SymbolUsage> usages = [];
 
-  String get documentation => null;
+  String get documentation => '';
 
   FileSpan get span => null;
 
