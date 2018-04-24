@@ -44,14 +44,11 @@ class SingleLineComment extends Comment {
 }
 
 class MultiLineComment extends Comment {
-  final List<MultiLineComment> children;
-  String openingText, closingText;
-
-  MultiLineComment(
-      this.openingText, this.closingText, this.children, FileSpan span)
-      : super(span, null);
+  final List<MultiLineCommentMember> members;
 
   static final RegExp _star = new RegExp(r'^\*');
+
+  MultiLineComment(this.members, FileSpan span) : super(span, null);
 
   static String stripStars(String s) {
     var lines = s.split('\n').where((s) => s.isNotEmpty);
@@ -60,9 +57,33 @@ class MultiLineComment extends Comment {
 
   @override
   String get text {
-    var b = new StringBuffer()..writeln(stripStars(openingText));
-    children.forEach((c) => b.writeln(b.toString().trim()));
-    b.writeln(stripStars(closingText));
-    return b.toString().trim();
+    return members.map((m) => m.text.trim()).join('\n').trim();
   }
+}
+
+abstract class MultiLineCommentMember {
+  FileSpan get span;
+
+  String get text;
+}
+
+class MultiLineCommentText extends MultiLineCommentMember {
+  final FileSpan span;
+
+  MultiLineCommentText(this.span);
+
+  @override
+  String get text => MultiLineComment.stripStars(span.text);
+}
+
+class NestedMultiLineComment extends MultiLineCommentMember {
+  final MultiLineComment comment;
+
+  NestedMultiLineComment(this.comment);
+
+  @override
+  FileSpan get span => comment.span;
+
+  @override
+  String get text => comment.toString();
 }

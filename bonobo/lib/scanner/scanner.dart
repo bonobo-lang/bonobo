@@ -81,9 +81,39 @@ class Scanner {
   }
 
   ScannerState scanMultiLineComment() {
-    if (!scanner.scan('/*')) {
+    if (!scanner.matches('/*')) return ScannerState.normal;
+    tokens.add(_scanMultilineComment());
+    return ScannerState.normal;
+  }
 
+  MultiLineComment _scanMultilineComment() {
+    scanner.scan('/*');
+    var span = scanner.lastSpan;
+    var members = <MultiLineCommentMember>[];
+    LineScannerState textStart;
+
+    void flush() {
+      if (textStart != null) {
+        members.add(new MultiLineCommentText(scanner.spanFrom(textStart)));
+        textStart = null;
+      }
     }
+
+    while (!scanner.isDone) {
+      if (scanner.matches('*/')) {
+        flush();
+        scanner.scan('*/');
+        break;
+      } else if (scanner.matches('/*')) {
+        flush();
+        members.add(new NestedMultiLineComment(_scanMultilineComment()));
+      } else {
+        textStart ??= scanner.state;
+      }
+    }
+
+    flush();
+    return new MultiLineComment(members, span);
   }
 }
 
