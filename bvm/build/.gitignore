@@ -1,0 +1,8 @@
+build/
+*.cmake
+CMakeCache.txt
+*.ninja
+*.log
+*.check_cache
+CMakeFiles/
+cmake-build-debug

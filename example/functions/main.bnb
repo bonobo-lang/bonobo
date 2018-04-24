@@ -1,5 +1,5 @@
 // A brief explanation of functions in Bonobo...
-fn main => print emoji()
+fn main => print(emoji())
 
 // You can explicitly declare the return type of functions.
 fn one: Num => 1

@@ -1,8 +1,7 @@
-var a = 0
-
 fn g {
+  var a = 0
   a++
-  return a < 10
+  ret a < 10
 }
 
 fn main {
