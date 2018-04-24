@@ -27,7 +27,6 @@ class BonoboFunction extends BonoboObject {
   @override
   BonoboFunctionType get type {
     if (_type != null) return _type;
-
     var parameters = this.parameters.map((p) => p.type).toList();
     return _type = new BonoboFunctionType(parameters, returnType);
   }

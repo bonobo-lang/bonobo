@@ -97,11 +97,12 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     }
   }
 
-  static String currentWord(String text, lsp.Position position) {
+  String currentWord(String text, lsp.Position position) {
     var lines = text.split('\n');
     var line = lines[position.line];
     int start = position.character.clamp(0, line.length - 1), end = start;
     var ch = line.codeUnitAt(start);
+
     if (!isAlphaNumOrUnderscore(ch)) return null;
 
     for (int i = position.character - 1; i > 0; i--) {
@@ -121,7 +122,9 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     start = start.clamp(0, line.length - 1);
     end = end.clamp(0, line.length - 1);
 
-    return line.substring(start, end + 1);
+    line = line.substring(start, end + 1);
+    logger.fine('Current word: $line');
+    return line;
   }
 
   @override
@@ -327,12 +330,13 @@ class BonoboLanguageServer extends lsp.LanguageServer {
     var analyzer = await analyze(documentId);
     // TODO: Find current control flow within function?
     var sourceUrl = convertDocumentId(documentId);
-    var function = currentFunction(analyzer, sourceUrl, position);
-    if (function == null) return null;
     var contents = await loadText(sourceUrl);
     var name = currentWord(contents, position);
     if (name == null) return null;
+    var function = currentFunction(analyzer, sourceUrl, position);
+    if (function == null) return new Tuple3(analyzer, null, name);
     var variable = function.scope.resolve(name);
+    logger.fine('Current variable: ${variable?.name}');
     return new Tuple3(analyzer, variable, name);
   }
 
@@ -417,6 +421,7 @@ class BonoboLanguageServer extends lsp.LanguageServer {
 
       return new lsp.Hover((b) {
         b
+          ..range = type.span == null ? null : convertSpan(type.span)
           ..contents = type.documentation.isNotEmpty
               ? type.documentation
               : 'Type: ${type.name}';
@@ -492,7 +497,9 @@ class BonoboLanguageServer extends lsp.LanguageServer {
         info.add(new lsp.SymbolInformation((b) {
           b
             ..name = name
-            ..kind = lsp.SymbolKind.interface
+            ..kind = type is BonoboEnumType
+                ? lsp.SymbolKind.enumSymbol
+                : lsp.SymbolKind.interface
             ..containerName = module.fullName
             ..location = new lsp.Location((b) {
               b
@@ -580,6 +587,32 @@ class BonoboLanguageServer extends lsp.LanguageServer {
           ..label = name
           ..kind = lsp.CompletionItemKind.classKind
           ..detail = type.documentation;
+      }));
+    });
+
+    analyzer.module.children.forEach((child) {
+      items.add(new lsp.CompletionItem((b) {
+        b
+          ..label = child.name
+          ..kind = lsp.CompletionItemKind.module
+          ..insertTextFormat = lsp.InsertTextFormat.plainText
+          ..textEdit = new lsp.TextEdit((b) {
+            b
+              ..newText = child.name
+              ..range = new lsp.Range((b) {
+                b
+                  ..start = new lsp.Position((b) {
+                    b
+                      ..line = position.line
+                      ..character = position.character - 1;
+                  })
+                  ..end = new lsp.Position((b) {
+                    b
+                      ..line = position.line
+                      ..character = position.character + child.name.length;
+                  });
+              });
+          });
       }));
     });
 

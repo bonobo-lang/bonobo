@@ -89,7 +89,7 @@
       "patterns": [
         {
           "name": "keyword.control.bonobo",
-          "match": "\\b(enum|const|final|fn|if|import|for|print|ret|type|var|while)\\b"
+          "match": "\\b(hide|enum|const|final|fn|if|import|for|print|ret|type|var|while)\\b"
         }
       ]
     },

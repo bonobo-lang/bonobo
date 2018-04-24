@@ -32,6 +32,8 @@ class FunctionParser {
 
     FunctionSignatureContext signature = parseSignature();
 
+    if (signature == null) return null;
+
     var body = parseBody();
 
     if (body == null) {
@@ -54,7 +56,13 @@ class FunctionParser {
     // Parameter list
     if (peek.type == TokenType.lParen) {
       parameterList = parseParameterList();
-      if (parameterList == null) return null;
+
+      if (parameterList == null) {
+        parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
+            "Expected identifier or ')' after '('.", peek.span));
+        return null;
+      }
+
       span = span.expand(parameterList.span);
       peek = parser.peek();
     }
@@ -62,9 +70,15 @@ class FunctionParser {
     // Return type
     TypeContext returnType;
     if (peek.type == TokenType.colon) {
-      parser.consume();
+      var colon = parser.consume();
       returnType = parser.typeParser.parse(comments: parser.parseComments());
-      if (returnType == null) return null;
+
+      if (returnType == null) {
+        parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
+            'Missing return type in function signature.', colon.span));
+        return null;
+      }
+
       span = span.expand(returnType.span);
     }
 
@@ -108,7 +122,8 @@ class FunctionParser {
 
     if (colon == null) return new ParameterContext(id, null, span, []);
 
-    TypeContext type = parser.typeParser.parse(comments: parser.parseComments());
+    TypeContext type =
+        parser.typeParser.parse(comments: parser.parseComments());
     if (type == null) {
       parser.errors.add(new BonoboError(
           BonoboErrorSeverity.error, "Missing type after ':'.", colon.span));
@@ -135,7 +150,8 @@ class FunctionParser {
     Token arrow = parser.nextToken(TokenType.arrow);
     if (arrow == null) return null;
 
-    var exp = parser.expressionParser.parse(0, comments: parser.parseComments());
+    var exp =
+        parser.expressionParser.parse(0, comments: parser.parseComments());
 
     if (exp == null) {
       parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
@@ -143,7 +159,8 @@ class FunctionParser {
       return null;
     }
 
-    return new ExpressionFunctionBodyContext(arrow.span.expand(exp.span), [], exp);
+    return new ExpressionFunctionBodyContext(
+        arrow.span.expand(exp.span), [], exp);
   }
 
   BlockFunctionBodyContext parseBlockFunctionBody() {
@@ -159,9 +176,11 @@ class FunctionParser {
 
     var statements = <StatementContext>[];
 
-    for (StatementContext statement = parser.statementParser.parse(comments: parser.parseComments());
+    for (StatementContext statement =
+            parser.statementParser.parse(comments: parser.parseComments());
         statement != null;
-        statement = parser.statementParser.parse(comments: parser.parseComments())) {
+        statement =
+            parser.statementParser.parse(comments: parser.parseComments())) {
       statements.add(statement);
       lastSpan = statement.span;
     }
