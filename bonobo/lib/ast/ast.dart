@@ -6,12 +6,19 @@ import 'package:symbol_table/symbol_table.dart';
 import '../scanner/scanner.dart';
 
 part 'unit.dart';
+
 part 'expression.dart';
+
 part 'function.dart';
+
 part 'recursive_visitor.dart';
+
 part 'statement.dart';
+
 part 'type.dart';
+
 part 'type_declaration.dart';
+
 part 'visitor.dart';
 
 abstract class AstNode {
@@ -23,7 +30,15 @@ abstract class AstNode {
   T accept<T>(BonoboAstVisitor<T> visitor);
 }
 
-class Comment {
-  final String text;
-  Comment(this.text);
+abstract class Comment extends Token {
+  Comment(FileSpan span, Match match) : super(TokenType.comment, span, match);
+
+  String get text;
+}
+
+class SingleLineComment extends Comment {
+  SingleLineComment(FileSpan span) : super(span, null);
+
+  @override
+  String get text => span.text.substring(2).trim();
 }

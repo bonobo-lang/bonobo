@@ -1,3 +1,4 @@
+import 'package:bonobo/ast/ast.dart';
 import 'package:string_scanner/string_scanner.dart';
 import 'package:source_span/source_span.dart';
 import 'token.dart';
@@ -44,7 +45,10 @@ class Scanner {
 
     normalPatterns.forEach((pattern, type) {
       if (scanner.matches(pattern)) {
-        tokens.add(new Token(type, scanner.lastSpan, scanner.lastMatch));
+        if (type == TokenType.comment)
+          tokens.add(new SingleLineComment(scanner.lastSpan));
+        else
+          tokens.add(new Token(type, scanner.lastSpan, scanner.lastMatch));
       }
     });
 

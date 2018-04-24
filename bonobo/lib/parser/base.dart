@@ -81,10 +81,7 @@ class BaseParser {
     Token token;
 
     while ((token = nextToken(TokenType.comment)) != null) {
-      var lines = token.match[1]
-          .split('\n')
-          .map((s) => s.replaceAll(commentSlashes, '').trim());
-      comments.add(new Comment(lines.join('\n')));
+      comments.add(token as Comment);
     }
 
     return comments;
