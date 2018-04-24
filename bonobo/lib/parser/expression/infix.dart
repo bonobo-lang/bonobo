@@ -43,7 +43,67 @@ List<InfixParser<ExpressionContext>> _createInfixExpressionParsers() {
 
   parsers.add(new _TupleExpressionParser(precedence++));
 
+  parsers.add(new _CallExpressionParser(precedence++));
+
   return parsers;
+}
+
+class _CallExpressionParser implements InfixParser<ExpressionContext> {
+  final int precedence;
+
+  const _CallExpressionParser(this.precedence);
+
+  @override
+  TokenType get leading => TokenType.lParen;
+
+  @override
+  bool eligible(ExpressionContext left, {bool ignoreComma: false}) => true;
+
+  @override
+  ExpressionContext parse(Parser parser, ExpressionContext left,
+      {List<Comment> comments, bool ignoreComma: false}) {
+    var lParen = parser.nextToken(TokenType.lParen)?.span;
+
+    if (lParen == null) return null;
+
+    FileSpan lastSpan = lParen, span = left.span.expand(lastSpan), exprSpan;
+    var expressions = <ExpressionContext>[];
+
+    var expression =
+        parser.expressionParser.parse(0, comments: parser.parseComments());
+
+    while (expression != null) {
+      expressions.add(expression);
+      span = span.expand(exprSpan =
+          (exprSpan ??= expression.span).expand(lastSpan = expression.span));
+      if (parser.peek()?.type != TokenType.comma) break;
+
+      var comma = parser.consume().span;
+      exprSpan = exprSpan.expand(lastSpan = comma);
+
+      if ((expression = parser.expressionParser
+              .parse(0, comments: parser.parseComments())) ==
+          null) {
+        parser.errors.add(new BonoboError(
+            BonoboErrorSeverity.error, "Missing expression after ','.", comma));
+        return null;
+      }
+    }
+
+    var rParen = parser.nextToken(TokenType.rParen)?.span;
+
+    if (rParen == null) {
+      parser.errors.add(
+          new BonoboError(BonoboErrorSeverity.error, "Missing ')'.", lastSpan));
+      return null;
+    }
+
+    return new CallExpressionContext(
+        left,
+        new TupleExpressionContext(expressions, exprSpan, []),
+        span.expand(rParen),
+        comments ?? []);
+  }
 }
 
 class _MemberExpressionParser implements InfixParser<ExpressionContext> {
