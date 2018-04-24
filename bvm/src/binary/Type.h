@@ -4,7 +4,7 @@
 namespace bvm {
     typedef struct {
         const char* name;
-        int size;
+        uint8_t size;
     } Type;
 }
 
