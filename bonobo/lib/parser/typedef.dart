@@ -58,7 +58,7 @@ class TypedefParser {
     // Then, we just insert the 'enum' right after.
     var typeToken = new Token(TokenType.type, id.span, null),
         idToken = new Token(TokenType.identifier, id.span, null);
-    parser.scanner.tokens.insertAll(0, [typeToken, idToken, enumToken]);
+    parser.scanner.tokens.insertAll(parser._index + 1, [typeToken, idToken, enumToken]);
     return parse(comments: comments);
   }
 }
