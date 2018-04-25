@@ -1,9 +1,10 @@
 part of bonobo.src.analysis;
 
 class BonoboStructType extends BonoboType {
+  final BonoboModule module;
   final SplayTreeMap<String, BonoboType> fields;
 
-  BonoboStructType(Map<String, BonoboType> fields)
+  BonoboStructType(this.module, Map<String, BonoboType> fields)
       : this.fields = new SplayTreeMap.from(fields);
 
   @override

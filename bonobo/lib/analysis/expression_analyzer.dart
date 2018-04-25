@@ -54,7 +54,7 @@ class ExpressionAnalyzer {
     if (ctx is TupleExpressionContext) {
       var expressions = await Future
           .wait(ctx.expressions.map((e) => resolve(e, function, scope)));
-      var type = new BonoboTupleType(expressions.map((e) => e.type).toList());
+      var type = new BonoboTupleType(analyzer.module, expressions.map((e) => e.type).toList());
       return new BonoboObject(type, ctx.span);
     }
 

@@ -4,10 +4,10 @@ part of bonobo.src.analysis;
 // TODO: fullName getter based on module system.
 abstract class BonoboType {
   static final BonoboType Root = new _BonoboRootType();
-  static final BonoboType Byte = new _BonoboByteType();
-  static final BonoboType Function$ = new _BonoboFunctionType();
-  static final BonoboType Num = new _BonoboNumType();
-  static final BonoboType String$ = new _BonoboStringType();
+  static final BonoboType Byte = new _BonoboByteType(null);
+  static final BonoboType Function$ = new _BonoboFunctionType(null);
+  static final BonoboType Num = new _BonoboNumType(null);
+  static final BonoboType String$ = new _BonoboStringType(null);
   final List<SymbolUsage> usages = [];
 
   String get documentation => '';
@@ -36,7 +36,11 @@ abstract class BonoboType {
     return Root;
   }
 
+  BonoboModule get module;
+
   String get name;
+
+  String get fullName => module == null ? name : '${module.fullName}::$name';
 
   BonoboType get parent;
 
@@ -112,6 +116,9 @@ class _BonoboRootType extends BonoboType {
   BonoboType get parent => this;
 
   @override
+  BonoboModule get module => null;
+
+  @override
   c.CType get ctype {
     // todo: is it smart to return a void* for undefined types?
     return c.CType.void$.pointer();
@@ -123,9 +130,10 @@ class _BonoboRootType extends BonoboType {
 
 class BonoboInheritedType extends BonoboType {
   final String name;
+  final BonoboModule module;
   final BonoboType parent;
 
-  BonoboInheritedType(this.name, [BonoboType parent])
+  BonoboInheritedType(this.name, this.module, [BonoboType parent])
       : parent = parent ?? BonoboType.Root;
 
   @override

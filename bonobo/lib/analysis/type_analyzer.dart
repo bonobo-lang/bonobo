@@ -29,19 +29,19 @@ class TypeAnalyzer {
         fields[field.name.name] = await resolve(field.type);
       }
 
-      return new BonoboStructType(fields);
+      return new BonoboStructType(analyzer.module, fields);
     } else if (ctx is EnumTypeContext) {
       var values = ctx.values
           .map((v) => new BonoboEnumValue(v.name.name, v.index?.intValue))
           .toList();
-      return new BonoboEnumType(values);
+      return new BonoboEnumType(analyzer.module, values);
     } else if (ctx is TupleTypeContext) {
       var types = await Future.wait(ctx.items.map(resolve));
-      return new BonoboTupleType(types);
+      return new BonoboTupleType(analyzer.module, types);
     } else if (ctx is FunctionTypeContext) {
       var parameters = await Future.wait(ctx.parameters.map(resolve));
       var returnType = await resolve(ctx.returnType);
-      return new BonoboFunctionType(parameters, returnType);
+      return new BonoboFunctionType(analyzer.module, parameters, returnType);
     } else if (ctx is ParenthesizedTypeContext) {
       return await resolve(ctx.innermost);
     } else {

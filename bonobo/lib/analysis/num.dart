@@ -6,7 +6,7 @@ class _BonoboNumType extends BonoboInheritedType {
 
   static final c.CType _cType = c.CType.int64_t;
 
-  _BonoboNumType() : super('Num');
+  _BonoboNumType(BonoboModule module) : super('Num', module);
 
   @override
   c.CType get ctype => _cType;

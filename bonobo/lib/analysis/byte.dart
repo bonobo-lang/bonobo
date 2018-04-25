@@ -1,7 +1,7 @@
 part of bonobo.src.analysis;
 
 class _BonoboByteType extends BonoboInheritedType {
-  _BonoboByteType() : super('Byte');
+  _BonoboByteType(BonoboModule module) : super('Byte', module);
 
   @override
   c.CType get ctype => c.CType.char;

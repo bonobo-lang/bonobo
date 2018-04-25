@@ -4,7 +4,7 @@ part of bonobo.src.analysis;
 class BonoboEnumType extends BonoboInheritedType {
   final List<BonoboEnumValue> values;
 
-  BonoboEnumType(this.values) : super(null, BonoboType.Num);
+  BonoboEnumType(BonoboModule module, this.values) : super(null, module, BonoboType.Num);
 
   /// Finds the integer representation of the given name.
   int getValue(String name) {

@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:bonobo/analysis/analysis.dart';
 import 'package:bonobo/util/util.dart';
+import 'bvm/bvm.dart';
 import 'base_compiler.dart';
 
 class BVMCompiler implements BonoboCompiler<Uint8List> {
@@ -15,10 +17,7 @@ class BVMCompiler implements BonoboCompiler<Uint8List> {
     // Then a random number. Let's just say 1337.
     // Then the "checksum": (magic % arbitrary) >> 2
     var magic = 0xB090B0, arbitrary = 1337, checksum = (magic % arbitrary) >> 2;
-    sink
-      ..addInt32(magic)
-      ..addInt32(arbitrary)
-      ..addInt32(checksum);
+    sink..addInt32(magic)..addInt32(arbitrary)..addInt32(checksum);
 
     // TODO: All constants
 
@@ -35,5 +34,17 @@ class BVMCompiler implements BonoboCompiler<Uint8List> {
     sink
       ..addUint64(str.length + 1)
       ..write(str);
+  }
+
+  Future<Uint8List> compileFunction(BonoboFunction function) async {
+    var sink = new BinarySink();
+
+    // Add all params
+    sink..addUint8(BVMOpcode.NUM_PARAMS)..addUint8(function.parameters.length);
+
+    for (var param in function.parameters)
+      writeString(param.type.fullName, sink);
+
+    return sink.toBytes();
   }
 }

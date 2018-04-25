@@ -5,8 +5,8 @@ class BonoboFunctionType extends BonoboInheritedType {
 
   final BonoboType returnType;
 
-  BonoboFunctionType(this.parameters, this.returnType)
-      : super('Function', BonoboType.Function$);
+  BonoboFunctionType(BonoboModule module, this.parameters, this.returnType)
+      : super('Function', module, BonoboType.Function$);
 
   @override
   bool operator ==(other) {

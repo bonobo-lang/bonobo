@@ -6,14 +6,14 @@ class _BonoboStringType extends BonoboInheritedType {
 
   static final c.CType _cType = c.CType.char.const$().pointer();
 
-  _BonoboStringType() : super('String');
+  _BonoboStringType(BonoboModule module) : super('String', module);
 
   @override
   c.CType get ctype => _cType;
 
   @override
-  BonoboType binaryOp(Token operator, FileSpan, BonoboType other,
-      BonoboAnalyzer analyzer) {
+  BonoboType binaryOp(
+      Token operator, FileSpan, BonoboType other, BonoboAnalyzer analyzer) {
     return this;
   }
 }

@@ -6,9 +6,9 @@ class _BonoboFunctionType extends BonoboInheritedType {
 
   static _BonoboFunctionType _instance;
 
-  _BonoboFunctionType._() : super('Function');
+  _BonoboFunctionType._(BonoboModule module) : super('Function', module);
 
-  factory _BonoboFunctionType() => _instance ??= new _BonoboFunctionType._();
+  factory _BonoboFunctionType(BonoboModule module) => _instance ??= new _BonoboFunctionType._(module);
 }
 
 class BonoboFunction extends BonoboObject {
@@ -22,13 +22,13 @@ class BonoboFunction extends BonoboObject {
   BonoboFunctionType _type;
 
   BonoboFunction(this.name, this.scope, this.declaration, this.declaringModule)
-      : super(new _BonoboFunctionType(), declaration.span);
+      : super(new _BonoboFunctionType(null), declaration.span);
 
   @override
   BonoboFunctionType get type {
     if (_type != null) return _type;
     var parameters = this.parameters.map((p) => p.type).toList();
-    return _type = new BonoboFunctionType(parameters, returnType);
+    return _type = new BonoboFunctionType(declaringModule, parameters, returnType);
   }
 
   /// The fully-qualified name of this function.

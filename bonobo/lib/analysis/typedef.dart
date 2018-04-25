@@ -6,10 +6,12 @@ class BonoboTypedef extends BonoboType {
 
   final FileSpan span;
 
+  final BonoboModule module;
+
   String _documentation;
   BonoboType _type;
 
-  BonoboTypedef(this.name, this._documentation, this.span);
+  BonoboTypedef(this.module, this.name, this._documentation, this.span);
 
   BonoboType get type => _type ?? BonoboType.Root;
 

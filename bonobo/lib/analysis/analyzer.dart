@@ -64,7 +64,7 @@ class BonoboAnalyzer {
               existing.span));
         }
       } else if (existing == null) {
-        module.types[typedef.name.name] = new BonoboTypedef(
+        module.types[typedef.name.name] = new BonoboTypedef(module,
             typedef.name.name, typedef.comments.join('\n'), typedef.span);
       }
     }
