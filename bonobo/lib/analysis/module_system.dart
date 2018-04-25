@@ -2,14 +2,14 @@ part of bonobo.src.analysis;
 
 class BonoboModuleSystem {
   final Directory rootDirectory;
-  BonoboModule _rootModule;
+  BonoboModule _rootModule, core;
 
   BonoboModuleSystem._(this.rootDirectory, BonoboModule coreLibrary) {
     _rootModule = new BonoboModule._(rootDirectory, coreLibrary, this);
   }
 
   static Future<BonoboModuleSystem> create(Directory rootDirectory) async {
-    var core = await _createCore();
+    core = await _createCore();
     var system = new BonoboModuleSystem._(rootDirectory, core);
 
     // Analyze the root module

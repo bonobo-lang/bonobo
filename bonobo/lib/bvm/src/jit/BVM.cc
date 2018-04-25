@@ -39,7 +39,16 @@ void bvm::BVM::handleDartMessage(Dart_Port destPortId, Dart_CObject *message) {
             char *functionName = message->value.as_array.values[1]->value.as_string;
             loadFunction(functionName, destPortId, message);
         } else if (!strcmp(msg, "LOOP")) {
-            std::cout << "LOOP! Tasks: " << tasks.size()  << std::endl;
+            while (true) {
+                bool failed = false;
+
+                for (auto *task: tasks) {
+                    if ((failed = !interpreter->visit(task)))
+                        break;
+                }
+
+                if (failed) break;
+            }
         }
     }
 }
@@ -65,32 +74,18 @@ void bvm::BVM::execFunction(char *functionName, Dart_Port destPortId, Dart_CObje
         }
     }
 
-    if (true || function == nullptr) {
+    if (function == nullptr) {
         // Request JIT-compilation of function.
         //
         // Send 'FN', then $fullName
-
         auto *req1 = new Dart_CObject, *req2 = new Dart_CObject;
         req1->type = req2->type = Dart_CObject_kString;
-        req1->value.as_string = (char*) "FN";
+        req1->value.as_string = (char *) "FN";
         req2->value.as_string = functionName;
         Dart_PostCObject(sendPortId, req1);
         Dart_PostCObject(sendPortId, req2);
         delete req1;
         delete req2;
-        /*auto *req = new Dart_CObject;
-        req->type = Dart_CObject_kArray;
-        auto *arr = new Dart_CObject*[2];
-        arr[0] = new Dart_CObject;
-        arr[1] = new Dart_CObject;
-        arr[0]->type = arr[1]->type = Dart_CObject_kString;
-        arr[0]->value.as_string = (char *) "FN";
-        arr[1]->value.as_string = functionName;
-        req->value.as_array.values = arr;
-        Dart_PostCObject(destPortId, req);
-        Dart_PostCObject(sendPortId, req);*/
-        //delete[] arr;
-        //delete req;
     } else {
         // Start a new task that invokes the function.
         auto *task = new BVMTask;

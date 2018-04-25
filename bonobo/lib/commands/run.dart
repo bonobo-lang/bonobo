@@ -69,7 +69,25 @@ class RunCommand extends Command {
 
     // Listen for missing functions.
     bvm.onMissingFunction.listen((name) {
-      throw 'Need to JIT $name.';
+      var split = name.split('::');
+      var module = analyzer.moduleSystem.core;
+
+      for (int i = 0; i < split.length - 1; i++) {
+        var child = module.children
+            .firstWhere((c) => c.name == split[i], orElse: () => null);
+        if (child != null)
+          module = child;
+        else
+          throw 'Unknown function: $name';
+      }
+
+      var function = module.scope.allPublicVariables
+          .firstWhere((v) => v.name == split.last && v.value is BonoboFunction,
+              orElse: () => null)
+          ?.value;
+
+      if (function == null) throw 'Unknown function: $name';
+      jitCompile(function);
     });
 
     // JIT-compile the main function we just found.

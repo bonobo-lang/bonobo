@@ -5,7 +5,7 @@
 #include "BVMInterpreter.h"
 #include "Function.h"
 
-void bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
+bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
     // Get the arguments.
     auto arguments = task->message->value.as_array.values[2]->value.as_array;
 
@@ -19,4 +19,6 @@ void bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
         // Task is complete, dispose of it
         delete task;
     }
+
+    return true;
 }

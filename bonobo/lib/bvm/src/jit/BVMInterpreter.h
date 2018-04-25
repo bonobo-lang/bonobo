@@ -10,8 +10,10 @@
 namespace bvm
 {
 
-    class BVMInterpreter {
-        void visit(BVMTask* task);
+    class BVMInterpreter
+    {
+    public:
+        bool visit(BVMTask *task);
     };
 
 }
