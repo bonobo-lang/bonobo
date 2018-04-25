@@ -23,6 +23,8 @@ class BVM {
 
   Stream<String> get onMissingFunction => _onMissingFunction.stream;
 
+  void startLoop() => _jit.send(['LOOP']);
+
   void exec(String function, List arguments) {
     _jit.send(<dynamic>['EXEC', function, arguments]);
   }

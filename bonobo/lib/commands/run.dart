@@ -55,5 +55,6 @@ class RunCommand extends Command {
 
     // Now, just run it.
     bvm.exec(mainFunction.fullName, []);
+    bvm.startLoop();
   }
 }

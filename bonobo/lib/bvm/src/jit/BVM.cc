@@ -2,6 +2,7 @@
 #include <iostream>
 #include "../binary/binary.h"
 #include "BVM.h"
+#include "extension.h"
 #include "Function.h"
 
 bvm::BVM *bvm::bvmInstance = nullptr;
@@ -11,6 +12,7 @@ bvm::BVM::BVM(Dart_Handle sendPort) {
     this->sendPort = sendPort;
     this->receivePort =
             Dart_NewNativePort("BVM", sendPortCallback, true);
+    interpreter = new BVMInterpreter;
 }
 
 bvm::BVM *bvm::BVM::create(Dart_Handle sendPort) {
@@ -53,7 +55,7 @@ void bvm::BVM::execFunction(char *functionName, Dart_Port destPortId, Dart_CObje
     // Find the function to run.
     BVMFunction *function = nullptr;
 
-    for (auto * fn : functions) {
+    for (auto *fn : functions) {
         if (!strcmp(fn->name, functionName)) {
             function = fn;
             break;
@@ -61,11 +63,18 @@ void bvm::BVM::execFunction(char *functionName, Dart_Port destPortId, Dart_CObje
     }
 
     if (function == nullptr) {
-        // TODO: Request JIT-compilation of function.
+        // Request JIT-compilation of function.
+        //
+        // Send ['FN', $fullName]
+        Dart_Handle list = HandleError(Dart_NewList(2));
+        HandleError(Dart_ListSetAt(list, 2, Dart_NewStringFromCString("FN")));
+        HandleError(Dart_NewStringFromCString(functionName));
+        Dart_Post(destPortId, list);
+    } else {
+        // Start a new task that invokes the function.
+        auto *task = new BVMTask;
+        task->function = function;
+        task->message = message;
+        tasks.push_back(task);
     }
-
-    // Get the arguments.
-    auto arguments = message->value.as_array.values[2]->value.as_array;
-
-    // TODO: Invoke the function in question.
 }

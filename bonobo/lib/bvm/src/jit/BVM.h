@@ -7,6 +7,7 @@
 #include <vector>
 #include "BVMTask.h"
 #include "Function.h"
+#include "BVMInterpreter.h"
 
 namespace bvm
 {
@@ -17,6 +18,7 @@ namespace bvm
         explicit BVM(Dart_Handle sendPort);
         std::vector<BVMTask*> tasks;
         std::vector<BVMFunction*> functions;
+        BVMInterpreter *interpreter;
         Dart_Port receivePort;
         Dart_Handle sendPort;
     public:
