@@ -4,6 +4,10 @@ abstract class ExpressionContext extends AstNode {
   ExpressionContext(FileSpan span, List<Comment> comments)
       : super(span, comments);
 
+  bool get isConstant => false;
+
+  get constantValue => throw new UnsupportedError('$runtimeType is not a constant expression.');
+
   ExpressionContext get innermost => this;
 }
 
@@ -13,6 +17,12 @@ class ParenthesizedExpressionContext extends ExpressionContext {
   ParenthesizedExpressionContext(
       this.innermost, FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  bool get isConstant => innermost.isConstant;
+
+  @override
+  get constantValue => innermost.constantValue;
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) =>
@@ -57,6 +67,16 @@ class NumberLiteralContext extends ExpressionContext {
   NumberLiteralContext(FileSpan span, List<Comment> comments)
       : super(span, comments);
 
+  @override
+  bool get isConstant => true;
+
+  @override
+  get constantValue {
+    if (hasDecimal)
+      return doubleValue;
+    return intValue;
+  }
+
   bool get isByte => span.text.endsWith('b');
 
   bool get hasDecimal => span.text.contains('.');
@@ -98,6 +118,12 @@ class StringLiteralContext extends ExpressionContext {
 
   StringLiteralContext(FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  bool get isConstant => true;
+
+  @override
+  get constantValue => value;
 
   String get value {
     if (_value != null) return _value;
@@ -237,6 +263,9 @@ class BinaryExpressionContext extends ExpressionContext {
     FileSpan span,
     List<Comment> comments,
   ) : super(span, comments);
+
+  @override
+  bool get isConstant => left.isConstant && right.isConstant;
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) =>
