@@ -32,6 +32,13 @@ class BonoboModule {
 
   SymbolTable<BonoboObject> get scope => _scope;
 
+  BonoboFunction get mainFunction {
+    return scope.allPublicVariables
+        .firstWhere((v) => name == 'main' && v.value is BonoboFunction,
+            orElse: () => null)
+        ?.value;
+  }
+
   BonoboModule._core(this.directory, this.moduleSystem)
       : isCore = true,
         parent = null;

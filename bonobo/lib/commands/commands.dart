@@ -3,6 +3,7 @@ library bonobo.src.commands;
 import 'dart:async';
 import 'dart:io' hide Directory, File, FileMode;
 import 'dart:io' as io show Directory, File;
+import 'dart:typed_data';
 import 'package:args/command_runner.dart';
 
 import 'package:angel_framework/angel_framework.dart';

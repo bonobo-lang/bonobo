@@ -12,7 +12,7 @@ namespace bvm
     {
     private:
         explicit BVM(Dart_Handle sendPort);
-
+        llvm::IRBuilder *irBuilder;
         Dart_Port receivePort;
         Dart_Handle sendPort;
     public:

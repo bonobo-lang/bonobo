@@ -34,7 +34,7 @@ class BonoboFunction extends BonoboObject {
   /// The fully-qualified name of this function.
   String get fullName {
     if (declaringModule.isRoot) return name;
-    return declaringModule.fullName + '.$name';
+    return declaringModule.fullName + '::$name';
   }
 
   String get documentation {

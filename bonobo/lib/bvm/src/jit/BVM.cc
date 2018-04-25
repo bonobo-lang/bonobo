@@ -7,6 +7,7 @@ bvm::BVM *bvm::bvmInstance = nullptr;
 
 bvm::BVM::BVM(Dart_Handle sendPort) {
     bvm::bvmInstance = this;
+    this->irBuilder = new llvm::IRBuilder();
     this->sendPort = sendPort;
     this->receivePort =
             Dart_NewNativePort("BVM", sendPortCallback, true);
@@ -37,4 +38,9 @@ void bvm::BVM::handleDartMessage(Dart_Port destPortId, Dart_CObject *message) {
 
 void bvm::BVM::execFunction(char *functionName, Dart_Port destPortId, Dart_CObject *message) {
     // Find the function to run.
+
+    // Get the arguments.
+    auto arguments = message->value.as_array.values[2]->value.as_array;
+
+    // TODO: Invoke the function in question.
 }
