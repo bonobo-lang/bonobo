@@ -7,5 +7,5 @@ add_library(bvm_jit
     JIT.h
     JIT.cc
     Trampoline.h
-)
+        extension.cc extension.h)
 target_link_libraries(bvm_jit ${llvm_libs})
