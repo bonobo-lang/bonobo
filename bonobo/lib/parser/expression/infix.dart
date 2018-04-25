@@ -45,7 +45,64 @@ List<InfixParser<ExpressionContext>> _createInfixExpressionParsers() {
 
   parsers.add(new _CallExpressionParser(precedence++));
 
+  parsers
+      .add(new _RangeLiteralParser(precedence++, TokenType.double_dot, false));
+  parsers
+      .add(new _RangeLiteralParser(precedence++, TokenType.triple_dot, true));
+
   return parsers;
+}
+
+class _RangeLiteralParser implements InfixParser<ExpressionContext> {
+  final int precedence;
+  final TokenType leading;
+  final bool exclusive;
+
+  const _RangeLiteralParser(this.precedence, this.leading, this.exclusive);
+
+  @override
+  bool eligible(ExpressionContext left, {bool ignoreComma: false}) => true;
+
+  @override
+  ExpressionContext parse(Parser parser, ExpressionContext left,
+      {List<Comment> comments, bool ignoreComma: false}) {
+    if (parser.peek()?.type != leading) return null;
+
+    var dots = parser.consume(),
+        lastSpan = dots.span,
+        span = left.span.expand(lastSpan);
+
+    var right = parser.expressionParser
+        .parse(0, comments: parser.parseComments(), ignoreComma: true);
+
+    if (right == null) {
+      parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
+          "Missing expression after '${dots.span.text}'.", lastSpan));
+      return null;
+    }
+
+    span = span.expand(lastSpan = right.span);
+
+    ExpressionContext step;
+
+    if (parser.peek()?.type == TokenType.comma) {
+      var comma = parser.consume();
+      span = span.expand(lastSpan = comma.span);
+
+      step = parser.expressionParser.parse(0, comments: parser.parseComments());
+
+      if (step == null) {
+        parser.errors.add(new BonoboError(BonoboErrorSeverity.error,
+            "Missing expression after ','.", lastSpan));
+        return null;
+      }
+
+      span = span.expand(lastSpan = step.span);
+    }
+
+    return new RangeLiteralContext(
+        left, right, step, exclusive, span, comments ?? []);
+  }
 }
 
 class _CallExpressionParser implements InfixParser<ExpressionContext> {
@@ -120,7 +177,6 @@ class _MemberExpressionParser implements InfixParser<ExpressionContext> {
   @override
   ExpressionContext parse(Parser parser, ExpressionContext left,
       {List<Comment> comments, bool ignoreComma: false}) {
-    if (ignoreComma) return null;
     if (parser.peek()?.type != leading) return null;
 
     var dot = parser.consume(),

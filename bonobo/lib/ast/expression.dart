@@ -452,9 +452,10 @@ class RangeLiteralContext extends ExpressionContext {
   final ExpressionContext start;
   final ExpressionContext end;
   final ExpressionContext step;
+  final bool exclusive;
 
-  RangeLiteralContext(
-      FileSpan span, List<Comment> comments, this.start, this.end, this.step)
+  RangeLiteralContext(this.start, this.end, this.step, this.exclusive,
+      FileSpan span, List<Comment> comments)
       : super(span, comments);
 
   @override
