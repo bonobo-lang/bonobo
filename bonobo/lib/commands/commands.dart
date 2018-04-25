@@ -26,6 +26,7 @@ import 'package:path/path.dart' as p;
 import 'package:source_span/source_span.dart';
 import 'package:tuple/tuple.dart';
 import 'package:bonobo/analysis/analysis.dart';
+import 'package:bonobo/bvm/bvm.dart';
 import 'package:bonobo/compiler/compiler.dart';
 import 'package:c_builder/c_builder.dart' as c;
 import '../ast/ast.dart';
@@ -60,4 +61,5 @@ final CommandRunner commandRunner =
       ..addCommand(new ExploreCommand())
       ..addCommand(new FormatCommand())
       ..addCommand(new InfoCommand())
-      ..addCommand(new LanguageServerCommand());
+      ..addCommand(new LanguageServerCommand())
+      ..addCommand(new RunCommand());

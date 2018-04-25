@@ -7,7 +7,7 @@
 
 #include <dart_api.h>
 
-DART_EXPORT Dart_Handle bvm_jit_dart_Init(Dart_Handle parent_library);
+DART_EXPORT Dart_Handle bvm_jit_Init(Dart_Handle parent_library);
 
 Dart_NativeFunction ResolveName(Dart_Handle name, int argc, bool *auto_setup_scope);
 

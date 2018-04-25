@@ -1,5 +1,5 @@
 set (CMAKE_CXX_STANDARD 11)
-add_library(bvm_binary
+add_library(bvm_binary SHARED
     binary.h
     Constant.h
     Function.h

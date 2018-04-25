@@ -7,7 +7,7 @@
 #include "BVM.h"
 
 
-DART_EXPORT Dart_Handle bvm_jit_dart_Init(Dart_Handle parent_library) {
+DART_EXPORT Dart_Handle bvm_jit_Init(Dart_Handle parent_library) {
     if (Dart_IsError(parent_library)) return parent_library;
 
     Dart_Handle result_code =
@@ -36,6 +36,6 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc, bool *auto_setup_sco
 
 void new_jit(Dart_NativeArguments arguments) {
     Dart_Handle rawSendPort = Dart_GetNativeArgument(arguments, 0);
-    auto *jit = new bvm::BVM(rawSendPort);
+    auto *jit = bvm::BVM::create(rawSendPort);
     Dart_SetReturnValue(arguments, Dart_NewSendPort(jit->get_receive_port()));
 }

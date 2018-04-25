@@ -8,5 +8,10 @@ class RunCommand extends Command {
   @override
   run() async {
     var analyzer = await analyze(this, eager: false);
+
+    // Create a new BVM.
+    var bvm = new BVM();
+
+    // Analyze main function.
   }
 }
