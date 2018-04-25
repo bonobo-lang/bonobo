@@ -1,0 +1,14 @@
+// Bonobo, like many other programming languages, supports comments.
+// Single-line comments start `//`.
+
+/*
+ Comments can also span multiple lines.
+
+/*
+    Multi-line comments can also nest!
+
+    /* Yay!!!! */
+*/
+*/
+
+// Comments are also used to provide Markdown text to the documentation generator.

@@ -16,7 +16,7 @@ type Runner = {
 }
 
 // The above is syntactic sugar, a shorthand for the following,
-// which is equally valid
+// which is equally valid.
 type Runner2 = {
     speed: Num
     go: fn(String, Num): Num

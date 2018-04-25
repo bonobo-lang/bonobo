@@ -2,5 +2,4 @@ fn main => 10b
 
 fn add (a: Num, b: Num) { ret a + b }
 
-// wtf
-fn seven => add 3, 4
+fn seven => add(3, 4)

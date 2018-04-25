@@ -1,1 +1,5 @@
+/*
+ * Use the `::` syntax to call functionality from
+ * another package.
+ */
 fn main: String => foo::bar()
