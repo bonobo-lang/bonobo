@@ -56,6 +56,8 @@ class Parser extends BaseParser {
     while (!done) {
       var comments = parseComments();
       Token t = peek();
+      if (t == null) break;
+
       switch (t.type) {
         case TokenType.fn:
           var ctx = functionParser.parse(comments: comments);

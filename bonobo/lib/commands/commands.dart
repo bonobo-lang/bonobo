@@ -3,8 +3,12 @@ library bonobo.src.commands;
 import 'dart:async';
 import 'dart:io' hide Directory, File, FileMode;
 import 'dart:io' as io show Directory, File;
+import 'dart:isolate';
 import 'package:args/command_runner.dart';
 
+import 'package:angel_framework/angel_framework.dart';
+import 'package:angel_framework/http.dart';
+import 'package:angel_jael/angel_jael.dart';
 import 'package:charcode/charcode.dart';
 import 'package:code_buffer/code_buffer.dart';
 import 'package:dart_language_server/src/protocol/language_server/interface.dart'
@@ -19,6 +23,7 @@ import 'package:file/file.dart'
 import 'package:file/local.dart';
 import 'package:file/memory.dart';
 import 'package:logging/logging.dart';
+import 'package:markdown/markdown.dart' show markdownToHtml;
 import 'package:path/path.dart' as p;
 import 'package:source_span/source_span.dart';
 import 'package:tuple/tuple.dart';

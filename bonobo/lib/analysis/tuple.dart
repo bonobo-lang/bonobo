@@ -5,6 +5,6 @@ class BonoboTupleType extends BonoboInheritedType {
   String name;
 
   BonoboTupleType(this.types) : super(null) {
-    name = '(${types.map((t) => t.name).join(', ')})';
+    name = '(${types.join(', ')})';
   }
 }

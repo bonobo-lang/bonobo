@@ -25,7 +25,7 @@ class BonoboFunctionType extends BonoboInheritedType {
   }
 
   String get signature {
-    var b = new StringBuffer('f (');
+    var b = new StringBuffer('fn (');
 
     for (int i = 0; i < parameters.length; i++) {
       var p = parameters[i];

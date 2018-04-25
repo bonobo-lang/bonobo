@@ -235,7 +235,7 @@ class TypeParser {
       return null;
     }
 
-    return new StructTypeContext(fields, span, comments);
+    return new StructTypeContext(fields, span.expand(rCurly.span), comments);
   }
 
   StructFieldContext parseStructField({List<Comment> comments}) {
@@ -339,6 +339,6 @@ class TypeParser {
       return null;
     }
 
-    return new ParenthesizedTypeContext(inner, span, comments ?? []);
+    return new ParenthesizedTypeContext(inner, span.expand(rParen), comments ?? []);
   }
 }

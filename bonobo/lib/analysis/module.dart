@@ -50,7 +50,7 @@ class BonoboModule {
       module = module.parent;
     }
 
-    return _fullName = names.join('.');
+    return _fullName = names.join('::');
   }
 
   @override

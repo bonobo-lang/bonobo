@@ -34,7 +34,7 @@ class TypedefParser {
       return null;
     }
 
-    return new TypedefContext(name, type, span, comments ?? []);
+    return new TypedefContext(name, type, span.expand(type.span), comments ?? []);
   }
 
   TypedefContext parseSugaredEnum({List<Comment> comments}) {
