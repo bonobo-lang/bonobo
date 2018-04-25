@@ -94,6 +94,8 @@ class Parser extends BaseParser {
             lastSpan = c.span;
           }
           break;*/
+        //case TokenType.comment:
+          //break;
         default:
           // TODO
           errors.add(new BonoboError(BonoboErrorSeverity.warning,

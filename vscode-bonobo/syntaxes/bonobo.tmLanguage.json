@@ -24,6 +24,25 @@
         {
           "name": "comment.line.double-slash.bonobo",
           "match": "//[^\\n]*"
+        },
+        {
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.comment.bonobo"
+            }
+          },
+          "match": "/\\*\\*/",
+          "name": "comment.block.empty.bonobo"
+        },
+        {
+          "begin": "/\\*",
+          "end": "\\*/",
+          "name": "comment.block.bonobo",
+          "patterns": [
+            {
+              "include": "#comments"
+            }
+          ]
         }
       ]
     },

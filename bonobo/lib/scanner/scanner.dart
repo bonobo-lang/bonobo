@@ -58,6 +58,7 @@ class Scanner {
 
     if (scanner.matches('/*')) return ScannerState.multiLineComment;
     if (scanner.scan(whitespace) && scanner.isDone) return ScannerState.normal;
+    if (scanner.matches('/*')) return ScannerState.multiLineComment;
 
     normalPatterns.forEach((pattern, type) {
       if (scanner.matches(pattern)) {
@@ -96,7 +97,7 @@ class Scanner {
     void flush() {
       if (textStart != null) {
         members.add(new MultiLineCommentText(scanner.spanFrom(textStart)));
-        textStart = null;
+        textStart = errorStart = null;
       }
     }
 
