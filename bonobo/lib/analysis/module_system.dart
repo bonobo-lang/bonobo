@@ -31,6 +31,22 @@ class BonoboModuleSystem {
       BonoboType.String$.name: BonoboType.String$,
     });
 
+    var print_ = new BonoboFunction(
+      'print',
+      core.scope.createChild(),
+      null,
+      core,
+    )..returnType = BonoboType.Root;
+    print_.manualDocs = 'Prints a value.';
+    print_.parameters
+        .add(new BonoboFunctionParameter('value', BonoboType.Root, null));
+
+    core.scope.create(
+      'print',
+      constant: true,
+      value: print_,
+    );
+
     // TODO: Third-party libs?
 
     // The local module also exists within the global context.
@@ -113,7 +129,7 @@ class BonoboModuleSystem {
       // TODO: Is the right way click invalidation?
       if (_rootModule.analyzer != null &&
           _rootModule.compilationUnits[sourceUrl] != null) {
-        print('old root $rootDir');
+        //print('old root $rootDir');
         return _rootModule;
       }
       return _rootModule = await createModule(rootDirectory, null);
@@ -165,6 +181,7 @@ class BonoboModuleSystem {
   }
 
   void dumpTree([BonoboModule module]) {
+    module ??= rootModule;
     var b = new StringBuffer()..writeln('Dump of module "${module.fullName}":');
 
     void prinDent(int indent, [int n = 1]) {

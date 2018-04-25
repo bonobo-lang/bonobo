@@ -1,10 +1,10 @@
 #ifndef BVM_BASEJIT_H
 #define BVM_BASEJIT_H
-#include <stdint.h>
+#include <cstdint>
 #include <stack>
 #include <vector>
 #include "../binary/binary.h"
-#include "BVMTask.h"
+#include "bvm_task.h"
 #include "Frame.h"
 #include "Trampoline.h"
 

@@ -10,7 +10,7 @@ class BonoboModule {
   final bool isCore;
   final BonoboModuleSystem moduleSystem;
   final BonoboModule parent;
-  SymbolTable<BonoboObject> _scope = new SymbolTable();
+  SymbolTable<BonoboObject> _scope;
   BonoboAnalyzer analyzer;
   FileSpan emptySpan;
   String _fullName, _name;
@@ -21,6 +21,7 @@ class BonoboModule {
     if (parent != null &&
         !parent.children.contains(this) &&
         !parent.children.any((m) => m.name == name)) parent.children.add(this);
+    _scope = parent == null ? new SymbolTable() : parent.scope.createChild();
   }
 
   factory BonoboModule._(Directory directory, BonoboModule parent,
@@ -34,13 +35,14 @@ class BonoboModule {
 
   BonoboFunction get mainFunction {
     return scope.allPublicVariables
-        .firstWhere((v) => name == 'main' && v.value is BonoboFunction,
+        .firstWhere((v) => v.name == 'main' && v.value is BonoboFunction,
             orElse: () => null)
         ?.value;
   }
 
   BonoboModule._core(this.directory, this.moduleSystem)
-      : isCore = true,
+      : _scope = new SymbolTable(),
+        isCore = true,
         parent = null;
 
   bool get isRoot => parent == null;

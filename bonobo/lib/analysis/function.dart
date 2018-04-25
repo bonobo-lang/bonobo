@@ -19,10 +19,11 @@ class BonoboFunction extends BonoboObject {
   final BonoboModule declaringModule;
   ControlFlow body;
   BonoboType returnType;
+  String manualDocs;
   BonoboFunctionType _type;
 
   BonoboFunction(this.name, this.scope, this.declaration, this.declaringModule)
-      : super(new _BonoboFunctionType(null), declaration.span);
+      : super(new _BonoboFunctionType(null), declaration?.span);
 
   @override
   BonoboFunctionType get type {
@@ -38,6 +39,7 @@ class BonoboFunction extends BonoboObject {
   }
 
   String get documentation {
+    if (manualDocs == null) return manualDocs;
     if (declaration == null) return '';
     if (declaration.comments.isNotEmpty)
       return declaration.comments.map((c) => c.text).join('\n');
@@ -50,5 +52,5 @@ class BonoboFunctionParameter {
   final FileSpan span;
   BonoboType type;
 
-  BonoboFunctionParameter(this.name, this.span);
+  BonoboFunctionParameter(this.name, this.type, this.span);
 }

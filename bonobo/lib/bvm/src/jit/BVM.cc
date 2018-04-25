@@ -10,6 +10,7 @@ bvm::BVM *bvm::bvmInstance = nullptr;
 bvm::BVM::BVM(Dart_Handle sendPort) {
     bvm::bvmInstance = this;
     this->sendPort = sendPort;
+    Dart_SendPortGetId(sendPort, &this->sendPortId);
     this->receivePort =
             Dart_NewNativePort("BVM", sendPortCallback, true);
     interpreter = new BVMInterpreter;
@@ -37,6 +38,8 @@ void bvm::BVM::handleDartMessage(Dart_Port destPortId, Dart_CObject *message) {
         } else if (!strcmp(msg, "FN")) {
             char *functionName = message->value.as_array.values[1]->value.as_string;
             loadFunction(functionName, destPortId, message);
+        } else if (!strcmp(msg, "LOOP")) {
+            std::cout << "LOOP! Tasks: " << tasks.size()  << std::endl;
         }
     }
 }
@@ -62,14 +65,32 @@ void bvm::BVM::execFunction(char *functionName, Dart_Port destPortId, Dart_CObje
         }
     }
 
-    if (function == nullptr) {
+    if (true || function == nullptr) {
         // Request JIT-compilation of function.
         //
-        // Send ['FN', $fullName]
-        Dart_Handle list = HandleError(Dart_NewList(2));
-        HandleError(Dart_ListSetAt(list, 2, Dart_NewStringFromCString("FN")));
-        HandleError(Dart_NewStringFromCString(functionName));
-        Dart_Post(destPortId, list);
+        // Send 'FN', then $fullName
+
+        auto *req1 = new Dart_CObject, *req2 = new Dart_CObject;
+        req1->type = req2->type = Dart_CObject_kString;
+        req1->value.as_string = (char*) "FN";
+        req2->value.as_string = functionName;
+        Dart_PostCObject(sendPortId, req1);
+        Dart_PostCObject(sendPortId, req2);
+        delete req1;
+        delete req2;
+        /*auto *req = new Dart_CObject;
+        req->type = Dart_CObject_kArray;
+        auto *arr = new Dart_CObject*[2];
+        arr[0] = new Dart_CObject;
+        arr[1] = new Dart_CObject;
+        arr[0]->type = arr[1]->type = Dart_CObject_kString;
+        arr[0]->value.as_string = (char *) "FN";
+        arr[1]->value.as_string = functionName;
+        req->value.as_array.values = arr;
+        Dart_PostCObject(destPortId, req);
+        Dart_PostCObject(sendPortId, req);*/
+        //delete[] arr;
+        //delete req;
     } else {
         // Start a new task that invokes the function.
         auto *task = new BVMTask;

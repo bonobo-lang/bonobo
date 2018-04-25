@@ -18,9 +18,7 @@ class RunCommand extends Command {
   @override
   run() async {
     var analyzer = await analyze(this, eager: false);
-
-    // Create a new BVM.
-    var bvm = new BVM();
+    Iterable<BonoboError> errors, warnings;
 
     // Find the main function.
     var mainFunction = analyzer.module.mainFunction;
@@ -29,16 +27,35 @@ class RunCommand extends Command {
       throw "The module '${analyzer.module
           .fullName}' has no top-level, public function named 'main'.";
 
-    Future jitCompile(BonoboFunction function) async {
+    Future lazyAnalyze(BonoboFunction function) async {
       await analyzer.functionAnalyzer.analyzeFunction(function);
 
-      var errors =
+      errors =
           analyzer.errors.where((e) => e.severity == BonoboErrorSeverity.error);
-      var warnings = analyzer.errors
+      warnings = analyzer.errors
           .where((e) => e.severity == BonoboErrorSeverity.warning);
 
       printErrors(errors);
       printErrors(warnings);
+    }
+
+    // Lazy analyze to find preliminary errors.
+    await lazyAnalyze(mainFunction);
+
+    if (errors.isNotEmpty || (argResults['strict'] && warnings.isNotEmpty)) {
+      stderr.writeln('Compilation finished with errors.');
+      exitCode = 1;
+      return null;
+    }
+
+    // Create a new BVM.
+    var bvm = new BVM();
+
+    // And a compiler
+    var bvmCompiler = new BVMCompiler();
+
+    Future jitCompile(BonoboFunction function) async {
+      await lazyAnalyze(function);
 
       if (errors.isNotEmpty || (argResults['strict'] && warnings.isNotEmpty)) {
         stderr.writeln('Compilation finished with errors.');
@@ -46,12 +63,18 @@ class RunCommand extends Command {
         return null;
       }
 
-      Uint8List bytecode;
+      var bytecode = await bvmCompiler.compileFunction(function);
       bvm.loadFunction(function.fullName, bytecode);
     }
 
+    // Listen for missing functions.
+    bvm.onMissingFunction.listen((name) {
+      throw 'Need to JIT $name.';
+    });
+
     // JIT-compile the main function we just found.
-    await jitCompile(mainFunction);
+    var bytecode = await bvmCompiler.compileFunction(mainFunction);
+    bvm.loadFunction(mainFunction.fullName, bytecode);
 
     // Now, just run it.
     bvm.exec(mainFunction.fullName, []);

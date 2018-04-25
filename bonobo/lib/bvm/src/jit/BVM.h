@@ -5,7 +5,7 @@
 #include <dart_api.h>
 #include <dart_native_api.h>
 #include <vector>
-#include "BVMTask.h"
+#include "bvm_task.h"
 #include "Function.h"
 #include "BVMInterpreter.h"
 
@@ -19,7 +19,7 @@ namespace bvm
         std::vector<BVMTask*> tasks;
         std::vector<BVMFunction*> functions;
         BVMInterpreter *interpreter;
-        Dart_Port receivePort;
+        Dart_Port receivePort, sendPortId;
         Dart_Handle sendPort;
     public:
         static BVM *create(Dart_Handle sendPort);

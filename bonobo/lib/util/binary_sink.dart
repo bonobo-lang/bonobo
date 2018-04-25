@@ -64,7 +64,8 @@ class BinarySink extends StringSink {
   void resize(int size) {
     if (_list.length < size) {
       var newList = new Uint8List(size);
-      newList.insertAll(0, _list);
+      for (int i = 0; i < _list.length; i++)
+        newList[i] = _list[i];
       _list = newList;
       _byteData = null;
     }

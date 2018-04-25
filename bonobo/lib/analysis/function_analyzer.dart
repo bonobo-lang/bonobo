@@ -24,7 +24,7 @@ class FunctionAnalyzer {
       // Create parameters, without types
       for (var p in ctx.signature.parameterList.parameters) {
         function.parameters
-            .add(new BonoboFunctionParameter(p.name.name, p.span));
+            .add(new BonoboFunctionParameter(p.name.name, null, p.span));
       }
 
       // Add the names of every parameter
