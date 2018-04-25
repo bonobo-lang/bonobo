@@ -1,0 +1,1 @@
+export 'src/jit/bvm_jit.dart';

@@ -44,7 +44,7 @@ class BonoboModuleSystem {
 
   Future analyzeModule(
       BonoboModule module, Directory directory, BonoboModule parent,
-      {bool fresh: false}) async {
+      {bool fresh: false, bool lazy: false}) async {
     if (fresh) {
       // Invalidate existing module
       module._scope = new SymbolTable();
@@ -75,7 +75,8 @@ class BonoboModuleSystem {
         compilationUnit,
         scanner.scanner.sourceUrl,
         parser,
-        module,
+        m: module,
+        lazy: lazy,
       );
 
       module..compilationUnits[sourceFile.absolute.uri] = compilationUnit;

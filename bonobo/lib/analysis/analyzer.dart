@@ -23,7 +23,7 @@ class BonoboAnalyzer {
   // TODO: Find unused symbols
   Future analyze(
       CompilationUnitContext compilationUnit, Uri sourceUrl, Parser parser,
-      [BonoboModule m]) async {
+      {BonoboModule m, bool lazy: false}) async {
     var functions = <BonoboFunction>[];
 
     // Figure out which module we're even working in...
@@ -70,10 +70,12 @@ class BonoboAnalyzer {
     }
 
     // Populate any typedefs.
-    for (var typedef in compilationUnit.typedefs) {
-      var type = module.types[typedef.name.name];
-      if (type is BonoboTypedef) {
-        type.type = await typeAnalyzer.resolve(typedef.type);
+    if (!lazy) {
+      for (var typedef in compilationUnit.typedefs) {
+        var type = module.types[typedef.name.name];
+        if (type is BonoboTypedef) {
+          type.type = await typeAnalyzer.resolve(typedef.type);
+        }
       }
     }
 
@@ -87,14 +89,16 @@ class BonoboAnalyzer {
       }
     }
 
-    // Collect signature information.
-    for (var ctx in functions) {
-      await functionAnalyzer.populateFunctionSignature(ctx);
-    }
+    if (!lazy) {
+      // Collect signature information.
+      for (var ctx in functions) {
+        await functionAnalyzer.populateFunctionSignature(ctx);
+      }
 
-    // Now, analyze them fully.
-    for (var ctx in functions) {
-      await functionAnalyzer.analyzeFunction(ctx);
+      // Now, analyze them fully.
+      for (var ctx in functions) {
+        await functionAnalyzer.analyzeFunction(ctx);
+      }
     }
   }
 }

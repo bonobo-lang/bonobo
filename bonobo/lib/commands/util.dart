@@ -29,14 +29,15 @@ Future<Tuple3<Scanner, Parser, CompilationUnitContext>> scanAndParse(
   return new Tuple3(scanner, parser, compilationUnit);
 }
 
-Future<BonoboAnalyzer> analyze(Command command) async {
+Future<BonoboAnalyzer> analyze(Command command, {bool eager: true}) async {
   var tuple = await scanAndParse(command);
   const fs = const LocalFileSystem();
   var directory = fs.directory(fs.currentDirectory);
   var moduleSystem = await BonoboModuleSystem.create(directory);
   var module = await moduleSystem.findModuleForFile(
       tuple.item1.scanner.sourceUrl, moduleSystem.rootModule);
-  await moduleSystem.analyzeModule(module, directory, moduleSystem.rootModule);
+  await moduleSystem.analyzeModule(module, directory, moduleSystem.rootModule,
+      lazy: !eager);
   return module.analyzer;
   /*
   var analyzer = new BonoboAnalyzer(
