@@ -42,9 +42,17 @@ class BVMCompiler implements BonoboCompiler<Uint8List> {
     // Add all params
     sink..addUint8(BVMOpcode.NUM_PARAMS)..addUint8(function.parameters.length);
 
+    // TODO: How to compile types?
     for (var param in function.parameters)
       writeString(param.type.fullName, sink);
 
+    await compileControlFlow(function.body, function, sink);
+
     return sink.toBytes();
+  }
+
+  Future compileControlFlow(
+      ControlFlow body, BonoboFunction function, BinarySink sink) async {
+    // TODO: Compile each statement
   }
 }

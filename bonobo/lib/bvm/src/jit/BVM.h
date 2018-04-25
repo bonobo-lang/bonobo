@@ -4,6 +4,9 @@
 #include <llvm/IR/IRBuilder.h>
 #include <dart_api.h>
 #include <dart_native_api.h>
+#include <vector>
+#include "BVMTask.h"
+#include "Function.h"
 
 namespace bvm
 {
@@ -12,7 +15,8 @@ namespace bvm
     {
     private:
         explicit BVM(Dart_Handle sendPort);
-        llvm::IRBuilder *irBuilder;
+        std::vector<BVMTask*> tasks;
+        std::vector<BVMFunction*> functions;
         Dart_Port receivePort;
         Dart_Handle sendPort;
     public:
@@ -23,6 +27,8 @@ namespace bvm
         static void sendPortCallback(Dart_Port destPortId, Dart_CObject *message);
 
         void handleDartMessage(Dart_Port destPortId, Dart_CObject *message);
+
+        void loadFunction(char* functionName, Dart_Port destPortId, Dart_CObject *message);
 
         void execFunction(char *functionName, Dart_Port destPortId, Dart_CObject *message);
     };

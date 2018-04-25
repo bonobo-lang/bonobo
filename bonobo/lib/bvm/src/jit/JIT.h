@@ -4,7 +4,7 @@
 #include <stack>
 #include <vector>
 #include "../binary/binary.h"
-#include "Continuation.h"
+#include "BVMTask.h"
 #include "Frame.h"
 #include "Trampoline.h"
 
@@ -12,7 +12,7 @@ namespace bvm {
     class JIT {
         public:
             std::vector<void*> constants;
-            std::vector<Continuation*> tasks;
+            std::vector<BVMTask*> tasks;
             std::stack<Frame*> callStack;
             std::stack<void*> stack;
             Trampoline trampoline;

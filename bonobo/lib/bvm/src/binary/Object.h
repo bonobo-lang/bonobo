@@ -9,7 +9,7 @@ namespace bvm {
   typedef struct {
     Constant *constants;
     Type* types;
-    Function* functions;
+    BinaryFunction* functions;
     int64_t number_of_constants, number_of_types, number_of_functions;
   } Object;
 }

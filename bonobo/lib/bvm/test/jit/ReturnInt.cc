@@ -12,7 +12,7 @@ TEST(ReturnIntTest, ReturnInt) {
     object->constants = new bvm::Constant;
     object->constants->size = sizeof(uint32_t);
     object->constants->value = (void *) &value;
-    object->functions = new bvm::Function;
+    object->functions = new bvm::BVMFunction;
     object->functions->number_of_instructions = 3;
     object->functions->instructions = new uint8_t[3];
     object->functions->instructions[0] = (uint8_t) bvm::Opcode::CONSTANT8;

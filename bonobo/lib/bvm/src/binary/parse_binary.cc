@@ -61,11 +61,11 @@ bvm::Object *bvm::parseBinary(std::istream &stream) {
     }
 
     // Parse functions.
-    Function *function;
+    BVMFunction *function;
 
     for (int64_t i = 0; i < object->number_of_functions; i++) {
         uint64_t len;
-        auto *newFunction = new Function;
+        auto *newFunction = new BVMFunction;
 
         // Parse name.
         stream.read((char *) &len, sizeof(len));
