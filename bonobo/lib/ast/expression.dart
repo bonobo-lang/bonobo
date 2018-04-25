@@ -4,9 +4,13 @@ abstract class ExpressionContext extends AstNode {
   ExpressionContext(FileSpan span, List<Comment> comments)
       : super(span, comments);
 
+  static bool isNumericalConstant(ExpressionContext ctx) =>
+      ctx != null && ctx.isConstant && ctx.constantValue is num;
+
   bool get isConstant => false;
 
-  get constantValue => throw new UnsupportedError('$runtimeType is not a constant expression.');
+  get constantValue =>
+      throw new UnsupportedError('$runtimeType is not a constant expression.');
 
   ExpressionContext get innermost => this;
 }
@@ -72,8 +76,7 @@ class NumberLiteralContext extends ExpressionContext {
 
   @override
   get constantValue {
-    if (hasDecimal)
-      return doubleValue;
+    if (hasDecimal) return doubleValue;
     return intValue;
   }
 
@@ -267,6 +270,11 @@ class BinaryExpressionContext extends ExpressionContext {
   @override
   bool get isConstant => left.isConstant && right.isConstant;
 
+  // TODO: Constant value
+  @override
+  get constantValue =>
+      throw new UnimplementedError('Constant value of binary expression.');
+
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) =>
       visitor.visitBinaryExpression(this);
@@ -316,6 +324,14 @@ class PrefixExpressionContext extends ExpressionContext {
       : super(span, comments);
 
   @override
+  bool get isConstant => expression.isConstant;
+
+  // TODO: Constant value
+  @override
+  get constantValue =>
+      throw new UnimplementedError('Constant value of prefix expression.');
+
+  @override
   T accept<T>(BonoboAstVisitor<T> visitor) =>
       visitor.visitPrefixExpression(this);
 
@@ -331,6 +347,14 @@ class PostfixExpressionContext extends ExpressionContext {
       : super(span, comments);
 
   @override
+  bool get isConstant => expression.isConstant;
+
+  // TODO: Constant value
+  @override
+  get constantValue =>
+      throw new UnimplementedError('Constant value of postfix expression.');
+
+  @override
   T accept<T>(BonoboAstVisitor<T> visitor) =>
       visitor.visitPostfixExpression(this);
 }
@@ -341,6 +365,14 @@ class ConditionalExpressionContext extends ExpressionContext {
   ConditionalExpressionContext(this.condition, this.ifTrue, this.ifFalse,
       FileSpan span, List<Comment> comments)
       : super(span, comments);
+
+  @override
+  bool get isConstant =>
+      condition.isConstant && ifTrue.isConstant && ifFalse.constantValue;
+
+  @override
+  get constantValue =>
+      condition.constantValue ? ifTrue.constantValue : ifFalse.constantValue;
 
   @override
   T accept<T>(BonoboAstVisitor<T> visitor) =>
@@ -355,6 +387,12 @@ class TupleExpressionContext extends ExpressionContext {
       : super(span, comments);
 
   @override
+  bool get isConstant => expressions.every((e) => e.isConstant);
+
+  @override
+  get constantValue => expressions.map((e) => e.constantValue).toList();
+
+  @override
   T accept<T>(BonoboAstVisitor<T> visitor) =>
       visitor.visitTupleExpression(this);
 }
@@ -362,6 +400,8 @@ class TupleExpressionContext extends ExpressionContext {
 class CallExpressionContext extends ExpressionContext {
   final ExpressionContext target;
   final TupleExpressionContext arguments;
+
+  // TODO: Can this be constant?
 
   CallExpressionContext(
       this.target, this.arguments, FileSpan span, List<Comment> comments)
@@ -482,6 +522,22 @@ class RangeLiteralContext extends ExpressionContext {
   final ExpressionContext end;
   final ExpressionContext step;
   final bool exclusive;
+
+  @override
+  bool get isConstant =>
+      ExpressionContext.isNumericalConstant(start) &&
+      ExpressionContext.isNumericalConstant(end) &&
+      ExpressionContext.isNumericalConstant(step);
+
+  @override
+  get constantValue {
+    num start = this.start.constantValue,
+        end = this.end.constantValue,
+        step = this.step?.constantValue ?? 1;
+    var out = <num>[];
+    for (num i = start; exclusive ? i < end : i <= end; i += step) out.add(i);
+    return out;
+  }
 
   RangeLiteralContext(this.start, this.end, this.step, this.exclusive,
       FileSpan span, List<Comment> comments)
