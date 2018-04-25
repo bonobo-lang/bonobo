@@ -5,7 +5,7 @@ abstract class ExpressionContext extends AstNode {
       : super(span, comments);
 
   static bool isNumericalConstant(ExpressionContext ctx) =>
-      ctx != null && ctx.isConstant && ctx.constantValue is num;
+      ctx != null && ctx is NumberLiteralContext && ctx.constantValue is num;
 
   bool get isConstant => false;
 
@@ -527,7 +527,7 @@ class RangeLiteralContext extends ExpressionContext {
   bool get isConstant =>
       ExpressionContext.isNumericalConstant(start) &&
       ExpressionContext.isNumericalConstant(end) &&
-      ExpressionContext.isNumericalConstant(step);
+      (step == null || ExpressionContext.isNumericalConstant(step));
 
   @override
   get constantValue {
