@@ -72,6 +72,8 @@ final Map<Pattern, TokenType> normalPatterns = {
   '<<': TokenType.shl,
   '>>': TokenType.shr,
   '.': TokenType.dot,
+  '..': TokenType.double_dot,
+  '...': TokenType.triple_dot,
 
   // Assignments
   '=': TokenType.assign,
@@ -164,6 +166,8 @@ enum TokenType {
   shl,
   shr,
   dot,
+  double_dot,
+  triple_dot,
 
   // Assignment
   assign,
