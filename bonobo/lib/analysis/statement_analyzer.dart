@@ -6,6 +6,7 @@ class StatementAnalyzer {
   StatementAnalyzer(this.analyzer);
 
   Future<ControlFlow> analyzeControlFlow(BonoboFunction function) async {
+    if (function.declaration == null) return null;
     return await analyzeBlock(
         function.declaration.body.body, function, function.scope, false);
   }

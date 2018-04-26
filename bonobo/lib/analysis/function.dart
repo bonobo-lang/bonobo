@@ -8,7 +8,8 @@ class _BonoboFunctionType extends BonoboInheritedType {
 
   _BonoboFunctionType._(BonoboModule module) : super('Function', module);
 
-  factory _BonoboFunctionType(BonoboModule module) => _instance ??= new _BonoboFunctionType._(module);
+  factory _BonoboFunctionType(BonoboModule module) =>
+      _instance ??= new _BonoboFunctionType._(module);
 }
 
 class BonoboFunction extends BonoboObject {
@@ -29,7 +30,8 @@ class BonoboFunction extends BonoboObject {
   BonoboFunctionType get type {
     if (_type != null) return _type;
     var parameters = this.parameters.map((p) => p.type).toList();
-    return _type = new BonoboFunctionType(declaringModule, parameters, returnType);
+    return _type =
+        new BonoboFunctionType(declaringModule, parameters, returnType);
   }
 
   /// The fully-qualified name of this function.
@@ -45,6 +47,13 @@ class BonoboFunction extends BonoboObject {
       return declaration.comments.map((c) => c.text).join('\n');
     return type.signature;
   }
+}
+
+class BonoboNativeFunction extends BonoboFunction {
+  final FutureOr Function(BinarySink) compile;
+
+  BonoboNativeFunction(String name, BonoboModule declaringModule, this.compile)
+      : super(name, null, null, declaringModule);
 }
 
 class BonoboFunctionParameter {

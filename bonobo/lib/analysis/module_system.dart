@@ -31,11 +31,12 @@ class BonoboModuleSystem {
       BonoboType.String$.name: BonoboType.String$,
     });
 
-    var print_ = new BonoboFunction(
+    var print_ = new BonoboNativeFunction(
       'print',
-      core.scope.createChild(),
-      null,
       core,
+      (sink) {
+        sink..addUint8(BVMOpcode.PRINT)..addUint8(BVMOpcode.RET);
+      },
     )..returnType = BonoboType.Root;
     print_.manualDocs = 'Prints a value.';
     print_.parameters

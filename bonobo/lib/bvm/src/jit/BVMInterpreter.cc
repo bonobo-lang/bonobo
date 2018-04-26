@@ -62,32 +62,42 @@ bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
                     auto ch = (char) task->function->bytecode[task->index++];
 
                     while (ch != 0) {
-                        std::cout << "char: " << ch << std::endl;
+                        //std::cout << "char: " << ch << std::endl;
                         ss.write(&ch, 1);
                         ch = (char) task->function->bytecode[task->index++];
                     }
 
                     auto str = ss.str();
-                    std::cout << "STRING: " << str << std::endl;
-                    task->strings.push(str);
+                    auto buf = new char[str.length()];
+                    strcpy(buf, str.c_str());
+                    //std::cout << "STRING: " << str << std::endl;
+                    task->stack->push((void*) buf);
                     break;
                 }
 
                 case Opcode::CALL: {
                     // If we're calling a function, then the value at the top
                     // of the string stack is a const char*.
-                    auto functionName = task->strings.top();
+                    auto functionName = (const char*) task->stack->top();
                     task->stack->pop();
-                    std::cout << "CALLING: " << functionName << std::endl;
+                    //std::cout << "CALLING: " << functionName << std::endl;
 
                     // Signal to the VM that we want to call this function.
                     task->blocked = true;
-                    task->missingFunction = functionName.c_str();
+                    task->missingFunction = functionName;
                     break;
                 }
                 case Opcode::RET: {
                     // We're done.
                     task->index = task->function->length;
+                    break;
+                }
+                case Opcode::PRINT: {
+                    // The top of the stack is a const char*.
+                    // Print it.
+                    auto msg = (const char*) task->stack->top();
+                    task->stack->pop();
+                    std::cout << "YEEEAHHHH " << msg << std::endl;
                     break;
                 }
                 default: {

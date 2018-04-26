@@ -65,9 +65,11 @@ class FunctionAnalyzer {
     function.body =
         await analyzer.statementAnalyzer.analyzeControlFlow(function);
 
-    if (function.declaration.signature.returnType == null) {
-      // Attempt to infer the return type, if none is specified
-      function.returnType = function.body.returnType ?? BonoboType.Root;
+    if (function.declaration != null) {
+      if (function.declaration.signature.returnType == null) {
+        // Attempt to infer the return type, if none is specified
+        function.returnType = function.body.returnType ?? BonoboType.Root;
+      }
     }
   }
 }

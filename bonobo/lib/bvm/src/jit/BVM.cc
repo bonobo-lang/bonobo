@@ -28,54 +28,68 @@ void bvm::BVM::sendPortCallback(Dart_Port destPortId, Dart_CObject *message) {
     bvm::bvmInstance->handleDartMessage(destPortId, message);
 }
 
+void bvm::BVM::threadProc(bvm::BVMThreadConfig *config) {
+    auto *bvm = (BVM *) config->bvm;
+
+    while (true) {
+        bool failed = false;
+
+        for (auto *task: bvm->tasks) {
+            // Check for error
+            if (task->blocked) {
+                if (!task->errorMessage.empty()) {
+                    // THROW, $error
+                    auto *req1 = new Dart_CObject, *req2 = new Dart_CObject;
+                    req1->type = req2->type = Dart_CObject_kString;
+                    req1->value.as_string = (char *) "THROW";
+                    req2->value.as_string = (char *) task->errorMessage.c_str();
+                    Dart_PostCObject(bvm->sendPortId, req1);
+                    Dart_PostCObject(bvm->sendPortId, req2);
+                    failed = true;
+                    break;
+                } else if (task->missingFunction != nullptr) {
+                    // The task in question is waiting for a function to run.
+                    // Find the function in question, if it exists.
+                    auto *newTask = bvm->execFunction((char *) task->missingFunction, config->destPortId,
+                                                      config->message,
+                                                      !task->functionRequested);
+                    task->functionRequested = true;
+
+                    if (newTask != nullptr) {
+                        // We've started the function.
+                        // Tell it where to return to, and assign the same stack.
+                        newTask->stack = task->stack;
+                        newTask->returnTo = task;
+
+                        // Clear out the missingFunction.
+                        task->missingFunction = nullptr;
+                        task->functionRequested = false;
+                    }
+                }
+            } else if ((failed = !bvm->interpreter->visit(task)))
+                break;
+        }
+
+        if (failed) break;
+    }
+}
+
 void bvm::BVM::handleDartMessage(Dart_Port destPortId, Dart_CObject *message) {
     if (message->type == Dart_CObject_kArray && message->value.as_array.length >= 2) {
         char *msg = message->value.as_array.values[0]->value.as_string;
 
         if (!strcmp(msg, "EXEC")) {
             char *functionName = message->value.as_array.values[1]->value.as_string;
-            execFunction(functionName, destPortId, message);
+            execFunction(functionName, destPortId, message, true);
         } else if (!strcmp(msg, "FN")) {
             char *functionName = message->value.as_array.values[1]->value.as_string;
             loadFunction(functionName, destPortId, message);
-        } else if (!strcmp(msg, "LOOP")) {
-            while (true) {
-                bool failed = false;
-
-                for (auto *task: tasks) {
-                    // Check for error
-                    if (task->blocked) {
-                        if (!task->errorMessage.empty()) {
-                            // THROW, $error
-                            auto *req1 = new Dart_CObject, *req2 = new Dart_CObject;
-                            req1->type = req2->type = Dart_CObject_kString;
-                            req1->value.as_string = (char *) "THROW";
-                            req2->value.as_string = (char *) task->errorMessage.c_str();
-                            Dart_PostCObject(sendPortId, req1);
-                            Dart_PostCObject(sendPortId, req2);
-                            failed = true;
-                            break;
-                        } else if (task->missingFunction != nullptr) {
-                            // The task in question is waiting for a function to run.
-                            // Find the function in question, if it exists.
-                            auto *newTask = execFunction((char *) task->missingFunction, destPortId, message);
-
-                            if (newTask != nullptr) {
-                                // We've started the function.
-                                // Tell it where to return to, and assign the same stack.
-                                newTask->stack = task->stack;
-                                newTask->returnTo = task;
-
-                                // Clear out the missingFunction.
-                                task->missingFunction = nullptr;
-                            }
-                        }
-                    } else if ((failed = !interpreter->visit(task)))
-                        break;
-                }
-
-                if (failed) break;
-            }
+        } else if (!strcmp(msg, "LOOP") && bvmInstance->loopThread == nullptr) {
+            auto* config = new bvm::BVMThreadConfig;
+            config->bvm = bvmInstance;
+            config->message = message;
+            config->destPortId = destPortId;
+            bvmInstance->loopThread = new std::thread(bvm::BVM::threadProc, config);
         }
     }
 }
@@ -94,6 +108,7 @@ void bvm::BVM::loadFunction(char *functionName, Dart_Port destPortId, Dart_CObje
 
     std::cout << "LOADED FUNCTION: " << functionName << ": [";
 
+
     for (intptr_t i = 0; i < bytecode.length; i++) {
         if (i > 0)
             std::cout << ", ";
@@ -103,7 +118,7 @@ void bvm::BVM::loadFunction(char *functionName, Dart_Port destPortId, Dart_CObje
     std::cout << "]" << std::endl;
 }
 
-bvm::BVMTask *bvm::BVM::execFunction(char *functionName, Dart_Port destPortId, Dart_CObject *message) {
+bvm::BVMTask *bvm::BVM::execFunction(char *functionName, Dart_Port destPortId, Dart_CObject *message, bool requestNew) {
     // Find the function to run.
     BVMFunction *function = nullptr;
 
@@ -115,17 +130,20 @@ bvm::BVMTask *bvm::BVM::execFunction(char *functionName, Dart_Port destPortId, D
     }
 
     if (function == nullptr) {
-        // Request JIT-compilation of function.
-        //
-        // Send 'FN', then $fullName
-        auto *req1 = new Dart_CObject, *req2 = new Dart_CObject;
-        req1->type = req2->type = Dart_CObject_kString;
-        req1->value.as_string = (char *) "FN";
-        req2->value.as_string = functionName;
-        Dart_PostCObject(sendPortId, req1);
-        Dart_PostCObject(sendPortId, req2);
-        delete req1;
-        delete req2;
+        if (requestNew) {
+            // Request JIT-compilation of function.
+            //
+            // Send 'FN', then $fullName
+            auto *req1 = new Dart_CObject, *req2 = new Dart_CObject;
+            req1->type = req2->type = Dart_CObject_kString;
+            req1->value.as_string = (char *) "FN";
+            req2->value.as_string = functionName;
+            Dart_PostCObject(sendPortId, req1);
+            Dart_PostCObject(sendPortId, req2);
+            delete req1;
+            delete req2;
+        }
+
         return nullptr;
     } else {
         // Start a new task that invokes the function.

@@ -82,20 +82,21 @@ class RunCommand extends Command {
           throw 'Unknown function: $name';
       }
 
-      var function = module.scope.allPublicVariables
+      BonoboFunction function = module.scope.allPublicVariables
           .firstWhere((v) => v.name == split.last && v.value is BonoboFunction,
               orElse: () => null)
           ?.value;
 
       if (function == null) throw 'Unknown function: $name';
+      print('JIT-ing ${function.fullName}...');
       jitCompile(function);
     });
 
     // JIT-compile the main function we just found.
     var bytecode =
         await bvmCompiler.compileFunction(analyzer.module, mainFunction);
-    print(bytecode.map((b) => '0x' + b.toRadixString(16)).toList());
-    print(new String.fromCharCodes(bytecode));
+    //print(bytecode.map((b) => '0x' + b.toRadixString(16)).toList());
+    //print(new String.fromCharCodes(bytecode));
     bvm.loadFunction(mainFunction.fullName, bytecode);
 
     // Now, just run it.

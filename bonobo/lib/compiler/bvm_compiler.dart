@@ -49,13 +49,17 @@ class BVMCompiler implements BonoboCompiler<Uint8List> {
       BonoboModule module, BonoboFunction function) async {
     var sink = new BinarySink();
 
-    // Add all params
-    for (var param in function.parameters)
-      // BVM expects the PARAM opcode, which pops from the stack into a parameter.
-      sink.addUint8(BVMOpcode.POP_PARAM);
+    if (function is BonoboNativeFunction) {
+      await function.compile(sink);
+    } else {
+      // Add all params
+      for (var param in function.parameters)
+        // BVM expects the PARAM opcode, which pops from the stack into a parameter.
+        sink.addUint8(BVMOpcode.POP_PARAM);
 
-    await compileControlFlow(
-        module, function.body, function.scope, function, sink);
+      await compileControlFlow(
+          module, function.body, function.scope, function, sink);
+    }
 
     return sink.toBytes();
   }

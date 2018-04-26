@@ -10,8 +10,10 @@ import 'package:resource/resource.dart';
 import 'package:source_span/source_span.dart';
 import 'package:symbol_table/symbol_table.dart';
 import '../ast/ast.dart';
+import '../compiler/bvm/bvm.dart';
 import '../scanner/scanner.dart';
 import '../parser/parser.dart';
+import '../util/util.dart';
 
 part 'analyzer.dart';
 part 'byte.dart';
