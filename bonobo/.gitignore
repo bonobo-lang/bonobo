@@ -15,3 +15,6 @@ doc/api/
 .dart_tool
 .vscode
 *.dylib
+
+bin/bvm
+bin/bvm.exe

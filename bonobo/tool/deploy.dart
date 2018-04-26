@@ -47,8 +47,8 @@ main() async {
   var snapshot = p.join(packageDirPath, 'bin', 'bonobo.dart.snapshot');
   var bonoboExecutable =
       p.join(p.dirname(Platform.script.path), '..', 'bin', 'bonobo.dart');
-  var result = await Process
-      .run(Platform.executable, ['--snapshot=$snapshot', '--snapshot-kind=app-jit', bonoboExecutable]);
+  var result = await Process.run(Platform.executable,
+      ['--snapshot=$snapshot', '--snapshot-kind=app-jit', bonoboExecutable]);
 
   if (result.exitCode != 0) {
     print(result.stderr);
@@ -60,9 +60,50 @@ main() async {
 
   var bonoboDir = new Directory(p.join(p.dirname(Platform.script.path), '..'));
 
+  // Run CMake.
+  var cmake = await Process.start('cmake', ['.'],
+      workingDirectory: bonoboDir.absolute.path);
+  await stdout.addStream(cmake.stdout);
+  await stderr.addStream(cmake.stderr);
+  var code = await cmake.exitCode;
+
+  if (code != 0) {
+    throw 'CMake failed.';
+  }
+
+  cmake = await Process.start(
+      'cmake',
+      [
+        '--build',
+        '.',
+        '--target',
+        'all',
+        '--',
+        '-j',
+        Platform.numberOfProcessors.toString()
+      ],
+      workingDirectory: bonoboDir.absolute.path);
+  await stdout.addStream(cmake.stdout);
+  await stderr.addStream(cmake.stderr);
+  code = await cmake.exitCode;
+
+  if (code != 0) {
+    throw 'CMake failed.';
+  }
+
+  // Copy generated executables
+  var binDir = new Directory.fromUri(bonoboDir.uri.resolve('bin'));
+
+  await for (var entity in binDir.list(recursive: true)) {
+    if (entity is File && p.basenameWithoutExtension(entity.path) == 'bvm') {
+      await addFile(entity.absolute.path, binDir.absolute.path, 'bin');
+    }
+  }
+
   await for (var entity in bonoboDir.list(recursive: true)) {
     if (entity is File && libExt.contains(p.extension(entity.path))) {
-      await addFile(entity.absolute.path, p.dirname(entity.absolute.path), 'bin');
+      await addFile(
+          entity.absolute.path, p.dirname(entity.absolute.path), 'bin');
     }
   }
 

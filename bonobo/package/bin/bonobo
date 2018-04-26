@@ -4,14 +4,14 @@
 DIRNAME="$(cd "$(dirname "$0")" ; pwd -P )"
 
 # Copy *.dylib, *.so
-cp "$DIRNAME/libbvm_jit.dylib" "`pwd`/libbvm_jit.dylib" 2>/dev/null
-cp "$DIRNAME/libbvm_jit.so" "`pwd`/libbvm_jit.so" 2>/dev/null
+cp "$DIRNAME/libbvm_dart.dylib" "`pwd`/libbvm_dart.dylib" 2>/dev/null
+cp "$DIRNAME/libbvm_dart.so" "`pwd`/libbvm_dart.so" 2>/dev/null
 
 # Run Bonobo
 "$DIRNAME/../dart-sdk/bin/dart" "$DIRNAME/bonobo.dart.snapshot" "$@"
 EXIT=$?
 
 # Clean up
-rm -f "`pwd`/libbvm_jit.dylib" "`pwd`/libbvm_jit.so"
+rm -f "`pwd`/libbvm_dart.dylib" "`pwd`/libbvm_dart.so"
 
 exit $EXIT

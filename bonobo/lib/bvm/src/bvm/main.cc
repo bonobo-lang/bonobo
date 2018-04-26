@@ -90,14 +90,14 @@ int runVM(Options &options) {
     // Minimum length of file should be:
     //
     // 0
-    // + 3 ints (#header) = 96
-    // + 1 long (# functions) = 64
-    // = 160
+    // + 3 ints (#header) = 12
+    // + 1 long (# functions) = 8
+    // = 20
 
     auto *errMalformed = "fatal error: invalid or malformed binary.";
 
-    if (length < 160) {
-        std::cerr << errMalformed << std::endl;
+    if (length < 20) {
+        std::cerr << errMalformed << ". File is only " << length << " bytes in length." << std::endl;
         return 1;
     }
 
@@ -153,7 +153,7 @@ int runVM(Options &options) {
 
         auto functionName = (char *) data + idx;
 
-        if (idx == verifier)
+        if (idx == verifier - 1)
             mainFunctionName = functionName;
 
         // Next should be an unsigned long, which we will convert to intptr_t.

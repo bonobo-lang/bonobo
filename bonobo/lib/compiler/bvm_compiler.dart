@@ -21,8 +21,8 @@ class BVMCompiler implements BonoboCompiler<Future<Uint8List>> {
 
     // TODO: All functions
     var codeSink = new BinarySink();
-    var allFunctions = module.analyzer.allReferencedObjects
-        .whereType<BonoboFunction>()
+    List<BonoboFunction> allFunctions = module.analyzer.allReferencedObjects
+        .where((o) => o is BonoboFunction)
         .toList();
     codeSink.addUint64(allFunctions.length);
 
@@ -35,14 +35,15 @@ class BVMCompiler implements BonoboCompiler<Future<Uint8List>> {
         ..copy(bytecode);
     }
 
-
     // Write the magic: 0xB090B0
     // Then the index at which the main function occurs.
     // Then the "checksum": (magic % idx) >> 2
     var magic = 0xB090B0,
         idx = allFunctions.indexOf(module.mainFunction),
-        checksum = (magic % idx) >> 2;
+        checksum = (magic % (idx + 1)) >> 2;
     sink..addInt32(magic)..addInt32(idx)..addInt32(checksum);
+
+    sink.copy(codeSink.toBytes());
 
     // Return the created binary.
     return sink.toBytes();
