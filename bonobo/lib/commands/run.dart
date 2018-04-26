@@ -95,7 +95,11 @@ class RunCommand extends Command {
     bvm.loadFunction(mainFunction.fullName, bytecode);
 
     // Now, just run it.
-    bvm.exec(mainFunction.fullName, []);
+    //
+    // Pass arguments, of course.
+    bvm.exec(mainFunction.fullName, argResults.rest);
     bvm.startLoop();
+
+    // TODO: Get last return value.
   }
 }
