@@ -47,7 +47,7 @@ bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
                         ch = (char) task->function->bytecode[task->index++];
                     }
 
-                    task->strings.push(ss.str());
+                    task->stack.push((void*) ss.str().c_str());
                     break;
                 }
                     /*

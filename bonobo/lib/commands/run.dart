@@ -91,7 +91,10 @@ class RunCommand extends Command {
     });
 
     // JIT-compile the main function we just found.
-    var bytecode = await bvmCompiler.compileFunction(mainFunction);
+    var bytecode =
+        await bvmCompiler.compileFunction(analyzer.module, mainFunction);
+    print(bytecode);
+    print(new String.fromCharCodes(bytecode));
     bvm.loadFunction(mainFunction.fullName, bytecode);
 
     // Now, just run it.

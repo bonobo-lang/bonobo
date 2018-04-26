@@ -64,8 +64,7 @@ class BinarySink extends StringSink {
   void resize(int size) {
     if (_list.length < size) {
       var newList = new Uint8List(size);
-      for (int i = 0; i < _list.length; i++)
-        newList[i] = _list[i];
+      for (int i = 0; i < _list.length; i++) newList[i] = _list[i];
       _list = newList;
       _byteData = null;
     }
@@ -74,40 +73,48 @@ class BinarySink extends StringSink {
   void addUint8(int value) {
     allocate(1);
     byteData.setUint8(_index, value);
+    _index++;
   }
 
   void addUint16(int value) {
     allocate(2);
     byteData.setUint16(_index, value);
+    _index += 2;
   }
 
   void addUint32(int value) {
     allocate(4);
     byteData.setUint32(_index, value);
+    _index += 4;
   }
 
   void addUint64(int value) {
     allocate(8);
     byteData.setUint64(_index, value);
+    _index += 8;
   }
 
   void addInt8(int value) {
     allocate(1);
     byteData.setInt8(_index, value);
+    _index++;
   }
 
   void addInt16(int value) {
     allocate(2);
     byteData.setInt16(_index, value);
+    _index += 2;
   }
 
   void addInt32(int value) {
     allocate(4);
     byteData.setInt32(_index, value);
+    _index += 4;
   }
 
   void addInt64(int value) {
     allocate(8);
     byteData.setInt64(_index, value);
+    _index += 8;
   }
 }

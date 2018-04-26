@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:bonobo/analysis/analysis.dart';
 import 'package:bonobo/ast/ast.dart';
 import 'package:bonobo/util/util.dart';
+import 'package:symbol_table/symbol_table.dart';
 import 'bvm/bvm.dart';
 import 'base_compiler.dart';
 
@@ -38,12 +39,13 @@ class BVMCompiler implements BonoboCompiler<Uint8List> {
   }
 
   void pushString(String str, BinarySink sink) {
+    sink.addUint8(BVMOpcode.STRING);
     for (int i = str.length - 1; i >= 0; i--) sink.addUint8(str.codeUnitAt(i));
     sink.addUint8(0);
-    sink.addUint8(BVMOpcode.STRING);
   }
 
-  Future<Uint8List> compileFunction(BonoboFunction function) async {
+  Future<Uint8List> compileFunction(
+      BonoboModule module, BonoboFunction function) async {
     var sink = new BinarySink();
 
     // Add all params
@@ -51,19 +53,26 @@ class BVMCompiler implements BonoboCompiler<Uint8List> {
       // BVM expects the PARAM opcode, which pops from the stack into a parameter.
       sink.addUint8(BVMOpcode.POP_PARAM);
 
-    await compileControlFlow(function.body, function, sink);
+    await compileControlFlow(
+        module, function.body, function.scope, function, sink);
 
     return sink.toBytes();
   }
 
   Future compileControlFlow(
-      ControlFlow body, BonoboFunction function, BinarySink sink) async {
+      BonoboModule module,
+      ControlFlow body,
+      SymbolTable<BonoboObject> scope,
+      BonoboFunction function,
+      BinarySink sink) async {
     // TODO: Compile each statement
     for (var ctx in body.statements) {
       if (ctx is ExpressionStatementContext) {
-        await compileExpression(ctx.expression, body, function, sink);
+        await compileExpression(
+            module, ctx.expression, body, scope, function, sink);
       } else if (ctx is ReturnStatementContext) {
-        await compileExpression(ctx.expression, body, function, sink);
+        await compileExpression(
+            module, ctx.expression, body, scope, function, sink);
         sink.addUint8(BVMOpcode.RET);
       } else {
         throw 'Unsupported statement: ${ctx.runtimeType}\n${ctx.span
@@ -72,8 +81,13 @@ class BVMCompiler implements BonoboCompiler<Uint8List> {
     }
   }
 
-  Future compileExpression(ExpressionContext ctx, ControlFlow body,
-      BonoboFunction function, BinarySink sink) async {
+  Future compileExpression(
+      BonoboModule module,
+      ExpressionContext ctx,
+      ControlFlow body,
+      SymbolTable<BonoboObject> scope,
+      BonoboFunction function,
+      BinarySink sink) async {
     // Literals
     if (ctx is StringLiteralContext) return pushString(ctx.constantValue, sink);
 
@@ -82,10 +96,12 @@ class BVMCompiler implements BonoboCompiler<Uint8List> {
       // Push arguments in reverse order
       for (int i = ctx.arguments.expressions.length - 1; i >= 0; i--)
         await compileExpression(
-            ctx.arguments.expressions[i], body, function, sink);
+            module, ctx.arguments.expressions[i], body, scope, function, sink);
 
       // Push name of function
-      pushString(function.fullName, sink);
+      var target = await module.analyzer.expressionAnalyzer
+          .resolve(ctx.target, function, function.scope);
+      pushString((target as BonoboFunction).fullName, sink);
 
       // Push CALL
       sink.addUint8(BVMOpcode.CALL);
