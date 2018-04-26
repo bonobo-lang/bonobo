@@ -26,7 +26,7 @@ namespace bvm
         intptr_t index = 0;
         BVMFunction *function;
         std::vector<void *> parameters;
-        Dart_CObject *message;
+        Dart_CObject *message = nullptr;
         struct
         {
             intptr_t length;

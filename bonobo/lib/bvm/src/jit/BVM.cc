@@ -70,9 +70,7 @@ void bvm::BVM::handleDartMessage(Dart_Port destPortId, Dart_CObject *message) {
                                 task->missingFunction = nullptr;
                             }
                         }
-                    }
-
-                    if ((failed = !interpreter->visit(task)))
+                    } else if ((failed = !interpreter->visit(task)))
                         break;
                 }
 
@@ -88,8 +86,21 @@ void bvm::BVM::loadFunction(char *functionName, Dart_Port destPortId, Dart_CObje
     auto *function = new BVMFunction;
     function->name = functionName;
     function->length = bytecode.length;
-    function->bytecode = bytecode.values;
+    function->bytecode = new uint8_t[function->length];
     functions.push_back(function);
+
+    for (intptr_t i = 0; i < bytecode.length; i++)
+        function->bytecode[i] = bytecode.values[i];
+
+    std::cout << "LOADED FUNCTION: " << functionName << ": [";
+
+    for (intptr_t i = 0; i < bytecode.length; i++) {
+        if (i > 0)
+            std::cout << ", ";
+        std::cout << "0x" << std::hex << (unsigned int) bytecode.values[i] << std::dec;
+    }
+
+    std::cout << "]" << std::endl;
 }
 
 bvm::BVMTask *bvm::BVM::execFunction(char *functionName, Dart_Port destPortId, Dart_CObject *message) {

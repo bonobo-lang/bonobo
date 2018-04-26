@@ -2,6 +2,7 @@
 // Created by Tobe on 4/25/18.
 //
 
+#include <iostream>
 #include <sstream>
 #include <dart_native_api.h>
 #include "../binary/Opcode.h"
@@ -24,7 +25,22 @@ bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
 
     while (!task->blocked) {
         while (!task->blocked && task->index < task->function->length) {
-            auto opcode = (Opcode) task->function->bytecode[task->index++];
+            /*
+            std::cout << "wtf" << std::endl;
+
+            for (intptr_t i = 0; i < task->function->length; i++) {
+                if (i > 0)
+                    std::cout << ", ";
+                std::cout << "0x" << std::hex << (unsigned int) task->function->bytecode[i] << std::dec;
+            }
+            */
+
+            intptr_t index = task->index++;
+            auto opcode = (Opcode) task->function->bytecode[index];
+
+            /*std::cout << "Index: " << index << ", OP: 0x" << std::hex << (unsigned int) task->function->bytecode[index]
+                      << std::dec
+                      << std::endl;*/
 
             switch (opcode) {
                 case Opcode::POP_PARAM: {
@@ -46,30 +62,36 @@ bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
                     auto ch = (char) task->function->bytecode[task->index++];
 
                     while (ch != 0) {
+                        std::cout << "char: " << ch << std::endl;
                         ss.write(&ch, 1);
                         ch = (char) task->function->bytecode[task->index++];
                     }
 
-                    task->stack->push((void *) ss.str().c_str());
+                    auto str = ss.str();
+                    std::cout << "STRING: " << str << std::endl;
+                    task->strings.push(str);
                     break;
                 }
 
                 case Opcode::CALL: {
                     // If we're calling a function, then the value at the top
-                    // of the stack->is a const char*.
-                    auto *functionName = (const char *) task->stack->top();
+                    // of the string stack is a const char*.
+                    auto functionName = task->strings.top();
+                    task->stack->pop();
+                    std::cout << "CALLING: " << functionName << std::endl;
 
                     // Signal to the VM that we want to call this function.
                     task->blocked = true;
-                    task->missingFunction = functionName;
+                    task->missingFunction = functionName.c_str();
                     break;
                 }
                 case Opcode::RET: {
                     // We're done.
-                    task->index = task->function->length - 1;
+                    task->index = task->function->length;
                     break;
                 }
                 default: {
+                    break;
                     // Throw error
                     task->blocked = true;
                     task->errorMessage.clear();
@@ -83,7 +105,7 @@ bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
         }
     }
 
-    if (task->index == task->function->length - 1) {
+    if (task->index >= task->function->length - 1) {
         // If there is a task waiting on this one,
         // we want to send the value at the top of this stack
         // to the top of the caller's stack->

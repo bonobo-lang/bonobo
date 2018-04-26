@@ -40,7 +40,8 @@ class BVMCompiler implements BonoboCompiler<Uint8List> {
 
   void pushString(String str, BinarySink sink) {
     sink.addUint8(BVMOpcode.STRING);
-    for (int i = str.length - 1; i >= 0; i--) sink.addUint8(str.codeUnitAt(i));
+    for (var ch in str.codeUnits) sink.addUint8(ch);
+    //for (int i = str.length - 1; i >= 0; i--) sink.addUint8(str.codeUnitAt(i));
     sink.addUint8(0);
   }
 

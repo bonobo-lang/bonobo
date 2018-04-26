@@ -55,9 +55,11 @@ class BVM {
 
   _receivePortHandler(value) async {
     if (value == 'FN') {
+      print('Waiting for FN');
       var name = await _queue.next;
       _onMissingFunction.add(name);
     } else if (value == 'THROW') {
+      print('Waiting for THROW');
       // TODO: Get stack
       throw await _queue.next;
     } else if (value is List && value.isNotEmpty) {
