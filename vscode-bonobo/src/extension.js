@@ -17,8 +17,8 @@ const LanguageClient = vscodeLanguageClient.LanguageClient,
 exports.activate = function activate(context) {
 
   // The server is implemented in node
-  const pubCommand = 'pub';
-  const bonoboArgs = ['bonobo', 'language_server'];
+  const pubCommand = 'bonobo';
+  const bonoboArgs = 'language_server'];
 
   const runOpts = { command: pubCommand, args: bonoboArgs, transport: TransportKind.stdio };
 
