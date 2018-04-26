@@ -18,7 +18,7 @@ exports.activate = function activate(context) {
 
   // The server is implemented in node
   const pubCommand = 'bonobo';
-  const bonoboArgs = 'language_server'];
+  const bonoboArgs = ['language_server'];
 
   const runOpts = { command: pubCommand, args: bonoboArgs, transport: TransportKind.stdio };
 
