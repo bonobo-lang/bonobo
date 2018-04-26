@@ -123,7 +123,7 @@ class FunctionParser {
     if (colon == null) return new ParameterContext(id, null, span, []);
 
     TypeContext type =
-        parser.typeParser.parse(comments: parser.parseComments());
+        parser.typeParser.parse(comments: parser.parseComments(), ignoreComma: true);
     if (type == null) {
       parser.errors.add(new BonoboError(
           BonoboErrorSeverity.error, "Missing type after ':'.", colon.span));

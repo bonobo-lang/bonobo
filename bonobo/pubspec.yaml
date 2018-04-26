@@ -1,4 +1,5 @@
 name: bonobo
+version: 0.0.0
 dependencies:
   angel_framework: ^1.0.0
   angel_jael: ^1.0.0
@@ -17,7 +18,9 @@ dependencies:
   tuple: ^1.0.0
 dev_dependencies:
   angel_serialize_generator: ^2.0.0
+  archive: ^1.0.0
   build_runner: ^0.8.0
+  system_info: ^0.0.16
   test: ^0.12.0
 executables:
   bonobo: bonobo
