@@ -9,4 +9,5 @@ add_library(bvm_jit SHARED
     extension.cc extension.h
     Function.h BVMInterpreter.cc BVMInterpreter.h
     bvm_task.cc bvm_task.h)
+include_directories("${DART_SDK}/include")
 target_link_libraries(bvm_jit bvm_binary)# ${llvm_libs})
