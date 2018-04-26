@@ -4,12 +4,12 @@ class BonoboModuleSystem {
   final Directory rootDirectory;
   BonoboModule _rootModule, core;
 
-  BonoboModuleSystem._(this.rootDirectory, BonoboModule coreLibrary) {
-    _rootModule = new BonoboModule._(rootDirectory, coreLibrary, this);
+  BonoboModuleSystem._(this.rootDirectory, this.core) {
+    _rootModule = new BonoboModule._(rootDirectory, core, this);
   }
 
   static Future<BonoboModuleSystem> create(Directory rootDirectory) async {
-    core = await _createCore();
+    var core = await _createCore();
     var system = new BonoboModuleSystem._(rootDirectory, core);
 
     // Analyze the root module

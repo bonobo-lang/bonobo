@@ -43,6 +43,19 @@ void bvm::BVM::handleDartMessage(Dart_Port destPortId, Dart_CObject *message) {
                 bool failed = false;
 
                 for (auto *task: tasks) {
+                    // Check for error
+                    if (task->blocked && !task->errorMessage.empty()) {
+                        // THROW, $error
+                        auto *req1 = new Dart_CObject, *req2 = new Dart_CObject;
+                        req1->type = req2->type = Dart_CObject_kString;
+                        req1->value.as_string = (char *) "THROW";
+                        req2->value.as_string = (char*) task->errorMessage.c_str();
+                        Dart_PostCObject(sendPortId, req1);
+                        Dart_PostCObject(sendPortId, req2);
+                        failed = true;
+                        break;
+                    }
+
                     if ((failed = !interpreter->visit(task)))
                         break;
                 }

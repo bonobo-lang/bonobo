@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:bonobo/analysis/analysis.dart';
+import 'package:bonobo/ast/ast.dart';
 import 'package:bonobo/util/util.dart';
 import 'bvm/bvm.dart';
 import 'base_compiler.dart';
@@ -36,6 +37,12 @@ class BVMCompiler implements BonoboCompiler<Uint8List> {
       ..write(str);
   }
 
+  void pushString(String str, BinarySink sink) {
+    for (int i = str.length - 1; i >= 0; i--) sink.addUint8(str.codeUnitAt(i));
+    sink.addUint8(0);
+    sink.addUint8(BVMOpcode.STRING);
+  }
+
   Future<Uint8List> compileFunction(BonoboFunction function) async {
     var sink = new BinarySink();
 
@@ -52,5 +59,39 @@ class BVMCompiler implements BonoboCompiler<Uint8List> {
   Future compileControlFlow(
       ControlFlow body, BonoboFunction function, BinarySink sink) async {
     // TODO: Compile each statement
+    for (var ctx in body.statements) {
+      if (ctx is ExpressionStatementContext) {
+        await compileExpression(ctx.expression, body, function, sink);
+      } else if (ctx is ReturnStatementContext) {
+        await compileExpression(ctx.expression, body, function, sink);
+        sink.addUint8(BVMOpcode.RET);
+      } else {
+        throw 'Unsupported statement: ${ctx.runtimeType}\n${ctx.span
+            .highlight()}';
+      }
+    }
+  }
+
+  Future compileExpression(ExpressionContext ctx, ControlFlow body,
+      BonoboFunction function, BinarySink sink) async {
+    // Literals
+    if (ctx is StringLiteralContext) return pushString(ctx.constantValue, sink);
+
+    //
+    if (ctx is CallExpressionContext) {
+      // Push arguments in reverse order
+      for (int i = ctx.arguments.expressions.length - 1; i >= 0; i--)
+        await compileExpression(
+            ctx.arguments.expressions[i], body, function, sink);
+
+      // Push name of function
+      pushString(function.fullName, sink);
+
+      // Push CALL
+      sink.addUint8(BVMOpcode.CALL);
+    } else {
+      throw 'Unsupported statement: ${ctx.runtimeType}\n${ctx.span
+          .highlight()}';
+    }
   }
 }

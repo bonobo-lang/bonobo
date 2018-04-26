@@ -9,7 +9,15 @@ namespace bvm
     {
         // Functions
                 POP_PARAM = 0x0,
-        PUSH_PARAM = 0x1
+        PUSH_PARAM = 0x1,
+
+        // Data
+                STRING = 0x2,
+
+
+        // Control Flow
+                CALL = 0x3,
+        RET = 0x4,
     };
 }
 

@@ -57,6 +57,9 @@ class BVM {
     if (value == 'FN') {
       var name = await _queue.next;
       _onMissingFunction.add(name);
+    } else if (value == 'THROW') {
+      // TODO: Get stack
+      throw await _queue.next;
     } else if (value is List && value.isNotEmpty) {
       var command = value[0].toString();
       print('Command: $command');
