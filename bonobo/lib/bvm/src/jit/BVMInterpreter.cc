@@ -2,6 +2,7 @@
 // Created by Tobe on 4/25/18.
 //
 
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <dart_native_api.h>
