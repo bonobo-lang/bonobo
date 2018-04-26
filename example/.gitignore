@@ -10,7 +10,7 @@ compile_commands.json
 CTestTestfile.cmake
 *.c
 *.o
-*.a
+#*.a
 *.exe
 .vscode
 build/

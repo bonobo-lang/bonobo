@@ -8,12 +8,12 @@ function run_tests() {
   cd $DIRNAME
 }
 
-run_tests bonobo
 
-# Build everything
-cd "$DIRNAME/bvm"
+# Build the embedded JIT
+cd "$DIRNAME/bonobo"
 cmake .
-cmake --build . --target all -- -j $CORES
+cmake --build . --target bvm_jit -- -j $CORES
 
 # Run all the tests
-"$DIRNAME/bvm/test/jit/return_int"
+run_tests bonobo
+#"$DIRNAME/bvm/test/jit/return_int"
