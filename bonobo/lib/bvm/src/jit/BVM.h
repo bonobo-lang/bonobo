@@ -1,7 +1,6 @@
 #ifndef BVM_BVM_H
 #define BVM_BVM_H
 
-#include <llvm/IR/IRBuilder.h>
 #include <dart_api.h>
 #include <dart_native_api.h>
 #include <thread>
