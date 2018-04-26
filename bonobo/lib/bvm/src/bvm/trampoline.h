@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 namespace bvm {
-    class Trampoline {
+    class trampoline {
         public:
             const char* currentFunction;
             uint64_t currentFunctionOffset;

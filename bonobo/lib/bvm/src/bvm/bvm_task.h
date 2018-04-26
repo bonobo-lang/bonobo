@@ -9,8 +9,7 @@
 #include <stack>
 #include <string>
 #include <vector>
-#include <dart_native_api.h>
-#include "Function.h"
+#include "function.h"
 
 namespace bvm
 {
@@ -18,15 +17,16 @@ namespace bvm
     {
     public:
         bool blocked = false, started = false, functionRequested = false, success = false;
-        const char* missingFunction = nullptr;
-        BVMTask* returnTo = nullptr;
+        const char *missingFunction = nullptr;
+        BVMTask *returnTo = nullptr;
         std::stack<void *> *stack;
         std::stack<std::string> strings;
         std::string errorMessage;
         intptr_t index = 0;
         BVMFunction *function;
         std::vector<void *> parameters;
-        Dart_CObject *message = nullptr;
+        intptr_t argc;
+        void **argv;
         struct
         {
             intptr_t length;

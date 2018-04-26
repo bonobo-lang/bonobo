@@ -5,19 +5,16 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
-#include <dart_native_api.h>
-#include "../binary/Opcode.h"
-#include "BVMInterpreter.h"
-#include "Function.h"
+#include "opcode.h"
+#include "interpreter.h"
 
 bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
     if (!task->started) {
-        if (task->message != nullptr) {
+        if (task->argc > 0) {
             // Get the arguments.
-            auto arguments = task->message->value.as_array.values[2]->value.as_array;
             // Push all arguments onto the stack-> in reverse order.
-            for (intptr_t i = arguments.length - 1; i >= 0; i--) {
-                task->stack->push(arguments.values[i]->value.as_string);
+            for (intptr_t i = task->argc - 1; i >= 0; i--) {
+                task->stack->push(task->argv[i]);
             }
         }
 

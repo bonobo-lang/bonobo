@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
-import 'dart-ext:bvm_jit';
+import 'dart-ext:bvm_dart';
 import 'package:async/async.dart';
 import 'package:source_span/source_span.dart';
 

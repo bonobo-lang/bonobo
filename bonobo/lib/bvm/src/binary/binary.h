@@ -1,6 +1,0 @@
-#include "Constant.h"
-#include "Function.h"
-#include "Object.h"
-#include "Opcode.h"
-#include "Type.h"
-#include "parse_binary.h"

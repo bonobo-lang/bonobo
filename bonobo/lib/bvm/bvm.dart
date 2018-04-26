@@ -1,1 +1,1 @@
-export 'src/jit/bvm_jit.dart';
+export 'src/bvm_dart/bvm_dart.dart';
