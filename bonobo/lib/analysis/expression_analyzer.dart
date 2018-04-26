@@ -54,7 +54,8 @@ class ExpressionAnalyzer {
     if (ctx is TupleExpressionContext) {
       var expressions = await Future
           .wait(ctx.expressions.map((e) => resolve(e, function, scope)));
-      var type = new BonoboTupleType(analyzer.module, expressions.map((e) => e.type).toList());
+      var type = new BonoboTupleType(
+          analyzer.module, expressions.map((e) => e.type).toList());
       return new BonoboObject(type, ctx.span);
     }
 
@@ -301,8 +302,8 @@ class ExpressionAnalyzer {
     var resolved = scope.resolve(ctx.name)?.value;
 
     if (resolved != null) {
-      return resolved
-        ..usages.add(new SymbolUsage(SymbolUsageType.declaration, ctx.span));
+      analyzer.addUsage(resolved, SymbolUsageType.declaration, ctx.span);
+      return resolved;
     }
 
     analyzer.errors.add(new BonoboError(BonoboErrorSeverity.error,

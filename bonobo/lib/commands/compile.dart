@@ -2,7 +2,7 @@ part of bonobo.src.commands;
 
 class CompileCommand extends BonoboCommand {
   final String name = 'compile';
-  final String description = 'Compiles Bonobo source code.';
+  final String description = 'AOT-compiles Bonobo source code.';
 
   CompileCommand() : super() {
     argParser
@@ -17,7 +17,7 @@ class CompileCommand extends BonoboCommand {
         'target',
         abbr: 't',
         help: 'The target platform to compile for.',
-        defaultsTo: 'c',
+        defaultsTo: 'bvm',
         allowed: ['c', 'bvm'],
       );
   }
@@ -41,8 +41,27 @@ class CompileCommand extends BonoboCommand {
 
     if (argResults['target'] == 'c')
       return runCCompiler(analyzer);
+    else if (argResults['target'] == 'bvm')
+      return runBVMCompiler(analyzer);
 
     throw 'Unsupported compile target: ${argResults['target']}';
+  }
+
+  runBVMCompiler(BonoboAnalyzer analyzer) async {
+    var compiler = new BVMCompiler();
+    var bytecode = await compiler.compile(analyzer.module);
+    IOSink sink;
+
+    if (argResults.wasParsed('out')) {
+      var file = new io.File(argResults['out']);
+      await file.create(recursive: true);
+      sink = file.openWrite();
+    } else {
+      sink = stdout;
+    }
+
+    sink.add(bytecode);
+    await sink.close();
   }
 
   runCCompiler(BonoboAnalyzer analyzer) async {

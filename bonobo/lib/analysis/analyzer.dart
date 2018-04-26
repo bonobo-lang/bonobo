@@ -2,6 +2,8 @@ part of 'analysis.dart';
 
 class BonoboAnalyzer {
   final List<BonoboError> errors = [];
+  final List<BonoboObject> allReferencedObjects = [];
+  final List<BonoboType> allReferencedTypes = [];
   final BonoboModuleSystem moduleSystem;
   ExpressionAnalyzer expressionAnalyzer;
   FunctionAnalyzer functionAnalyzer;
@@ -18,6 +20,17 @@ class BonoboAnalyzer {
     functionAnalyzer = new FunctionAnalyzer(this);
     statementAnalyzer = new StatementAnalyzer(this);
     typeAnalyzer = new TypeAnalyzer(this);
+  }
+
+  void addUsage(BonoboObject object, SymbolUsageType type, FileSpan span) {
+    object.usages.add(new SymbolUsage(type, span));
+    if (!allReferencedObjects.contains(object))
+      allReferencedObjects.add(object);
+  }
+
+  void addTypeUsage(BonoboType t, SymbolUsageType type, FileSpan span) {
+    t.usages.add(new SymbolUsage(type, span));
+    if (!allReferencedTypes.contains(t)) allReferencedTypes.add(t);
   }
 
   // TODO: Find unused symbols

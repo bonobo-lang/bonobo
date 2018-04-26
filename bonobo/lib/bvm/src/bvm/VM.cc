@@ -65,7 +65,9 @@ void bvm::VM::threadProc(VM *vm) {
 void bvm::VM::loadFunction(char *functionName, intptr_t length, uint8_t *data) {
     // Get the bytecode.
     auto *function = new BVMFunction;
-    function->name = functionName;
+    function->name = new char[strlen(functionName) + 1];
+    strcpy(function->name, functionName);
+    function->name[strlen(functionName)] = 0;
     function->length = length;
     function->bytecode = new uint8_t[length];
     memcpy(function->bytecode, data, (size_t) length);

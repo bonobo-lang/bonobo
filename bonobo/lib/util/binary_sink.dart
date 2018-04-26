@@ -39,7 +39,7 @@ class BinarySink extends StringSink {
   @override
   void write(Object obj) {
     encoding.encode(obj.toString()).forEach(addUint8);
-    addInt8($lf);
+    addInt8(0);
   }
 
   Uint8List copyBytes() => new Uint8List.fromList(_list);

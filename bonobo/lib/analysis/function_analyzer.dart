@@ -8,8 +8,7 @@ class FunctionAnalyzer {
   BonoboFunction preliminaryAnalyzeFunction(FunctionContext ctx) {
     var function = new BonoboFunction(ctx.name.name,
         analyzer.module.scope.createChild(), ctx, analyzer.module);
-    function.usages
-        .add(new SymbolUsage(SymbolUsageType.declaration, ctx.name.span));
+    analyzer.addUsage(function, SymbolUsageType.declaration, ctx.name.span);
 
     var symbol = analyzer.module.scope
         .create(ctx.name.name, value: function, constant: true);
@@ -41,22 +40,21 @@ class FunctionAnalyzer {
       var p = function.parameters[i];
       var decl = function.declaration.signature.parameterList.parameters[i];
       p.type = await analyzer.typeAnalyzer.resolve(decl.type);
-      function.scope.assign(p.name, new BonoboObject(p.type, p.span))
-        ..value
-            .usages
-            .add(new SymbolUsage(SymbolUsageType.declaration, decl.name.span));
+      var symbol =
+          function.scope.assign(p.name, new BonoboObject(p.type, p.span));
+      analyzer.addUsage(
+          symbol.value, SymbolUsageType.declaration, decl.name.span);
 
       if (decl.type != null) {
-        p.type.usages
-            .add(new SymbolUsage(SymbolUsageType.read, decl.type.span));
+        analyzer.addTypeUsage(p.type, SymbolUsageType.read, decl.type.span);
       }
     }
 
     if (function.declaration.signature.returnType != null) {
       function.returnType = await analyzer.typeAnalyzer
           .resolve(function.declaration.signature.returnType);
-      function.returnType.usages.add(new SymbolUsage(SymbolUsageType.read,
-          function.declaration.signature.returnType.span));
+      analyzer.addTypeUsage(function.returnType, SymbolUsageType.read,
+          function.declaration.signature.returnType.span);
     } else
       function.returnType = BonoboType.Root;
   }
