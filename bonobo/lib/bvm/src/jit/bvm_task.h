@@ -19,8 +19,8 @@ namespace bvm
     public:
         bool blocked = false, started = false, functionRequested = false;
         const char* missingFunction = nullptr;
-        uint64_t returnTo;
-        std::stack<void *> stack;
+        BVMTask* returnTo = nullptr;
+        std::stack<void *> *stack;
         std::stack<std::string> strings;
         std::string errorMessage;
         intptr_t index = 0;

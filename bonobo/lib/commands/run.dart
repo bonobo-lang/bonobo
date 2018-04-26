@@ -63,7 +63,8 @@ class RunCommand extends Command {
         return null;
       }
 
-      var bytecode = await bvmCompiler.compileFunction(function);
+      var bytecode =
+          await bvmCompiler.compileFunction(analyzer.module, function);
       bvm.loadFunction(function.fullName, bytecode);
     }
 

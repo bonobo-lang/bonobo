@@ -32,7 +32,7 @@ namespace bvm
 
         void loadFunction(char* functionName, Dart_Port destPortId, Dart_CObject *message);
 
-        void execFunction(char *functionName, Dart_Port destPortId, Dart_CObject *message);
+        BVMTask* execFunction(char *functionName, Dart_Port destPortId, Dart_CObject *message);
     };
 
 #ifndef BVM_INSTANCE
