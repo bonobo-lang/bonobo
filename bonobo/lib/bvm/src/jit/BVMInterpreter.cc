@@ -28,6 +28,12 @@ bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
                     task->parameters.push_back(task->stack.top());
                     task->stack.pop();
                     break;
+                case Opcode::PUSH_PARAM:
+                    // Push a parameter to the stack
+                    auto idx = task->stack.top();
+                    task->stack.pop();
+                    task->stack.push(task->parameters.at((unsigned long) idx));
+                    break;
                 default:
                     // TODO: Throw error
                     break;
