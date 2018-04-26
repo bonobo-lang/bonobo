@@ -59,6 +59,7 @@ void bvm::BVM::threadProc(bvm::BVMThreadConfig *config) {
                         //std::cout << "Found function " << task->missingFunction << ". Continuing existing" << std::endl;
                         // We've started the function.
                         // Tell it where to return to, and assign the same stack.
+                        newTask->message = nullptr;
                         newTask->stack = task->stack;
                         newTask->returnTo = task;
 

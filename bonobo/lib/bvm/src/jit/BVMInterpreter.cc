@@ -95,12 +95,12 @@ bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
                 // The top of the stack is a const char*.
                 // Print it.
                 auto msg = (const char *) task->stack->top();
-                task->stack->pop();
                 std::cout << msg << std::endl;
+                delete msg;
+                task->stack->pop();
                 break;
             }
             default: {
-                break;
                 // Throw error
                 task->blocked = true;
                 task->errorMessage.clear();
