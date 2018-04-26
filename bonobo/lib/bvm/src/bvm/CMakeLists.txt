@@ -7,6 +7,8 @@ SET(bvm_sources VM.h
         interpreter.cc
         interpreter.h
         opcode.h
-        bvm_task.cc bvm_task.h bvm.h channel.cc channel.h)
+        bvm_task.cc bvm_task.h bvm.h channel.cc channel.h main.cc)
 add_library(bvm STATIC ${bvm_sources})
+add_executable(bvm_cli main.cc)
+set_target_properties(bvm_cli PROPERTIES OUTPUT_NAME "bvm")
 #add_library(bvm_shared SHARED ${bvm_sources})

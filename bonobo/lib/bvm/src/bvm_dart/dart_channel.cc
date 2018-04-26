@@ -78,5 +78,11 @@ void bvm::DartChannel::throwString(const char *str) {
 }
 
 void bvm::DartChannel::notifyMissingMethod(const char *str) {
-
+    // FN, $str
+    auto *req1 = new Dart_CObject, *req2 = new Dart_CObject;
+    req1->type = req2->type = Dart_CObject_kString;
+    req1->value.as_string = (char *) "FN";
+    req2->value.as_string = (char*) str;
+    Dart_PostCObject(sendPortId, req1);
+    Dart_PostCObject(sendPortId, req2);
 }
