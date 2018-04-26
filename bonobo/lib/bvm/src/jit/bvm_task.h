@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <stack>
 #include <dart_native_api.h>
+#include <vector>
 #include "Function.h"
 
 namespace bvm
@@ -15,11 +16,12 @@ namespace bvm
     class BVMTask
     {
     public:
-        bool blocked = false;
+        bool blocked = false, started = false;
         uint64_t returnTo;
         std::stack<void *> stack;
         intptr_t index = 0;
         BVMFunction *function;
+        std::vector<void*> parameters;
         Dart_CObject *message;
         struct
         {

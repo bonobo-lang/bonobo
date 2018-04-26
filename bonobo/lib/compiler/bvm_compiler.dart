@@ -40,11 +40,9 @@ class BVMCompiler implements BonoboCompiler<Uint8List> {
     var sink = new BinarySink();
 
     // Add all params
-    sink..addUint8(BVMOpcode.NUM_PARAMS)..addUint8(function.parameters.length);
-
-    // TODO: How to compile types?
     for (var param in function.parameters)
-      writeString(param.type.fullName, sink);
+      // BVM expects the PARAM opcode, which pops from the stack into a parameter.
+      sink.addUint8(BVMOpcode.POP_PARAM);
 
     await compileControlFlow(function.body, function, sink);
 

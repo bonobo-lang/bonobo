@@ -1,3 +1,3 @@
 abstract class BVMOpcode {
-  static const int NUM_PARAMS = 0x0, PARAM_TYPE = 0x1;
+  static const int POP_PARAM = 0x0, PUSH_PARAM = 0x1;
 }
