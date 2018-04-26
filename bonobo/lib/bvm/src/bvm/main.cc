@@ -15,7 +15,7 @@ typedef struct
 int runVM(Options &options);
 
 void printHelp(std::ostream &stream) {
-    stream << "bvm: Standalone Bonobo VM" << std::endl;
+    stream << "usage: bvm [options] <filename>" << std::endl;
     stream << std::endl << "Options" << std::endl;
     stream << "--help, -h: Show this help information." << std::endl;
 }
