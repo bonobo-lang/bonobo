@@ -15,8 +15,8 @@ class BonoboLanguageClient extends AutoLanguageClient {
    }
 
    startServerProcess(projectPath) {
-    const command = 'pub';
-    const args = ['global', 'run', 'bonobo', 'language_server'];
+    const command = 'bonobo';
+    const args = ['language_server'];
     const childProcess = cp.spawn(command, args);
 
     childProcess.on("error", err =>
