@@ -31,8 +31,8 @@ void bvm::BVM::sendPortCallback(Dart_Port destPortId, Dart_CObject *message) {
 void bvm::BVM::threadProc(bvm::BVMThreadConfig *config) {
     auto *bvm = (BVM *) config->bvm;
 
-    while (true) {
-        bool failed = false;
+    while (!bvm->tasks.empty()) {
+        bool done = false;
 
         for (auto *task: bvm->tasks) {
             // Check for error
@@ -45,7 +45,7 @@ void bvm::BVM::threadProc(bvm::BVMThreadConfig *config) {
                     req2->value.as_string = (char *) task->errorMessage.c_str();
                     Dart_PostCObject(bvm->sendPortId, req1);
                     Dart_PostCObject(bvm->sendPortId, req2);
-                    failed = true;
+                    done = true;
                     break;
                 } else if (task->missingFunction != nullptr) {
                     // The task in question is waiting for a function to run.
@@ -56,6 +56,7 @@ void bvm::BVM::threadProc(bvm::BVMThreadConfig *config) {
                     task->functionRequested = true;
 
                     if (newTask != nullptr) {
+                        //std::cout << "Found function " << task->missingFunction << ". Continuing existing" << std::endl;
                         // We've started the function.
                         // Tell it where to return to, and assign the same stack.
                         newTask->stack = task->stack;
@@ -64,14 +65,31 @@ void bvm::BVM::threadProc(bvm::BVMThreadConfig *config) {
                         // Clear out the missingFunction.
                         task->missingFunction = nullptr;
                         task->functionRequested = false;
+                        task->blocked = true;
                     }
                 }
-            } else if ((failed = !bvm->interpreter->visit(task)))
-                break;
+            } else if ((done = !bvm->interpreter->visit(task))) {
+                if (!task->success) {
+                    // TODO: Handle an error?
+                }
+
+                // Free the task.
+                auto vec = bvm->tasks;
+                vec.erase(std::remove(vec.begin(), vec.end(), task), vec.end());
+                delete task;
+                done = true;
+            }
         }
 
-        if (failed) break;
+        if (done) break;
     }
+
+    // Shut it down - send the exit code.
+    auto *message = new Dart_CObject;
+    message->type = Dart_CObject_kInt32;
+    message->value.as_int32 = 0;
+    Dart_PostCObject(bvm->sendPortId, message);
+    Dart_CloseNativePort(bvm->receivePort);
 }
 
 void bvm::BVM::handleDartMessage(Dart_Port destPortId, Dart_CObject *message) {
@@ -90,6 +108,7 @@ void bvm::BVM::handleDartMessage(Dart_Port destPortId, Dart_CObject *message) {
             config->message = message;
             config->destPortId = destPortId;
             bvmInstance->loopThread = new std::thread(bvm::BVM::threadProc, config);
+            bvmInstance->loopThread->detach();
         }
     }
 }
@@ -106,7 +125,7 @@ void bvm::BVM::loadFunction(char *functionName, Dart_Port destPortId, Dart_CObje
     for (intptr_t i = 0; i < bytecode.length; i++)
         function->bytecode[i] = bytecode.values[i];
 
-    std::cout << "LOADED FUNCTION: " << functionName << ": [";
+    /*std::cout << "LOADED FUNCTION: " << functionName << ": [";
 
 
     for (intptr_t i = 0; i < bytecode.length; i++) {
@@ -115,7 +134,7 @@ void bvm::BVM::loadFunction(char *functionName, Dart_Port destPortId, Dart_CObje
         std::cout << "0x" << std::hex << (unsigned int) bytecode.values[i] << std::dec;
     }
 
-    std::cout << "]" << std::endl;
+    std::cout << "]" << std::endl;*/
 }
 
 bvm::BVMTask *bvm::BVM::execFunction(char *functionName, Dart_Port destPortId, Dart_CObject *message, bool requestNew) {
@@ -123,6 +142,7 @@ bvm::BVMTask *bvm::BVM::execFunction(char *functionName, Dart_Port destPortId, D
     BVMFunction *function = nullptr;
 
     for (auto *fn : functions) {
+        //std::cout << fn->name << " vs. " << functionName << std::endl;
         if (!strcmp(fn->name, functionName)) {
             function = fn;
             break;
@@ -137,7 +157,9 @@ bvm::BVMTask *bvm::BVM::execFunction(char *functionName, Dart_Port destPortId, D
             auto *req1 = new Dart_CObject, *req2 = new Dart_CObject;
             req1->type = req2->type = Dart_CObject_kString;
             req1->value.as_string = (char *) "FN";
-            req2->value.as_string = functionName;
+            req2->value.as_string = new char[strlen(functionName) + 1];
+            strcpy(req2->value.as_string, functionName);
+            req2->value.as_string[strlen(functionName)] = 0;
             Dart_PostCObject(sendPortId, req1);
             Dart_PostCObject(sendPortId, req2);
             delete req1;
@@ -148,6 +170,7 @@ bvm::BVMTask *bvm::BVM::execFunction(char *functionName, Dart_Port destPortId, D
     } else {
         // Start a new task that invokes the function.
         auto *task = new BVMTask;
+        task->returnTo = nullptr;
         task->stack = new std::stack<void *>;
         task->function = function;
         task->message = message;

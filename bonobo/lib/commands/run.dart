@@ -88,7 +88,7 @@ class RunCommand extends Command {
           ?.value;
 
       if (function == null) throw 'Unknown function: $name';
-      print('JIT-ing ${function.fullName}...');
+      //print('JIT-ing ${function.fullName}...');
       jitCompile(function);
     });
 

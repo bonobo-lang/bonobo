@@ -17,7 +17,7 @@ namespace bvm
     class BVMTask
     {
     public:
-        bool blocked = false, started = false, functionRequested = false;
+        bool blocked = false, started = false, functionRequested = false, success = false;
         const char* missingFunction = nullptr;
         BVMTask* returnTo = nullptr;
         std::stack<void *> *stack;

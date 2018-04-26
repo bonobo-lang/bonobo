@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 import 'dart-ext:bvm_jit';
@@ -64,6 +65,11 @@ class BVM {
       var command = value[0].toString();
       print('Command: $command');
       print('Data: $value');
+    } else if (value is int) {
+      exitCode = value;
+      rawReceivePort.close();
+      _onMissingFunction.close();
+      //_queue.cancel();
     } else {
       print('Extraneous data from BVM: $value');
       print(value.runtimeType);
