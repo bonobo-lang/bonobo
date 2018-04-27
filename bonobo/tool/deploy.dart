@@ -19,7 +19,19 @@ main() async {
   var sdkRoot = new File(Platform.resolvedExecutable).parent.parent.absolute;
   print('SDK root: ${sdkRoot.uri}');
 
-  var targetName = '${Platform.operatingSystem}-${SysInfo.kernelArchitecture}';
+  var targetBuf = new StringBuffer();
+
+  if (Platform.isMacOS)
+    targetBuf.write('macos');
+  else if (Platform.isWindows)
+    targetBuf.write('win');
+  else if (Platform.isLinux)
+    targetBuf.write('linux');
+  else
+    targetBuf.write(SysInfo.operatingSystemName.toLowerCase());
+
+  targetBuf.write('-${SysInfo.kernelArchitecture}');
+  var targetName = targetBuf.toString();
   var triplet = 'bonobo-$version-$targetName';
   print('Building Bonobo v$version for $targetName...');
 
@@ -66,8 +78,8 @@ main() async {
         '--target',
         'all',
         '--',
-        '-j',
-        Platform.numberOfProcessors.toString()
+        //'-j',
+        //Platform.numberOfProcessors.toString()
       ],
       workingDirectory: bonoboDir.absolute.path);
   await stdout.addStream(cmake.stdout);
@@ -179,8 +191,7 @@ main() async {
 
   // Write to release/bonobo-a.b.c-x-y-z.tar.gz.
   var releaseDir =
-      new Directory.fromUri(baseDir.parent.uri.resolve('release'))
-          .absolute;
+      new Directory.fromUri(baseDir.parent.uri.resolve('release')).absolute;
   var outputFile = new File.fromUri(releaseDir.uri.resolve('$triplet.tar.gz'));
   await outputFile.create(recursive: true);
   await outputFile.writeAsBytes(gzipped);
