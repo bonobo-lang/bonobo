@@ -58,10 +58,12 @@ main() async {
   var libExt = ['.dll', '.dylib', '.so', '.a'];
 
   var bonoboDir = baseDir.parent.absolute;
+  var cmakeDir = baseDir;
 
   // Run CMake.
+  print('Running CMake in ${cmakeDir.absolute.path}');
   var cmake = await Process.start('cmake', ['.'],
-      workingDirectory: bonoboDir.absolute.path);
+      workingDirectory: cmakeDir.absolute.path);
   await stdout.addStream(cmake.stdout);
   await stderr.addStream(cmake.stderr);
   var code = await cmake.exitCode;
@@ -81,7 +83,7 @@ main() async {
         //'-j',
         //Platform.numberOfProcessors.toString()
       ],
-      workingDirectory: bonoboDir.absolute.path);
+      workingDirectory: cmakeDir.absolute.path);
   await stdout.addStream(cmake.stdout);
   await stderr.addStream(cmake.stderr);
   code = await cmake.exitCode;
