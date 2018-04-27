@@ -21,6 +21,10 @@ include_directories("${CMAKE_CURRENT_LIST_DIR}/..")
 add_library(bvm_dart SHARED
         extension.h extension.cc
         dart_channel.cc dart_channel.h
+        bvm_dart_dllmain_win.cc
         bvm_dart.h)
 target_link_libraries(bvm_dart bvm)
-#add_dependencies(bvm_dart bvm)
+
+if(WIN32)
+    link_directories(${DART_SDK}/bin)
+endif()
