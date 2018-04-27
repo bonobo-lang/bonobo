@@ -43,20 +43,8 @@ main() async {
   var packageDirPath = p.join(p.dirname(Platform.script.path), '..', 'package');
   var packageDir = new Directory(packageDirPath);
 
-  // Generate a `bonobo.dart.snapshot` in the `bin/` directory.
-  var snapshot = p.join(packageDirPath, 'bin', 'bonobo.dart.snapshot');
-  var bonoboExecutable =
-      p.join(p.dirname(Platform.script.path), '..', 'bin', 'bonobo.dart');
-  var result = await Process.run(Platform.executable,
-      ['--snapshot=$snapshot', '--snapshot-kind=app-jit', bonoboExecutable]);
-
-  if (result.exitCode != 0) {
-    print(result.stderr);
-    throw 'Snapshot generation failed.';
-  }
-
-  // Next, copy any `.dll`, `.dylib`, or `.so` into the `bin/` directory.
-  var libExt = ['.dll', '.dylib', '.so'];
+  // Next, copy any `.dll`, `.dylib`, `.a`, or `.so` into the `bin/` directory.
+  var libExt = ['.dll', '.dylib', '.so', '.a'];
 
   var bonoboDir = new Directory(p.join(p.dirname(Platform.script.path), '..'));
 
@@ -91,6 +79,18 @@ main() async {
     throw 'CMake failed.';
   }
 
+  // Generate a `bonobo.dart.snapshot` in the `bin/` directory.
+  var snapshot = p.join(packageDirPath, 'bin', 'bonobo.dart.snapshot');
+  var bonoboExecutable =
+      p.join(p.dirname(Platform.script.path), '..', 'bin', 'bonobo.dart');
+  var result = await Process.run(Platform.executable,
+      ['--snapshot=$snapshot', '--snapshot-kind=app-jit', bonoboExecutable]);
+
+  if (result.exitCode != 0) {
+    print(result.stderr);
+    throw 'Snapshot generation failed.';
+  }
+
   // Copy generated executables
   var binDir = new Directory.fromUri(bonoboDir.uri.resolve('bin'));
 
@@ -101,9 +101,26 @@ main() async {
   }
 
   await for (var entity in bonoboDir.list(recursive: true)) {
-    if (entity is File && libExt.contains(p.extension(entity.path))) {
+    if (entity is File &&
+        !entity.absolute.path.contains('cmake-build-debug') &&
+        libExt.contains(p.extension(entity.path))) {
+      // The libraries are necessary in bin/ and lib/.
       await addFile(
           entity.absolute.path, p.dirname(entity.absolute.path), 'bin');
+      await addFile(
+          entity.absolute.path, p.dirname(entity.absolute.path), 'lib');
+    }
+  }
+
+  // Next, copy the libbvm headers to `include`.
+  var bvmHeaderPath =
+      p.join(bonoboDir.absolute.path, 'lib', 'bvm', 'src', 'bvm');
+  var bvmHeaderDir = new Directory(bvmHeaderPath);
+
+  await for (var entity in bvmHeaderDir.list(recursive: true)) {
+    if (entity is File && p.extension(entity.path) == '.h') {
+      await addFile(
+          entity.absolute.path, bvmHeaderPath, p.join('include', 'bvm'));
     }
   }
 

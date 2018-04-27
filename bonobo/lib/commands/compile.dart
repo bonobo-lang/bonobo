@@ -41,8 +41,7 @@ class CompileCommand extends BonoboCommand {
 
     if (argResults['target'] == 'c')
       return runCCompiler(analyzer);
-    else if (argResults['target'] == 'bvm')
-      return runBVMCompiler(analyzer);
+    else if (argResults['target'] == 'bvm') return runBVMCompiler(analyzer);
 
     throw 'Unsupported compile target: ${argResults['target']}';
   }
@@ -52,8 +51,11 @@ class CompileCommand extends BonoboCommand {
     var bytecode = await compiler.compile(analyzer.module);
     IOSink sink;
 
-    if (argResults.wasParsed('out')) {
-      var file = new io.File(argResults['out']);
+    if (argResults.wasParsed('out') ||
+        (argResults.rest.isEmpty || argResults.rest[0] != '-')) {
+      var file = new io.File(argResults.wasParsed('out')
+          ? argResults['out']
+          : p.setExtension(p.basename(analyzer.module.name), '.b'));
       await file.create(recursive: true);
       sink = file.openWrite();
     } else {

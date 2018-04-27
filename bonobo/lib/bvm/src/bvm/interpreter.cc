@@ -19,19 +19,17 @@ bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
         }
 
         task->started = true;
-    }
 
-    while (!task->blocked && task->index < task->function->length) {
-        /*
-        std::cout << "wtf" << std::endl;
+        /*std::cout << "Running function " << task->function->name << ":" << std::endl;
 
         for (intptr_t i = 0; i < task->function->length; i++) {
             if (i > 0)
                 std::cout << ", ";
             std::cout << "0x" << std::hex << (unsigned int) task->function->bytecode[i] << std::dec;
-        }
-        */
+        }*/
+    }
 
+    while (!task->blocked && task->index < task->function->length) {
         intptr_t index = task->index++;
         auto opcode = (Opcode) task->function->bytecode[index];
 
@@ -100,12 +98,13 @@ bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
             }
             default: {
                 // Throw error
+                std::stringstream ssErr;
+                ssErr << "Invalid opcode at index 0x" << std::hex << (task->index - 1);
+                ssErr << ": 0x" << std::hex << (int) task->function->bytecode[task->index - 1];
+                ssErr << std::dec;
                 task->blocked = true;
                 task->errorMessage.clear();
-                task->errorMessage.append("Invalid opcode at index ");
-                task->errorMessage.append(std::to_string(task->index - 1));
-                task->errorMessage.append(": ");
-                task->errorMessage.append(std::to_string(task->function->bytecode[task->index - 1]));
+                task->errorMessage += ssErr.str();
                 break;
             }
         }

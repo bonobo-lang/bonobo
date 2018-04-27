@@ -66,6 +66,7 @@ cmake-build-debug
 #*.a
 #*.so
 #*.dll
+*.b
 *.o
 *.out
 Makefile

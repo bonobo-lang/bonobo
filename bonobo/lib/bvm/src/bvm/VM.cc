@@ -12,6 +12,10 @@ bvm::VM::~VM() {
     delete interpreter;
 }
 
+std::vector<bvm::BVMTask *>* bvm::VM::get_tasks() {
+  return &tasks;
+}
+
 void bvm::VM::threadProc(VM *vm) {
     while (!vm->tasks.empty()) {
         bool done = false;

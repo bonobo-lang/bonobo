@@ -22,3 +22,5 @@ add_library(bvm_dart SHARED
         extension.h extension.cc
         dart_channel.cc dart_channel.h
         bvm_dart.h)
+target_link_libraries(bvm_dart bvm)
+#add_dependencies(bvm_dart bvm)

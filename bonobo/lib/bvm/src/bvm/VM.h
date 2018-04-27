@@ -24,6 +24,8 @@ namespace bvm
         explicit VM(Channel *channel);
         ~VM();
 
+        std::vector<BVMTask *>* get_tasks();
+
         const std::thread *get_loop_thread();
 
         void loadFunction(char *functionName, intptr_t length, uint8_t *data);

@@ -3,15 +3,28 @@
 # Find where we are.
 DIRNAME="$(cd "$(dirname "$0")" ; pwd -P )"
 
-# Copy *.dylib, *.so
-cp "$DIRNAME/libbvm_dart.dylib" "`pwd`/libbvm_dart.dylib" 2>/dev/null
-cp "$DIRNAME/libbvm_dart.so" "`pwd`/libbvm_dart.so" 2>/dev/null
+function copy_lib() {
+    # Copy *.dylib, *.so
+    cp "$DIRNAME/lib$1.dylib" "`pwd`/lib$1.dylib" 2>/dev/null
+    cp "$DIRNAME/lib$1.so" "`pwd`/lib$1.so" 2>/dev/null
+}
+
+function delete_lib() {
+    # Clean up
+    rm -f "`pwd`/lib$1.dylib" "`pwd`/lib$1.so"
+}
+
+
+# Force libbvm into /usr/local/include
+cp "$DIRNAME/libbvm.a" /usr/local/include/libbvm.a 2>/dev/null
+copy_lib bvm
+copy_lib bvm_dart
 
 # Run Bonobo
 "$DIRNAME/../dart-sdk/bin/dart" "$DIRNAME/bonobo.dart.snapshot" "$@"
 EXIT=$?
 
-# Clean up
-rm -f "`pwd`/libbvm_dart.dylib" "`pwd`/libbvm_dart.so"
+delete_lib bvm
+delete_lib bvm_dart
 
 exit $EXIT

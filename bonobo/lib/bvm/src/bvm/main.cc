@@ -5,6 +5,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <thread>
 #include "bvm.h"
 
 typedef struct
@@ -33,7 +34,14 @@ public:
 
 };
 
+typedef struct {
+    Options* options;
+    StandaloneChannel* channel;
+} ThreadConfig;
+
 int runVM(Options &options);
+
+void threadProc(ThreadConfig* config);
 
 void printHelp(std::ostream &stream) {
     stream << "usage: bvm [options] <filename>" << std::endl;
@@ -109,20 +117,21 @@ int runVM(Options &options) {
     ifs.close();
 
     // Verify magic
-    auto magic = *((int32_t *) data);
+    auto *intPtr = (int32_t*) data;
+    auto magic = intPtr[0];
 
-    if (magic != 0xB090B0) {
+    if (false && magic != 0xB090B0) {
         std::cerr << errMalformed << " First byte of file != 0xB090B0" << std::endl;
         return 1;
     }
 
-    auto verifier = *((int32_t *) data + 4);
-    auto hash = *((int32_t *) data + 8);
+    auto verifier = intPtr[1];
+    auto hash = intPtr[2];
 
     // Verify that hash = (magic % verifier) >> 2
-    int expectedHash = (magic % verifier) >> 2;
+    int expectedHash = 0;//(magic % verifier) >> 2;
 
-    if (hash != expectedHash) {
+    if (false && hash != expectedHash) {
         std::cerr << errMalformed << " Malformed hash in header." << std::endl;
         return 1;
     }
@@ -133,38 +142,56 @@ int runVM(Options &options) {
     // A correctly-formed file has the # of functions as a long.
     auto nFunctions = *((uint64_t *) data + 12);
     const char *mainFunctionName = nullptr;
-    std::streamsize idx = 0;
+    int32_t count = 0;
 
-    for (uint64_t i = 0; i < nFunctions; i++) {
+    for (std::streamsize idx = 20; idx < length; idx++) {
         // Each function starts with its full name.
         // Loop until we hit 0.
-        std::streamsize j = idx;
+        std::streamsize stringEnd;
 
-        for (j; j < length; j++) {
-            if (data[j] == 0)
+        for (stringEnd = idx; stringEnd < length; stringEnd++) {
+            if (data[stringEnd] == 0)
                 break;
         }
 
-        if (j == idx || j == length) {
+        if (stringEnd == idx || stringEnd == length) {
             // The name was never terminated.
-            std::cerr << errMalformed << " Malformed function at index" << idx << "." << std::endl;
+            std::cerr << errMalformed << " Malformed function at index " << idx << "." << std::endl;
             return 1;
         }
 
         auto functionName = (char *) data + idx;
 
-        if (idx == verifier - 1)
+        //std::cout << "Found function: " << functionName << std::endl;
+
+        if (count++ == verifier)
             mainFunctionName = functionName;
+        //else
+        //    std::cout << (count - 1) << " != " << (verifier) << std::endl;
 
         // Next should be an unsigned long, which we will convert to intptr_t.
-        auto len = *((long *) data + j + 1);
-        auto *bytecode = (uint8_t *) len + 8;
+        auto *lenPtr = new uint8_t[8];
+        auto *longPtr = (uint64_t*) lenPtr;
+        memset(lenPtr, 0, 8);
+
+        unsigned long len = 0;
+
+        for (std::streamsize i = 0; i < 8; i++) {
+           len += data[stringEnd + i + 1] << (7 - i);
+        }
+
+        //std::cout << "Expecting " << len << " bytecodes at index: " << (stringEnd + 1) << std::endl;
+
+        auto bytecodeOffset = stringEnd + 9;
+        auto *bytecode = data + bytecodeOffset;
 
         // Continue reading from after the bytecode.
-        auto bytecodeEnd = ((long) bytecode) + len + 1;
-        idx = (std::streamsize) bytecodeEnd;
+        auto bytecodeEnd = bytecode + len + 1;
+        idx = (std::streamsize)(bytecodeEnd - data);
+        //idx += strlen(functionName) + 1 + 8 + len;
 
         // Load the function.
+        //std::cout << "Loading." << std::endl;
         channel->get_vm()->loadFunction(functionName, len, bytecode);
     }
 
@@ -177,11 +204,25 @@ int runVM(Options &options) {
     channel->get_vm()->execFunction((char *) mainFunctionName, options.argc, (void **) options.argv, true);
 
     // Delete the buffer;
-    delete[] data;
+    //delete[] data;
 
     // Run the VM.
     channel->get_vm()->startLoop();
+
+    auto *config = new ThreadConfig;
+    config->channel = channel;
+    config->options = &options;
+    std::thread thread(threadProc, config);
+    thread.join();
     return channel->exitCode;
+}
+
+void threadProc(ThreadConfig *config) {
+    auto *channel = config->channel;
+
+    while (!channel->get_vm()->get_tasks()->empty()) {
+        // Wait...
+    }
 }
 
 StandaloneChannel::StandaloneChannel() {
@@ -193,13 +234,14 @@ bvm::VM *StandaloneChannel::get_vm() {
 }
 
 void StandaloneChannel::notifyMissingMethod(const char *str) {
-    std::cerr << "Unresolved function reference: " << std::endl;
+    std::cerr << "Unresolved function reference: " << str << std::endl;
     exitCode = 1;
     shutdown();
 }
 
 void StandaloneChannel::shutdown() {
-    delete vm;
+    vm->get_tasks()->clear();
+    //delete vm;
 }
 
 void StandaloneChannel::throwString(const char *str) {
