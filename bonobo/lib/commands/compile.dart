@@ -34,7 +34,7 @@ class CompileCommand extends BonoboCommand {
     printErrors(warnings);
 
     if (errors.isNotEmpty || (argResults['strict'] && warnings.isNotEmpty)) {
-      stderr.writeln('Compilation finished with errors.');
+      stderr.writeln('Static analysis finished with errors.');
       exitCode = 1;
       return null;
     }
@@ -49,6 +49,21 @@ class CompileCommand extends BonoboCommand {
   runBVMCompiler(BonoboAnalyzer analyzer) async {
     var compiler = new BVMCompiler();
     var bytecode = await compiler.compile(analyzer.module);
+
+    var errors =
+        compiler.errors.where((e) => e.severity == BonoboErrorSeverity.error);
+    var warnings =
+        compiler.errors.where((e) => e.severity == BonoboErrorSeverity.warning);
+
+    printErrors(errors);
+    printErrors(warnings);
+
+    if (errors.isNotEmpty || (argResults['strict'] && warnings.isNotEmpty)) {
+      stderr.writeln('Compilation finished with errors.');
+      exitCode = 1;
+      return null;
+    }
+
     IOSink sink;
 
     if (argResults.wasParsed('out') ||

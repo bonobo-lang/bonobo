@@ -5,6 +5,7 @@
 #include <bvm/bvm.h>
 #include "dart_channel.h"
 #include <iostream>
+#include <dart_native_api.h>
 
 bvm::DartChannel *bvm::dartChannel = nullptr;
 
@@ -52,7 +53,14 @@ void bvm::DartChannel::loadFunction(char *functionName, Dart_Port destPortId, Da
 }
 
 void bvm::DartChannel::execFunction(char *functionName, Dart_Port destPortId, Dart_CObject *message, bool requestNew) {
+    //std::cout << "run: " << functionName << std::endl;
     auto msgArgs = message->value.as_array.values[2]->value.as_array;
+    //std::cout << "TYPE: " << message->value.as_array.values[2]->type << std::endl;
+    //std::cout << "VERSUS: " << Dart_CObject_kNull << std::endl;
+
+    if (message->value.as_array.values[2]->type >= Dart_CObject_kNumberOfTypes)
+        msgArgs.length = 2;
+
     auto *args = new void *[msgArgs.length - 2];
     memcpy(args, msgArgs.values + 2, (size_t) msgArgs.length - 2);
     vm->execFunction(functionName, msgArgs.length - 2, args, true);
@@ -72,7 +80,7 @@ void bvm::DartChannel::throwString(const char *str) {
     auto *req1 = new Dart_CObject, *req2 = new Dart_CObject;
     req1->type = req2->type = Dart_CObject_kString;
     req1->value.as_string = (char *) "THROW";
-    req2->value.as_string = (char*) str;
+    req2->value.as_string = (char *) str;
     Dart_PostCObject(sendPortId, req1);
     Dart_PostCObject(sendPortId, req2);
 }
@@ -82,7 +90,7 @@ void bvm::DartChannel::notifyMissingMethod(const char *str) {
     auto *req1 = new Dart_CObject, *req2 = new Dart_CObject;
     req1->type = req2->type = Dart_CObject_kString;
     req1->value.as_string = (char *) "FN";
-    req2->value.as_string = (char*) str;
+    req2->value.as_string = (char *) str;
     Dart_PostCObject(sendPortId, req1);
     Dart_PostCObject(sendPortId, req2);
 }
