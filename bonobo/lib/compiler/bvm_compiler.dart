@@ -116,8 +116,12 @@ class BVMCompiler implements BonoboCompiler<Future<Uint8List>> {
 
       // Push name of function
       var target = await module.analyzer.expressionAnalyzer
-          .resolve(ctx.target, function, function.scope);
-      pushString((target as BonoboFunction).fullName, sink);
+          .resolve(ctx.target, function, function.scope) as BonoboFunction;
+
+      if (target is BonoboNativeFunction)
+        await target.compile(sink);
+      else
+        pushString(target.fullName, sink);
 
       // Push CALL
       sink.addUint8(BVMOpcode.CALL);
