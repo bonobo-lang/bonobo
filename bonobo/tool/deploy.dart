@@ -8,7 +8,7 @@ import 'package:yaml/yaml.dart' as yaml;
 
 main() async {
   // Find the pubspec.
-  var baseDir = p.dirname(p.relative(p.normalize(Platform.script.path)));
+  var baseDir = p.absolute(p.dirname(p.normalize(Platform.script.path)));
   var pubspecPath = p.join(baseDir, '..', 'pubspec.yaml');
   var pubspecUri = p.toUri(pubspecPath);
   print('Pubspec found: $pubspecUri');
