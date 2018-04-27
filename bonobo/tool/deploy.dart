@@ -2,24 +2,22 @@ import 'dart:async';
 import 'dart:io';
 import 'package:archive/archive.dart';
 import 'package:dart2_constant/io.dart';
-import 'package:path/path.dart' as p;
+import 'package:path/path.dart' as pp;
 import 'package:system_info/system_info.dart';
 import 'package:yaml/yaml.dart' as yaml;
 
 main() async {
   // Find the pubspec.
-  var baseDir = p.absolute(p.dirname(p.normalize(Platform.script.path)));
-  var pubspecPath = p.join(baseDir, '..', 'pubspec.yaml');
-  var pubspecUri = p.toUri(pubspecPath);
-  print('Pubspec found: $pubspecUri');
-  var pubspecYaml = yaml
-      .loadYamlNode(await new File.fromUri(p.toUri(pubspecPath)).readAsString())
-      .value as Map;
+  var baseDir = new File.fromUri(Platform.script).parent.parent.absolute;
+  var pubspecFile = new File.fromUri(baseDir.uri.resolve('pubspec.yaml'));
+  print('Pubspec found: ${pubspecFile.uri}');
+  var pubspecYaml =
+      yaml.loadYamlNode(await pubspecFile.readAsString()).value as Map;
   var version = pubspecYaml['version'];
 
   // Find the SDK root.
-  var sdkRoot = p.dirname(p.dirname(p.relative(p.normalize(Platform.resolvedExecutable))));
-  print('SDK root: $sdkRoot');
+  var sdkRoot = new File(Platform.resolvedExecutable).parent.parent.absolute;
+  print('SDK root: ${sdkRoot.uri}');
 
   var targetName = '${Platform.operatingSystem}-${SysInfo.kernelArchitecture}';
   var triplet = 'bonobo-$version-$targetName';
@@ -28,9 +26,9 @@ main() async {
   var archive = new Archive();
 
   Future addFile(String path, String relativeTo, String parent) async {
-    var ioFile = new File.fromUri(p.toUri(path));
-    var relative = p.relative(path, from: relativeTo);
-    relative = p.join(parent, relative);
+    var ioFile = new File(path);
+    var relative = pp.relative(path.toString(), from: relativeTo);
+    relative = pp.join(parent, relative);
     print('$path -> $relative');
 
     var stat = await ioFile.stat();
@@ -42,13 +40,12 @@ main() async {
   }
 
   // First, we want to copy everything from `package/`.
-  var packageDirPath = p.join(baseDir, '..', 'package');
-  var packageDir = new Directory.fromUri(p.toUri(packageDirPath));
+  var packageDir = new Directory.fromUri(baseDir.uri.resolve('package'));
 
   // Next, copy any `.dll`, `.dylib`, `.a`, or `.so` into the `bin/` directory.
   var libExt = ['.dll', '.dylib', '.so', '.a'];
 
-  var bonoboDir = new Directory.fromUri(p.toUri(p.join(baseDir, '..')));
+  var bonoboDir = baseDir.parent.absolute;
 
   // Run CMake.
   var cmake = await Process.start('cmake', ['.'],
@@ -82,21 +79,30 @@ main() async {
   }
 
   // Generate a `bonobo.dart.snapshot` in the `bin/` directory.
-  var snapshot = p.join(packageDirPath, 'bin', 'bonobo.dart.snapshot');
-  var bonoboExecutable = p.join(baseDir, '..', 'bin', 'bonobo.dart');
-  var result = await Process.run(Platform.executable,
-      ['--snapshot=$snapshot', '--snapshot-kind=app-jit', bonoboExecutable]);
+  var snapshot =
+      new File.fromUri(packageDir.uri.resolve('bin/bonobo.dart.snapshot'));
+  if (await snapshot.exists()) await snapshot.delete(recursive: true);
+  var bonoboExecutable =
+      new File.fromUri(baseDir.uri.resolve('bin/bonobo.dart')).absolute;
 
-  if (result.exitCode != 0) {
-    print(result.stderr);
-    throw 'Snapshot generation failed.';
-  }
+  var args = [
+    '--snapshot=${snapshot.absolute.path}',
+    '--snapshot-kind=app-jit',
+    bonoboExecutable.path,
+  ];
+
+  print('Running ${Platform.executable} with $args...');
+  var proc = await Process.start(Platform.executable, args);
+  stdout.addStream(proc.stdout);
+  stderr.addStream(proc.stderr);
+
+  if (await proc.exitCode != 0) throw 'Snapshot generation failed.';
 
   // Copy generated executables
   var binDir = new Directory.fromUri(bonoboDir.uri.resolve('bin'));
 
   await for (var entity in binDir.list(recursive: true)) {
-    if (entity is File && p.basenameWithoutExtension(entity.path) == 'bvm') {
+    if (entity is File && pp.basenameWithoutExtension(entity.path) == 'bvm') {
       await addFile(entity.absolute.path, binDir.absolute.path, 'bin');
     }
   }
@@ -104,37 +110,39 @@ main() async {
   await for (var entity in bonoboDir.list(recursive: true)) {
     if (entity is File &&
         !entity.absolute.path.contains('cmake-build-debug') &&
-        libExt.contains(p.extension(entity.path))) {
+        libExt.contains(pp.extension(entity.path))) {
       // The libraries are necessary in bin/ and lib/.
       await addFile(
-          entity.absolute.path, p.dirname(entity.absolute.path), 'bin');
+          entity.absolute.path, pp.dirname(entity.absolute.path), 'bin');
       await addFile(
-          entity.absolute.path, p.dirname(entity.absolute.path), 'lib');
+          entity.absolute.path, pp.dirname(entity.absolute.path), 'lib');
     }
   }
 
   // Next, copy the libbvm headers to `include`.
-  var bvmHeaderPath =
-      p.join(bonoboDir.absolute.path, 'lib', 'bvm', 'src', 'bvm');
-  var bvmHeaderDir = new Directory.fromUri(p.toUri(bvmHeaderPath));
+  var bvmHeaderDir = new Directory.fromUri(
+      bonoboDir.absolute.uri.resolve('bonobo/lib/bvm/src/bvm'));
 
   await for (var entity in bvmHeaderDir.list(recursive: true)) {
-    if (entity is File && p.extension(entity.path) == '.h') {
-      await addFile(
-          entity.absolute.path, bvmHeaderPath, p.join('include', 'bvm'));
+    if (entity is File && pp.extension(entity.path) == '.h') {
+      await addFile(entity.absolute.path, bvmHeaderDir.absolute.path,
+          pp.join('include', 'bvm'));
     }
   }
 
   await for (var entity in packageDir.list(recursive: true)) {
     if (entity is File) {
-      await addFile(entity.absolute.path, packageDirPath, '');
+      await addFile(entity.absolute.path, packageDir.absolute.path, '');
     }
   }
 
   // Copy the Dart executable.
   await addFile(
-      p.join(sdkRoot, 'bin', Platform.isWindows ? 'dart.exe' : 'dart'),
-      sdkRoot,
+      new File.fromUri(sdkRoot.uri
+              .resolve('bin/' + (Platform.isWindows ? 'dart.exe' : 'dart')))
+          .absolute
+          .path,
+      sdkRoot.absolute.path,
       'dart-sdk');
 
   // Copy specific parts of SDK/lib.
@@ -153,14 +161,14 @@ main() async {
   ];
 
   for (var library in libraries) {
-    var libPath = p.join(sdkRoot, 'lib', library);
-    var dir = new Directory.fromUri(p.toUri(libPath));
+    var dir =
+        new Directory.fromUri(sdkRoot.uri.resolve('lib/$library')).absolute;
 
     await for (var entity in dir.list(recursive: true)) {
       if (entity is File &&
-          (p.extension(entity.path) == '.dart' ||
-              p.extension(entity.path) == '.dill')) {
-        await addFile(entity.absolute.path, sdkRoot, 'dart-sdk');
+          (pp.extension(entity.path) == '.dart' ||
+              pp.extension(entity.path) == '.dill')) {
+        await addFile(entity.absolute.path, sdkRoot.absolute.path, 'dart-sdk');
       }
     }
   }
@@ -170,14 +178,15 @@ main() async {
   var gzipped = gzip.encode(tarball);
 
   // Write to release/bonobo-a.b.c-x-y-z.tar.gz.
-  var releaseDir = p.join(baseDir, '..', '..', 'release');
-  var outputPath = p.absolute(p.join(releaseDir, '$triplet.tar.gz'));
-  var outputFile = new File.fromUri(p.toUri(outputPath));
+  var releaseDir =
+      new Directory.fromUri(baseDir.parent.uri.resolve('release'))
+          .absolute;
+  var outputFile = new File.fromUri(releaseDir.uri.resolve('$triplet.tar.gz'));
   await outputFile.create(recursive: true);
   await outputFile.writeAsBytes(gzipped);
 
   // Delete the snapshot file.
-  await new File(snapshot).delete();
+  await snapshot.delete();
 
-  print('Output: $outputPath');
+  print('Output: ${outputFile.absolute.path}');
 }

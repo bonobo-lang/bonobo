@@ -49,6 +49,7 @@ class BinarySink extends StringSink {
   void seek(int index) => _index = index;
 
   void copy(Uint8List bytes) {
+    if (bytes.isEmpty) return;
     allocate(bytes.length);
     bytes.forEach(addUint8);
   }

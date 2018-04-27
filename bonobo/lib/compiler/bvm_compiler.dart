@@ -15,6 +15,9 @@ class BVMCompiler implements BonoboCompiler<Future<Uint8List>> {
 
   @override
   Future<Uint8List> compile(BonoboModule module) async {
+    if (module.mainFunction == null)
+      throw "Cannot compile module '${module.fullName}': no top-level, public 'main' function found.";
+
     var sink = new BinarySink();
 
     // TODO: All constants
@@ -47,7 +50,7 @@ class BVMCompiler implements BonoboCompiler<Future<Uint8List>> {
     // Then the index at which the main function occurs.
     // Then the "checksum": (magic % idx) >> 2
     var magic = 0xB090B0,
-        idx = allFunctions.indexOf(module.mainFunction),
+        idx = _compiledFunctions.keys.toList().indexOf(module.mainFunction),
         checksum = (magic % (idx + 1)) >> 2;
     sink..addInt32(magic)..addInt32(idx)..addInt32(checksum);
 

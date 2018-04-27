@@ -58,7 +58,8 @@ bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
 
                 while (ch != 0) {
                     //std::cout << "char: " << ch << std::endl;
-                    ss.write(&ch, 1);
+                    ss << std::noskipws << ch;
+                    //ss.write(&ch, 1);
                     ch = (char) task->function->bytecode[task->index++];
                 }
 
