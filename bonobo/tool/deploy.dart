@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:dart2_constant/io.dart';
 import 'package:path/path.dart' as p;
@@ -9,7 +8,7 @@ import 'package:yaml/yaml.dart' as yaml;
 
 main() async {
   // Find the pubspec.
-  var pubspecPath = p.join(p.dirname(Platform.script.path), '../pubspec.yaml');
+  var pubspecPath = p.join(p.dirname(Platform.script.path), '..', 'pubspec.yaml');
   var pubspecYaml = yaml
       .loadYamlNode(await new File(pubspecPath).readAsString())
       .value as Map;
