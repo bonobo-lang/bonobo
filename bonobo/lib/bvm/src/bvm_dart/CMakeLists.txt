@@ -26,5 +26,6 @@ add_library(bvm_dart SHARED
 target_link_libraries(bvm_dart bvm)
 
 if(WIN32)
+    message("Building on Windows. Linking required ${DART_SDK}/bin/dart.lib file")
     target_link_libraries(bvm_dart ${DART_SDK}/bin/dart.lib)
 endif()
