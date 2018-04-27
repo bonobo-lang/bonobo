@@ -78,7 +78,43 @@ main() async {
         '--build',
         '.',
         '--target',
-        'all',
+        'bvm',
+        '--',
+        //'-j',
+        //Platform.numberOfProcessors.toString()
+      ],
+      workingDirectory: cmakeDir.absolute.path);
+  await stdout.addStream(cmake.stdout);
+  await stderr.addStream(cmake.stderr);
+  code = await cmake.exitCode;
+
+  cmake = await Process.start(
+      'cmake',
+      [
+        '--build',
+        '.',
+        '--target',
+        'bvm_cli',
+        '--',
+        //'-j',
+        //Platform.numberOfProcessors.toString()
+      ],
+      workingDirectory: cmakeDir.absolute.path);
+  await stdout.addStream(cmake.stdout);
+  await stderr.addStream(cmake.stderr);
+  code = await cmake.exitCode;
+
+  if (code != 0) {
+    throw 'CMake failed.';
+  }
+
+  cmake = await Process.start(
+      'cmake',
+      [
+        '--build',
+        '.',
+        '--target',
+        'bvm_dart',
         '--',
         //'-j',
         //Platform.numberOfProcessors.toString()
