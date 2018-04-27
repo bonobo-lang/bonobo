@@ -54,7 +54,13 @@ void bvm::VM::threadProc(VM *vm) {
 
                 // Free the task.
                 auto vec = vm->tasks;
-                vec.erase(std::remove(vec.begin(), vec.end(), task), vec.end());
+                unsigned long idx = 0;
+
+                while (vec.at(idx) != task && idx < vec.size())
+                    idx++;
+
+                vec.erase(vec.begin() + idx);
+                //vec.erase(std::remove(vec.begin(), vec.end(), task), vec.end());
                 delete task;
                 done = true;
             }
