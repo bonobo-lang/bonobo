@@ -8,8 +8,9 @@ import 'package:yaml/yaml.dart' as yaml;
 
 main() async {
   // Find the pubspec.
+  var baseDir = p.dirname(p.canonicalize(Platform.script.path));
   var pubspecPath = p.join(
-      p.canonicalize(p.dirname(Platform.script.path)), '..', 'pubspec.yaml');
+      baseDir, '..', 'pubspec.yaml');
   var pubspecYaml = yaml
       .loadYamlNode(await new File(pubspecPath).readAsString())
       .value as Map;
@@ -27,7 +28,7 @@ main() async {
   var archive = new Archive();
 
   Future addFile(String path, String relativeTo, String parent) async {
-    var ioFile = new File(p.canonicalize(path));
+    var ioFile = new File(path);
     var relative = p.relative(path, from: relativeTo);
     relative = p.join(parent, relative);
     print('$path -> $relative');
@@ -42,14 +43,14 @@ main() async {
 
   // First, we want to copy everything from `package/`.
   var packageDirPath =
-      p.canonicalize(p.join(p.dirname(Platform.script.path), '..', 'package'));
+      p.join(baseDir, '..', 'package');
   var packageDir = new Directory(packageDirPath);
 
   // Next, copy any `.dll`, `.dylib`, `.a`, or `.so` into the `bin/` directory.
   var libExt = ['.dll', '.dylib', '.so', '.a'];
 
   var bonoboDir = new Directory(
-      p.canonicalize(p.join(p.dirname(Platform.script.path), '..')));
+      p.join(baseDir, '..'));
 
   // Run CMake.
   var cmake = await Process.start('cmake', ['.'],
@@ -84,8 +85,8 @@ main() async {
 
   // Generate a `bonobo.dart.snapshot` in the `bin/` directory.
   var snapshot = p.join(packageDirPath, 'bin', 'bonobo.dart.snapshot');
-  var bonoboExecutable = p.canonicalize(
-      p.join(p.dirname(Platform.script.path), '..', 'bin', 'bonobo.dart'));
+  var bonoboExecutable =
+      p.join(baseDir, '..', 'bin', 'bonobo.dart');
   var result = await Process.run(Platform.executable,
       ['--snapshot=$snapshot', '--snapshot-kind=app-jit', bonoboExecutable]);
 
@@ -172,8 +173,8 @@ main() async {
   var gzipped = gzip.encode(tarball);
 
   // Write to release/bonobo-a.b.c-x-y-z.tar.gz.
-  var releaseDir = p.canonicalize(
-      p.join(p.dirname(Platform.script.path), '..', '..', 'release'));
+  var releaseDir =
+      p.join(baseDir, '..', '..', 'release');
   var outputPath = p.absolute(p.join(releaseDir, '$triplet.tar.gz'));
   var outputFile = new File(outputPath);
   await outputFile.create(recursive: true);
