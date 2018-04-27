@@ -26,5 +26,5 @@ add_library(bvm_dart SHARED
 target_link_libraries(bvm_dart bvm)
 
 if(WIN32)
-    link_directories(${DART_SDK}/bin)
+    target_link_directories(bvm_dart ${DART_SDK}/bin/dart.lib)
 endif()
