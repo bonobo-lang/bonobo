@@ -8,7 +8,7 @@ import 'package:yaml/yaml.dart' as yaml;
 
 main() async {
   // Find the pubspec.
-  var baseDir = p.dirname(p.canonicalize(Platform.script.path));
+  var baseDir = p.dirname(p.normalize(Platform.script.path));
   var pubspecPath = p.join(
       baseDir, '..', 'pubspec.yaml');
   var pubspecYaml = yaml
@@ -18,7 +18,7 @@ main() async {
 
   // Find the SDK root.
   var sdkRoot =
-      p.dirname(p.dirname(p.canonicalize(Platform.resolvedExecutable)));
+      p.dirname(p.dirname(p.normalize(Platform.resolvedExecutable)));
   print('SDK root: $sdkRoot');
 
   var targetName = '${Platform.operatingSystem}-${SysInfo.kernelArchitecture}';
