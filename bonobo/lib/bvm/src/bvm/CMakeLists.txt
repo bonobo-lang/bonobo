@@ -8,7 +8,7 @@ SET(bvm_sources VM.h
         interpreter.cc
         interpreter.h
         opcode.h
-        bvm_task.cc bvm_task.h bvm.h channel.cc channel.h main.cc)
+        bvm_task.cc bvm_task.h bvm.h channel.cc channel.h main.cc jit/jit.h jit/dispatch.h jit/print.cc)
 add_library(bvm STATIC ${bvm_sources})
 add_executable(bvm_cli main.cc)
 target_link_libraries(bvm_cli bvm)

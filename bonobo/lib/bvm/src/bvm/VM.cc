@@ -12,8 +12,8 @@ bvm::VM::~VM() {
     delete interpreter;
 }
 
-std::vector<bvm::BVMTask *>* bvm::VM::get_tasks() {
-  return &tasks;
+std::vector<bvm::BVMTask *> *bvm::VM::get_tasks() {
+    return &tasks;
 }
 
 void bvm::VM::threadProc(VM *vm) {
@@ -31,7 +31,7 @@ void bvm::VM::threadProc(VM *vm) {
                     // The task in question is waiting for a function to run.
                     // Find the function in question, if it exists.
                     auto *newTask = vm->execFunction((char *) task->missingFunction, 0, nullptr,
-                                                      !task->functionRequested);
+                                                     !task->functionRequested);
                     task->functionRequested = true;
 
                     if (newTask != nullptr) {
@@ -49,7 +49,8 @@ void bvm::VM::threadProc(VM *vm) {
                 }
             } else if ((done = !vm->interpreter->visit(task))) {
                 if (!task->success) {
-                    // TODO: Handle an error?
+                    if (!task->errorMessage.empty())
+                        vm->channel->throwString(task->errorMessage.c_str());
                 }
 
                 // Free the task.
