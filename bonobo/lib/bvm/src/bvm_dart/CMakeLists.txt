@@ -10,6 +10,7 @@ else ()
 endif ()
 
 include_directories(${DART_SDK}/include)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../tcc)
 add_definitions(-DDART_SHARED_LIB=1)
 
 # OS-specific flags
@@ -23,7 +24,7 @@ add_library(bvm_dart SHARED
         dart_channel.cc dart_channel.h
         bvm_dart_dllmain_win.cc
         bvm_dart.h)
-target_link_libraries(bvm_dart bvm)
+target_link_libraries(bvm_dart bvm libtcc)
 
 if(WIN32)
     message("Building on Windows. Linking required ${DART_SDK}\\bin\\dart.lib file")

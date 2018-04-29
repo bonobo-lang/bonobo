@@ -15,4 +15,6 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc, bool *auto_setup_sco
 
 void new_jit(Dart_NativeArguments arguments);
 
+void compile_c(Dart_NativeArguments arguments);
+
 #endif //PROJECT_EXTENSION_H

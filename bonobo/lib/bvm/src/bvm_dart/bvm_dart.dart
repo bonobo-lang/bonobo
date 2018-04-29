@@ -6,6 +6,8 @@ import 'dart-ext:bvm_dart';
 import 'package:async/async.dart';
 import 'package:source_span/source_span.dart';
 
+Uint8List compileC(String source, bool isExecutable) native "compile_c";
+
 class BVM {
   static BVM _instance;
 
