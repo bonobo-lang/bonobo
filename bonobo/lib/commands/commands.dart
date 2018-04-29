@@ -24,6 +24,7 @@ import 'package:file/memory.dart';
 import 'package:logging/logging.dart';
 import 'package:markdown/markdown.dart' show markdownToHtml;
 import 'package:path/path.dart' as p;
+import 'package:resource/src/resolve.dart';
 import 'package:source_span/source_span.dart';
 import 'package:tuple/tuple.dart';
 import 'package:bonobo/analysis/analysis.dart';

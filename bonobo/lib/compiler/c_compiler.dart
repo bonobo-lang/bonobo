@@ -46,8 +46,8 @@ class BonoboCCompiler {
       // Insert all includes
       output.body.insertAll(0, [
         // Necessary standard imports.
-        new c.Include.system('stdint.h'),
-        new c.Include.system('stdio.h'),
+        //new c.Include.system('stdint.h'),
+        //new c.Include.system('stdio.h'),
 
         // Import the Bonobo runtime.
         new c.Include.system('bonobo.h'),
@@ -55,7 +55,7 @@ class BonoboCCompiler {
 
       // Create a simple int main() that just calls _main()
       output.body
-          .add(new c.CFunction(new c.FunctionSignature(c.CType.int, 'main'))
+          .add(new c.CFunction(new c.FunctionSignature(c.CType.int, '_start'))
             ..body.addAll([
               new c.Expression(analyzer.module.mainFunction.fullName
                   .replaceAll('::', '_')).invoke([]),

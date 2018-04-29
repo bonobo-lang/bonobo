@@ -107,10 +107,25 @@ class CompileCommand extends BonoboCommand {
         ..write(buf)
         ..close();
     } else {
-      var data = compileC(buf.toString(), true);
-      getOutput(this)
+      // Resolve include paths, etc.
+      var tccDir = await resolveUri(Uri.parse('package:bonobo/bvm/src/tcc'))
+          .then((u) => u.toFilePath());
+      var cDir = await resolveUri(Uri.parse('package:bonobo/runtime'))
+          .then((u) => u.toFilePath());
+
+      var data = compileC(buf.toString(), true, [
+        p.join(tccDir, 'include'),
+        p.join(cDir, 'include'),
+      ]);
+
+      /*getOutput(this)
         ..add(data)
         ..close();
+
+      if (!Platform.isWindows && argResults.wasParsed('out')) {
+        var chmod = await Process.run('chmod', ['+x', argResults['out']]);
+        if (chmod.exitCode != 0) throw 'chmod +x failed.';
+      }*/
     }
   }
 }

@@ -54,7 +54,22 @@ void compile_c(Dart_NativeArguments arguments) {
         return;
     }
 
-    tcc_set_output_type(tcc, isExecutable ? TCC_OUTPUT_EXE : TCC_OUTPUT_MEMORY);
+    int exeMode = isExecutable ? TCC_OUTPUT_OBJ : TCC_OUTPUT_MEMORY;
+    tcc_set_output_type(tcc, exeMode);
+
+    // Get include dirs
+    Dart_Handle includeDirsHandle = Dart_GetNativeArgument(arguments, 2);
+    intptr_t length;
+    HandleError(Dart_ListLength(includeDirsHandle, &length));
+
+    for (intptr_t i = 0; i < length; i++) {
+        Dart_Handle strHandle = HandleError(Dart_ListGetAt(includeDirsHandle, i));
+        const char *str;
+        Dart_StringToCString(strHandle, &str);
+        tcc_add_sysinclude_path(tcc, str);
+    }
+
+    // Get link dirs
 
     if (tcc_compile_string(tcc, c_src) == -1) {
         Dart_ThrowException(Dart_NewStringFromCString("C compilation failed."));
