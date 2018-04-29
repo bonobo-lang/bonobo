@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <stack>
+#include <map>
 #include <string>
 #include <vector>
 #include "function.h"
@@ -19,6 +20,7 @@ namespace bvm
         bool blocked = false, started = false, functionRequested = false, success = false;
         const char *missingFunction = nullptr;
         BVMTask *returnTo = nullptr;
+        std::map<std::string, void*> variables;
         std::stack<void *> *stack;
         std::stack<std::string> strings;
         std::string errorMessage;

@@ -100,16 +100,36 @@ bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
             case Opcode::ALLOCATE: {
                 // The top of the stack is a long.
                 // Read it, then push the new pointer.
-                auto size = *((uint64_t*) task->stack->top());
+                auto size = *((uint64_t *) task->stack->top());
                 task->stack->pop();
                 task->stack->push(malloc(size));
                 break;
             }
-            case Opcode ::FREE: {
+            case Opcode::FREE: {
                 // Free the pointer at the top of the stack,
                 // for better or worse.
                 free(task->stack->top());
                 task->stack->pop();
+                break;
+            }
+            case Opcode::GET : {
+                // There's a string in the stack.
+                // Get the value of the corresponding variable.
+                // SSA FTW.
+                auto str = std::string((const char*) task->stack->top());
+                task->stack->pop();
+                task->stack->push(task->variables[str]);
+                break;
+            }
+            case Opcode::SET : {
+                // The top is the value in question.
+                // The next is a string.
+                // Set the corresponding variable.
+                auto *value = task->stack->top();
+                task->stack->pop();
+                auto str = std::string((const char*) task->stack->top());
+                task->stack->pop();
+                task->variables[str] = value;
                 break;
             }
             default: {

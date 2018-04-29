@@ -2,5 +2,4 @@
  * Use the `::` syntax to call functionality from
  * another package.
  */
-fn main => print('45 min')
-fn main2 => print(foo::bar())
+fn main => print(foo::bar())
