@@ -97,6 +97,21 @@ bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
                 task->stack->pop();
                 break;
             }
+            case Opcode::ALLOCATE: {
+                // The top of the stack is a long.
+                // Read it, then push the new pointer.
+                auto size = *((uint64_t*) task->stack->top());
+                task->stack->pop();
+                task->stack->push(malloc(size));
+                break;
+            }
+            case Opcode ::FREE: {
+                // Free the pointer at the top of the stack,
+                // for better or worse.
+                free(task->stack->top());
+                task->stack->pop();
+                break;
+            }
             default: {
                 // Throw error
                 std::stringstream ssErr;

@@ -12,7 +12,7 @@ function run_tests() {
 # Build the embedded JIT
 cd "$DIRNAME/bonobo"
 cmake .
-cmake --build . --target bvm_jit -- -j $CORES
+cmake --build . --target all -- -j $CORES
 
 # Run all the tests
 run_tests bonobo
