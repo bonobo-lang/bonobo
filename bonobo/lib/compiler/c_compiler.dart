@@ -9,11 +9,6 @@ import '../ast/ast.dart';
 
 final c.Expression String_new = new c.Expression('String_new');
 
-c.Code gdbLineInfo(SourceSpan span) {
-  return new c.Code(
-      '#line ${span.start.line + 1} "${span.sourceUrl.toFilePath()}"');
-}
-
 class BonoboCCompiler {
   final List<BonoboError> errors = [];
   final c.CompilationUnit output = new c.CompilationUnit();
@@ -25,28 +20,26 @@ class BonoboCCompiler {
 
   Future compile() async {
     var signatures = <c.FunctionSignature>[];
-    BonoboFunction mainFunction, privateMainFunction;
 
-    for (var symbol in analyzer.module.scope.root.allVariables) {
-      if (symbol.value is BonoboFunction) {
-        var f = symbol.value as BonoboFunction;
-        if (f.name == 'main' && mainFunction != null) {
-          if (symbol.visibility >= Visibility.public)
-            mainFunction = f;
-          else
-            privateMainFunction = f;
-        }
-        await compileFunction(f, signatures);
-      }
-    }
-
-    if (mainFunction == null) {
+    if (analyzer.module.mainFunction == null) {
       errors.add(new BonoboError(
         BonoboErrorSeverity.error,
         "A 'main' function is required.",
-        privateMainFunction?.span ?? analyzer.module.emptySpan,
+        analyzer.module.emptySpan,
       ));
     } else {
+      // Compile all functions, in all modules.
+      Future compileModule(BonoboModule module) async {
+        for (var symbol in module.scope.allVariables) {
+          if (symbol.value is BonoboFunction)
+            await compileFunction(symbol.value, signatures);
+        }
+
+        for (var child in module.children) await compileModule(child);
+      }
+
+      await compileModule(analyzer.module);
+
       // Insert forward declarations of all functions
       output.body.insertAll(0, signatures);
 
@@ -54,6 +47,7 @@ class BonoboCCompiler {
       output.body.insertAll(0, [
         // Necessary standard imports.
         new c.Include.system('stdint.h'),
+        new c.Include.system('stdio.h'),
 
         // Import the Bonobo runtime.
         new c.Include.system('bonobo.h'),
@@ -63,35 +57,38 @@ class BonoboCCompiler {
       output.body
           .add(new c.CFunction(new c.FunctionSignature(c.CType.int, 'main'))
             ..body.addAll([
-              new c.Expression('_main').invoke([]),
+              new c.Expression(analyzer.module.mainFunction.fullName
+                  .replaceAll('::', '_')).invoke([]),
               new c.Expression.value(0).asReturn(),
             ]));
     }
   }
 
   Future compileFunction(
-      BonoboFunction ctx, List<c.FunctionSignature> signatures) async {
-    var returnType = await compileType(ctx.returnType);
+      BonoboFunction function, List<c.FunctionSignature> signatures) async {
+    if (function is BonoboNativeFunction) {
+      await function.compileC(this, signatures);
+      return;
+    }
+
+    var returnType = await compileType(function.returnType);
 
     if (returnType == null) {
       errors.add(new BonoboError(
           BonoboErrorSeverity.error,
-          "Cannot resolve type '${ctx.returnType.name}' to a C type.",
-          ctx.declaration.signature.returnType?.span ??
-              ctx.declaration.signature.span));
+          "Cannot resolve type '${function.returnType.name}' to a C type.",
+          function.declaration.signature.returnType?.span ??
+              function.declaration.signature.span));
       return;
     }
 
     var signature = new c.FunctionSignature(
-        returnType, ctx.name == 'main' ? '_main' : ctx.name);
+        returnType, function.fullName.replaceAll('::', '_'));
     signatures.add(signature);
-    var function = new c.CFunction(signature);
-    output.body.addAll([
-      gdbLineInfo(ctx.span),
-      function,
-    ]);
+    var out = new c.CFunction(signature);
+    output.body.add(out);
 
-    for (var p in ctx.parameters) {
+    for (var p in function.parameters) {
       var type = await compileType(p.type);
 
       if (type == null) {
@@ -102,15 +99,18 @@ class BonoboCCompiler {
         return;
       }
 
-      function.signature.parameters.add(new c.Parameter(type, p.name));
+      out.signature.parameters.add(new c.Parameter(type, p.name));
     }
 
-    function.body.addAll(await compileControlFlow(ctx.body, ctx, ctx.scope));
+    out.body.addAll(
+        await compileControlFlow(function.body, function, function.scope));
   }
 
   Future<List<c.Code>> compileControlFlow(
       ControlFlow ctx, BonoboFunction function, SymbolTable scope) async {
     var out = [];
+
+    if (ctx?.statements == null) return out;
 
     for (int i = 0; i < ctx.statements.length; i++) {
       var stmt = ctx.statements[i];
@@ -118,13 +118,11 @@ class BonoboCCompiler {
       if (stmt is ReturnStatementContext) {
         var expression =
             await compileExpression(stmt.expression, function, out, scope);
-        out.addAll([gdbLineInfo(stmt.span), expression.asReturn()]);
+        out.add(expression.asReturn());
         continue;
       }
 
       if (stmt is VariableDeclarationStatementContext) {
-        out.add(gdbLineInfo(stmt.span));
-
         // Declare all variables
         for (var decl in stmt.declarations) {
           var value = await analyzer.expressionAnalyzer
@@ -154,6 +152,32 @@ class BonoboCCompiler {
     // Literals
     if (ctx is SimpleIdentifierContext) {
       return new c.Expression(ctx.name);
+    }
+
+    if (ctx is NamespacedIdentifierContext) {
+      var module = analyzer.module;
+
+      for (var namespace in ctx.namespaces) {
+        var child = module.children
+            .firstWhere((m) => m.name == namespace.name, orElse: () => null);
+
+        if (child == null) {
+          throw "The module '${module.name}' has no child named '${namespace
+              .name}'.";
+        }
+
+        module = child;
+      }
+
+      var symbol = module.scope.allVariables
+          .firstWhere((v) => v.name == ctx.symbol.name, orElse: () => null);
+
+      if (symbol == null) {
+        throw "The module '${module.name}' has no symbol named '${ctx.symbol
+            .name}'.";
+      }
+
+      return new c.Expression(ctx.name.replaceAll('::', '_'));
     }
 
     if (ctx is NumberLiteralContext) {
@@ -192,7 +216,8 @@ class BonoboCCompiler {
   Future<c.Expression> compileObject(BonoboObject object,
       BonoboFunction function, List<c.Code> body, SymbolTable scope) async {
     throw new ArgumentError(
-        'Cannot compile ${object.type.name} to C yet!!!\n${object.span.highlight()}');
+        'Cannot compile ${object.type.name} to C yet!!!\n${object.span
+            .highlight()}');
   }
 }
 

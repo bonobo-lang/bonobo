@@ -71,8 +71,6 @@ namespace bvm
         // Variables
             GET_VARIABLE = 0x2B,
         SET_VARIABLE = 0x2C
-
-        // Next: 0x2E
     };
 }
 

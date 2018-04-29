@@ -11,6 +11,7 @@ import 'package:source_span/source_span.dart';
 import 'package:symbol_table/symbol_table.dart';
 import '../ast/ast.dart';
 import '../compiler/bvm/bvm.dart';
+import '../compiler/c_compiler.dart';
 import '../scanner/scanner.dart';
 import '../parser/parser.dart';
 import '../util/util.dart';

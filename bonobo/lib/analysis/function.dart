@@ -51,8 +51,11 @@ class BonoboFunction extends BonoboObject {
 
 class BonoboNativeFunction extends BonoboFunction {
   final FutureOr Function(BinarySink) compile;
+  final FutureOr Function(BonoboCCompiler, List<c.FunctionSignature> signatures)
+      compileC;
 
-  BonoboNativeFunction(String name, BonoboModule declaringModule, this.compile)
+  BonoboNativeFunction(
+      String name, BonoboModule declaringModule, this.compile, this.compileC)
       : super(name, null, null, declaringModule);
 }
 

@@ -112,7 +112,7 @@ bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
                 task->stack->pop();
                 break;
             }
-            case Opcode::GET : {
+            case Opcode::GET_VARIABLE : {
                 // There's a string in the stack.
                 // Get the value of the corresponding variable.
                 // SSA FTW.
@@ -121,7 +121,7 @@ bool bvm::BVMInterpreter::visit(bvm::BVMTask *task) {
                 task->stack->push(task->variables[str]);
                 break;
             }
-            case Opcode::SET : {
+            case Opcode::SET_VARIABLE : {
                 // The top is the value in question.
                 // The next is a string.
                 // Set the corresponding variable.

@@ -37,7 +37,22 @@ class BonoboModuleSystem {
       (sink) {
         sink..addUint8(BVMOpcode.PRINT)..addUint8(BVMOpcode.RET);
       },
-    )..returnType = BonoboType.Root;
+      (compiler, signatures) {
+        var function = new c.CFunction(
+            new c.FunctionSignature(c.CType.char.pointer().const$(), 'print'));
+        signatures.add(function.signature);
+        compiler.output.body.add(function);
+        function.signature.parameters
+            .add(new c.Parameter(c.CType.char.pointer().const$(), 'value'));
+        function.body.addAll([
+          new c.Expression('printf').invoke([
+            new c.Expression.value('%s\n'),
+            new c.Expression('value'),
+          ]),
+          new c.Expression('value').asReturn(),
+        ]);
+      },
+    )..returnType = BonoboType.String$;
     print_.manualDocs = 'Prints a value.';
     print_.parameters
         .add(new BonoboFunctionParameter('value', BonoboType.Root, null));
