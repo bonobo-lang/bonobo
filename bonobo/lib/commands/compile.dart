@@ -18,7 +18,7 @@ class CompileCommand extends BonoboCommand {
         abbr: 't',
         help: 'The target platform to compile for.',
         defaultsTo: 'bvm',
-        allowed: ['c', 'bvm'],
+        allowed: ['c', 'bvm', 'x86'],
       );
   }
 
@@ -39,7 +39,7 @@ class CompileCommand extends BonoboCommand {
       return null;
     }
 
-    if (argResults['target'] == 'c')
+    if (argResults['target'] == 'c' || argResults['target'] == 'x86')
       return runCCompiler(analyzer);
     else if (argResults['target'] == 'bvm') return runBVMCompiler(analyzer);
 
@@ -101,8 +101,16 @@ class CompileCommand extends BonoboCommand {
 
     var buf = new CodeBuffer();
     compiler.output.generate(buf);
-    getOutput(this)
-      ..write(buf)
-      ..close();
+
+    if (argResults['target'] == 'c') {
+      getOutput(this)
+        ..write(buf)
+        ..close();
+    } else {
+      var data = compileC(buf.toString(), true);
+      getOutput(this)
+        ..add(data)
+        ..close();
+    }
   }
 }
