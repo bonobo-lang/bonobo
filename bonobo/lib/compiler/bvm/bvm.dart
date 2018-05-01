@@ -65,3 +65,14 @@ abstract class BVMOpcode {
       GET_VARIABLE = 0x2B,
       SET_VARIABLE = 0x2C;
 }
+
+abstract class BVMRegister {
+  static const int EAX = 0,
+      EBX = 1,
+      ECX = 2,
+      EDX = 3,
+      ESI = 4,
+      EDI = 5,
+      EBP = 6,
+      ESP = 7;
+}

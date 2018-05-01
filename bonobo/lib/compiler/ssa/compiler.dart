@@ -81,6 +81,16 @@ class SSACompiler {
 
   Future<Tuple2<RegisterValue, SSACompilerState>> compileExpression(
       ExpressionContext ctx, SSACompilerState state) async {
+    if (ctx is CallExpressionContext) {
+      for (int i = ctx.arguments.expressions.length - 1; i >= 0; i--) {
+        var arg = ctx.arguments.expressions[i];
+        var result = await compileExpression(arg, state);
+        var value = result.item1;
+        state = result.item2;
+        var reg = state.program.registers.firstAvailable(value.size);
+      }
+    }
+
     var object = await state.analyzer.expressionAnalyzer
         .resolve(ctx, state.function, state.scope);
     return await compileObject(object, state);
@@ -88,7 +98,7 @@ class SSACompiler {
 
   Future<Tuple2<RegisterValue, SSACompilerState>> compileObject(
       BonoboObject object, SSACompilerState state) async {
-    throw 'Cannot compile ${object.type}';
+    throw 'Cannot compile ${object.type}\n${object.span?.highlight() ?? ''}';
   }
 }
 
