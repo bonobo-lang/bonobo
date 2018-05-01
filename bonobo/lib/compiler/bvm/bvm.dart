@@ -1,5 +1,11 @@
 abstract class BVMOpcode {
   static const int
+      // Format,
+      MAGIC = 0xB090B0,
+      SECTION = 0x3,
+      DATA_SECTION = 0x00,
+      TEXT_SECTION = 0x01,
+
       // Stack
       POP = 0x0,
       PUSH = 0x1,

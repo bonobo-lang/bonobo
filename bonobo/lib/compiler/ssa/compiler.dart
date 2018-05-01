@@ -18,10 +18,11 @@ class SSACompiler {
   }
 
   Future<Tuple2<Program, SSACompilerState>> compile(
-      BonoboModule module, List<BonoboError> errors) async {
+      BonoboModule module, List<BonoboError> errors,
+      [SSACompilerState state]) async {
     var program = new Program();
     var main = module.mainFunction;
-    var state = new SSACompilerState(
+    state ??= new SSACompilerState(
         program, main, module, null, null, null, errors, main.scope, main.body);
     state = await compileFunction(main, state).then((t) => t.item2);
     return new Tuple2(program, state);
