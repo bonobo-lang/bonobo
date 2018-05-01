@@ -16,7 +16,7 @@ bvm::DartChannel::DartChannel(Dart_Handle sendPort) {
     Dart_SendPortGetId(sendPort, &this->sendPortId);
     this->receivePort =
             Dart_NewNativePort("machine", sendPortCallback, true);
-    vm = new VM(this);
+    vm = new OldVM(this);
 }
 
 bvm::DartChannel *bvm::DartChannel::create(Dart_Handle sendPort) {

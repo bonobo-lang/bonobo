@@ -1,22 +1,22 @@
 #include <iostream>
-#include "VM.h"
+#include "OldVM.h"
 #include "bvm.h"
 
-bvm::VM::VM(Channel *channel) {
+bvm::OldVM::OldVM(Channel *channel) {
     this->channel = channel;
     interpreter = new BVMInterpreter;
 }
 
-bvm::VM::~VM() {
+bvm::OldVM::~OldVM() {
     tasks.clear();
     delete interpreter;
 }
 
-std::vector<bvm::BVMTask *> *bvm::VM::get_tasks() {
+std::vector<bvm::BVMTask *> *bvm::OldVM::get_tasks() {
     return &tasks;
 }
 
-void bvm::VM::threadProc(VM *vm) {
+void bvm::OldVM::threadProc(OldVM *vm) {
     while (!vm->tasks.empty()) {
         bool done = false;
 
@@ -73,7 +73,7 @@ void bvm::VM::threadProc(VM *vm) {
     vm->channel->shutdown();
 }
 
-void bvm::VM::loadFunction(char *functionName, intptr_t length, uint8_t *data) {
+void bvm::OldVM::loadFunction(char *functionName, intptr_t length, uint8_t *data) {
     // Get the bytecode.
     auto *function = new BVMFunction;
     function->name = new char[strlen(functionName) + 1];
@@ -96,7 +96,7 @@ void bvm::VM::loadFunction(char *functionName, intptr_t length, uint8_t *data) {
     std::cout << "]" << std::endl;*/
 }
 
-bvm::BVMTask *bvm::VM::execFunction(char *functionName, intptr_t argc, void **argv, bool requestNew) {
+bvm::BVMTask *bvm::OldVM::execFunction(char *functionName, intptr_t argc, void **argv, bool requestNew) {
     // Find the function to run.
     BVMFunction *function = nullptr;
 
@@ -126,11 +126,11 @@ bvm::BVMTask *bvm::VM::execFunction(char *functionName, intptr_t argc, void **ar
     }
 }
 
-const std::thread *bvm::VM::get_loop_thread() {
+const std::thread *bvm::OldVM::get_loop_thread() {
     return loopThread;
 }
 
-void bvm::VM::startLoop() {
+void bvm::OldVM::startLoop() {
     loopThread = new std::thread(threadProc, this);
     loopThread->detach();
 }

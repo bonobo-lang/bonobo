@@ -1,40 +1,20 @@
-#ifndef BVM_BVM_H
-#define BVM_BVM_H
+//
+// Created by Tobe on 5/1/18.
+//
 
-#include <thread>
-#include <vector>
-#include "bvm_task.h"
-#include "channel.h"
-#include "function.h"
-#include "interpreter.h"
+#ifndef PROJECT_VM_H
+#define PROJECT_VM_H
+
+#include "register.h"
 
 namespace bvm
 {
     class VM
     {
-    private:
-        static void threadProc(VM *vm);
-
-        Channel *channel;
-        std::vector<BVMTask *> tasks;
-        std::vector<BVMFunction *> functions;
-        BVMInterpreter *interpreter;
-        std::thread *loopThread = nullptr;
     public:
-        explicit VM(Channel *channel);
-        ~VM();
-
-        std::vector<BVMTask *>* get_tasks();
-
-        const std::thread *get_loop_thread();
-
-        void loadFunction(char *functionName, intptr_t length, uint8_t *data);
-
-        BVMTask *execFunction(char *functionName, intptr_t argc, void **argv, bool requestNew);
-
-        void startLoop();
-
+        VM();
+        Register *registers;
     };
 }
 
-#endif
+#endif //PROJECT_VM_H

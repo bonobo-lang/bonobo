@@ -18,13 +18,13 @@ typedef struct
 class StandaloneChannel : public bvm::Channel
 {
 private:
-    bvm::VM *vm;
+    bvm::OldVM *vm;
 public:
     StandaloneChannel();
 
     int exitCode = 0;
 
-    bvm::VM *get_vm();
+    bvm::OldVM *get_vm();
 
     void notifyMissingMethod(const char *str) override;
 
@@ -226,10 +226,10 @@ void threadProc(ThreadConfig *config) {
 }
 
 StandaloneChannel::StandaloneChannel() {
-    vm = new bvm::VM(this);
+    vm = new bvm::OldVM(this);
 }
 
-bvm::VM *StandaloneChannel::get_vm() {
+bvm::OldVM *StandaloneChannel::get_vm() {
     return vm;
 }
 

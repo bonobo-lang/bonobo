@@ -11,6 +11,6 @@
 #include "function.h"
 #include "interpreter.h"
 #include "trampoline.h"
-#include "VM.h"
+#include "OldVM.h"
 
 #endif //PROJECT_BVM_H

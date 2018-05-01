@@ -13,7 +13,7 @@ namespace bvm
         explicit DartChannel(Dart_Handle sendPort);
         Dart_Port receivePort, sendPortId;
         Dart_Handle sendPort;
-        VM *vm;
+        OldVM *vm;
     public:
 
         static DartChannel *create(Dart_Handle sendPort);
