@@ -187,8 +187,6 @@ class SSACompiler {
 
 class SSACompilerState {
   final List<BonoboError> errors;
-  final LinearMemory<Procedure> addresses = new LinearMemory(0);
-  final LinearMemory<RegisterValue> dataSection = new LinearMemory(0);
   final Map<dynamic, MemoryBlock<RegisterValue>> constantCache = {};
   final Map<BonoboFunction, Procedure> procedures = {};
   final Program program;
@@ -199,6 +197,8 @@ class SSACompilerState {
   final Block block;
   final SymbolTable<BonoboObject> scope;
   final ControlFlow controlFlow;
+  LinearMemory<Procedure> _addresses = new LinearMemory(0);
+  LinearMemory<RegisterValue> _dataSection = new LinearMemory(0);
 
   SSACompilerState(
       this.program,
@@ -210,6 +210,10 @@ class SSACompilerState {
       this.errors,
       this.scope,
       this.controlFlow);
+
+  LinearMemory<Procedure> get addresses => _addresses;
+
+  LinearMemory<RegisterValue> get dataSection => _dataSection;
 
   BonoboAnalyzer get analyzer => module.analyzer;
 
@@ -233,6 +237,10 @@ class SSACompilerState {
         block ?? this.block,
         this.errors,
         scope ?? this.scope,
-        controlFlow ?? this.controlFlow);
+        controlFlow ?? this.controlFlow)
+      .._addresses = _addresses
+      .._dataSection = _dataSection
+      ..constantCache.addAll(constantCache)
+      ..procedures.addAll(procedures);
   }
 }

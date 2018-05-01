@@ -65,12 +65,14 @@ class CompileCommand extends BonoboCommand {
       return null;
     }
 
-    var bytecode =
-        const BytecodeGenerator().generateTextSection(program, state).toBytes();
+    var binarySink = new BinarySink();
+    const BytecodeGenerator().generate(program, state, binarySink);
+    var bytecode = binarySink.toBytes();
 
+    /*
     for (int i = 0; i < bytecode.length; i++) {
       print('0x${i.toRadixString(16)}: 0x${bytecode[i].toRadixString(16)}');
-    }
+    }*/
 
     IOSink sink;
 
@@ -86,7 +88,8 @@ class CompileCommand extends BonoboCommand {
     }
 
     sink.add(bytecode);
-    await sink.close();
+
+    if (sink != stdout) await sink.close();
   }
 
   runBVMCompilerOld(BonoboAnalyzer analyzer) async {

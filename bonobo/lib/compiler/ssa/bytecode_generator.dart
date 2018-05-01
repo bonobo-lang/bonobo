@@ -18,6 +18,15 @@ class BytecodeGenerator {
 
   BinarySink generateDataSection(Program program, SSACompilerState state) {
     var sink = new BinarySink();
+
+    state.constantCache.forEach((value, block) {
+      if (value is String) {
+        sink.write(value);
+      } else {
+        throw 'Cannot yet serialize constant value: $value';
+      }
+    });
+
     var section = sink.toBytes();
     return new BinarySink(size: 10)
       ..addUint8(BVMOpcode.SECTION)

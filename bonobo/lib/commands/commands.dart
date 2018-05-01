@@ -35,6 +35,7 @@ import '../ast/ast.dart';
 import '../scanner/scanner.dart';
 import '../parser/parser.dart';
 import '../language_server/language_server.dart';
+import '../util/util.dart';
 
 part 'bonobo_command.dart';
 
