@@ -8,9 +8,9 @@ abstract class Block {
 
 class BasicBlock extends Block {
   final String label;
-  final Instruction entry;
+  Instruction entry;
 
-  BasicBlock(this.label, this.entry);
+  BasicBlock(this.label);
 
   @override
   int get size => entry.totalSize;

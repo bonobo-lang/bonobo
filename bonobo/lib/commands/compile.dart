@@ -41,12 +41,33 @@ class CompileCommand extends BonoboCommand {
 
     if (argResults['target'] == 'c' || argResults['target'] == 'x86')
       return runCCompiler(analyzer);
-    else if (argResults['target'] == 'bvm') return runBVMCompiler(analyzer);
+    else if (argResults['target'] == 'bvm') return await runBVMCompiler(analyzer);
 
     throw 'Unsupported compile target: ${argResults['target']}';
   }
 
   runBVMCompiler(BonoboAnalyzer analyzer) async {
+    var tuple = await ssaCompiler.compile(analyzer.module, analyzer.errors);
+    var program = tuple.item1, state = tuple.item2;
+
+    var errors =
+    state.errors.where((e) => e.severity == BonoboErrorSeverity.error);
+    var warnings =
+    state.errors.where((e) => e.severity == BonoboErrorSeverity.warning);
+
+    printErrors(errors);
+    printErrors(warnings);
+
+    if (errors.isNotEmpty || (argResults['strict'] && warnings.isNotEmpty)) {
+      stderr.writeln('Compilation finished with errors.');
+      exitCode = 1;
+      return null;
+    }
+
+    throw new UnimplementedError('Bytecode compilation from SSA');
+  }
+
+  runBVMCompilerOld(BonoboAnalyzer analyzer) async {
     var compiler = new BVMCompiler();
     var bytecode = await compiler.compile(analyzer.module);
 
