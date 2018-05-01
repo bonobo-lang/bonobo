@@ -52,11 +52,12 @@ class SSACompiler {
     state = state.copyWith(controlFlow: controlFlow);
 
     void emitInstruction(Instruction instruction) {
-      if (state.block.entry == null) {
-        state = state.copyWith(
-          dominanceFrontier: instruction.dominanceFrontier,
-        );
-      }
+      state.block.entry ??= instruction;
+      state.dominanceFrontier?.next = instruction;
+
+      state = state.copyWith(
+        dominanceFrontier: instruction.dominanceFrontier,
+      );
     }
 
     for (var statement in controlFlow.statements) {
@@ -66,6 +67,8 @@ class SSACompiler {
       else if (statement is ReturnStatementContext) {
         state = await compileExpression(statement.expression, state)
             .then((t) => t.item2);
+        emitInstruction(new BasicInstruction(BVMOpcode.RET, [], statement.span,
+            state.dominanceFrontier.createChild()));
         return state;
       }
 

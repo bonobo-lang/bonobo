@@ -10,13 +10,14 @@ abstract class Instruction {
   int get totalSize => size + dominanceFrontier.size;
 }
 
-class SimpleInstruction extends Instruction {
-  final List<int> operands = [];
+class BasicInstruction extends Instruction {
   final int opcode;
+  final List<int> operands;
   final FileSpan span;
   final DominanceFrontier dominanceFrontier;
 
-  SimpleInstruction(this.opcode, this.span, this.dominanceFrontier);
+  BasicInstruction(
+      this.opcode, this.operands, this.span, this.dominanceFrontier);
 
   @override
   int get size => 1 + operands.length * 1;

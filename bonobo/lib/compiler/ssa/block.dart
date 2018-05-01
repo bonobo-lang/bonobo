@@ -4,6 +4,7 @@ abstract class Block {
   String get label;
   Instruction get entry;
   int get size;
+  void set entry(Instruction value);
 }
 
 class BasicBlock extends Block {
