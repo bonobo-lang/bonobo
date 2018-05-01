@@ -41,7 +41,8 @@ class CompileCommand extends BonoboCommand {
 
     if (argResults['target'] == 'c' || argResults['target'] == 'x86')
       return runCCompiler(analyzer);
-    else if (argResults['target'] == 'bvm') return await runBVMCompiler(analyzer);
+    else if (argResults['target'] == 'bvm')
+      return await runBVMCompiler(analyzer);
 
     throw 'Unsupported compile target: ${argResults['target']}';
   }
@@ -51,9 +52,9 @@ class CompileCommand extends BonoboCommand {
     var program = tuple.item1, state = tuple.item2;
 
     var errors =
-    state.errors.where((e) => e.severity == BonoboErrorSeverity.error);
+        state.errors.where((e) => e.severity == BonoboErrorSeverity.error);
     var warnings =
-    state.errors.where((e) => e.severity == BonoboErrorSeverity.warning);
+        state.errors.where((e) => e.severity == BonoboErrorSeverity.warning);
 
     printErrors(errors);
     printErrors(warnings);
@@ -64,7 +65,28 @@ class CompileCommand extends BonoboCommand {
       return null;
     }
 
-    throw new UnimplementedError('Bytecode compilation from SSA');
+    var bytecode =
+        const BytecodeGenerator().generateTextSection(program, state).toBytes();
+
+    for (int i = 0; i < bytecode.length; i++) {
+      print('0x${i.toRadixString(16)}: 0x${bytecode[i].toRadixString(16)}');
+    }
+
+    IOSink sink;
+
+    if (argResults.wasParsed('out') ||
+        (argResults.rest.isEmpty || argResults.rest[0] != '-')) {
+      var file = new io.File(argResults.wasParsed('out')
+          ? argResults['out']
+          : p.setExtension(p.basename(analyzer.module.name), '.b'));
+      await file.create(recursive: true);
+      sink = file.openWrite();
+    } else {
+      sink = stdout;
+    }
+
+    sink.add(bytecode);
+    await sink.close();
   }
 
   runBVMCompilerOld(BonoboAnalyzer analyzer) async {

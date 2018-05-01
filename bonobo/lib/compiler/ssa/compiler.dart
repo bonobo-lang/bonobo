@@ -61,6 +61,7 @@ class SSACompiler {
       }
 
       proc.location = block;
+      state.program.procedures.add(proc);
     }
 
     return new Tuple2(proc, state);
