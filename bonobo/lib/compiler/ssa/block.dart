@@ -13,5 +13,5 @@ class BasicBlock extends Block {
   BasicBlock(this.label);
 
   @override
-  int get size => entry.totalSize;
+  int get size => entry?.totalSize ?? 0;
 }

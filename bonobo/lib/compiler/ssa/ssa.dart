@@ -7,6 +7,7 @@ import 'package:source_span/source_span.dart';
 import 'package:symbol_table/symbol_table.dart';
 import 'package:tuple/tuple.dart';
 import '../../analysis/analysis.dart';
+import '../../ast/ast.dart';
 import '../../scanner/scanner.dart';
 
 part 'block.dart';
