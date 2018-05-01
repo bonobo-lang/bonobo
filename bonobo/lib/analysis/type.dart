@@ -36,6 +36,10 @@ abstract class BonoboType {
     return Root;
   }
 
+  RegisterValueType get bvmType => RegisterValueType.int32;
+
+  int get size => 4;
+
   BonoboModule get module;
 
   String get name;
@@ -99,7 +103,8 @@ abstract class BonoboType {
       BonoboType other, BonoboAnalyzer analyzer) {
     analyzer.errors.add(new BonoboError(
         BonoboErrorSeverity.error,
-        "$name does not support running the '${operator.span.text}' operator against ${other.name}.",
+        "$name does not support running the '${operator.span
+            .text}' operator against ${other.name}.",
         span));
     return Root;
   }

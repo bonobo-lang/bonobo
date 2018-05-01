@@ -35,7 +35,7 @@ class BonoboModuleSystem {
       'print',
       core,
       (sink) {
-        sink..addUint8(BVMOpcode.PRINT)..addUint8(BVMOpcode.RET);
+        //sink..addUint8(BVMOpcode.PRINT)..addUint8(BVMOpcode.RET);
       },
       (compiler, signatures) {
         var function = new c.CFunction(
@@ -51,6 +51,17 @@ class BonoboModuleSystem {
           ]),
           new c.Expression('value').asReturn(),
         ]);
+      },
+      (compiler, state) {
+        var proc = new Procedure('print');
+        var entry = new BasicBlock('entry');
+        proc.blocks.add(entry);
+        entry.entry = new BasicInstruction(
+            BVMOpcode.RET, [], null, state.dominanceFrontier);
+
+        return state.copyWith(
+          procedure: proc,
+        );
       },
     )..returnType = BonoboType.String$;
     print_.manualDocs = 'Prints a value.';

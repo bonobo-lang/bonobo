@@ -3,7 +3,19 @@ part of bonobo.compiler.ssa;
 const SSACompiler ssaCompiler = const SSACompiler._();
 
 class SSACompiler {
+  static const int pointerSize = 32;
+
   const SSACompiler._();
+
+  static List<int> pointer32(int pointer) {
+    return [
+      // Encode 32-bit pointer
+      (pointer >> (8 * 0)) & 0xff,
+      (pointer >> (8 * 1)) & 0xff,
+      (pointer >> (8 * 2)) & 0xff,
+      (pointer >> (8 * 3)) & 0xff,
+    ];
+  }
 
   Future<Tuple2<Program, SSACompilerState>> compile(
       BonoboModule module, List<BonoboError> errors) async {
@@ -20,19 +32,25 @@ class SSACompiler {
     if (state.procedures.containsKey(function))
       return new Tuple2(state.procedures[function], state);
 
-    var proc = state.procedures[function] = new Procedure(function.fullName);
-    var block = new BasicBlock('entry');
-    proc.blocks.add(block);
+    Procedure proc;
 
-    state = await compileControlFlow(
-        function.body,
-        state.copyWith(
-          function: function,
-          dominanceFrontier: new DominanceFrontier(),
-          procedure: proc,
-          block: block,
-          controlFlow: function.body,
-        ));
+    if (function is BonoboNativeFunction) {
+      state = await function.compileSSA(this, state);
+      proc = state.procedure;
+    } else {
+      proc = state.procedures[function] = new Procedure(function.fullName);
+      var block = new BasicBlock('entry');
+      proc.blocks.add(block);
+      state = await compileControlFlow(
+          function.body,
+          state.copyWith(
+            function: function,
+            dominanceFrontier: new DominanceFrontier(),
+            procedure: proc,
+            block: block,
+            controlFlow: function.body,
+          ));
+    }
 
     if (proc.size > 0) {
       var block = state.addresses.allocate(proc.size);
@@ -81,6 +99,45 @@ class SSACompiler {
 
   Future<Tuple2<RegisterValue, SSACompilerState>> compileExpression(
       ExpressionContext ctx, SSACompilerState state) async {
+    if (ctx is StringLiteralContext) {
+      var constant = state.constantCache.putIfAbsent(ctx.value, () {
+        // Make an entry in the .data section
+        state.dataSection.grow(state.dataSection.size + ctx.value.length + 1);
+        var value = new RegisterValue(
+            RegisterValueType.string, ctx.value.length + 1, ctx.span);
+        return state.dataSection.allocate(value.size, value);
+      });
+
+      // We know where the constant is, in reference to the data section.
+      // Nice.
+      //
+      // But, how on Earth can we access this value?
+      // Well, if data is read-only, and functions are execute-only, then
+      // this is no problem.
+      //
+      // Just pass the offset, and BVM will interpret that.
+      //
+      // Put the string's offset in EAX.
+      state = emitInstruction(
+          state,
+          new BasicInstruction(
+              BVMOpcode.MOV,
+              [
+                BVMRegister.EAX,
+                0, // Offset: 0
+                4, // The size of the data to put into the register.
+              ]..addAll(pointer32(constant.offset)),
+              ctx.span,
+              state.dominanceFrontier.createChild()));
+
+      var value = new RegisterValue(RegisterValueType.string, 4, ctx.span);
+      state.program.registers.accumulator.set(value, (spill) {
+        // TODO: Spill
+      });
+
+      return new Tuple2(value, state);
+    }
+
     if (ctx is CallExpressionContext) {
       for (int i = ctx.arguments.expressions.length - 1; i >= 0; i--) {
         var arg = ctx.arguments.expressions[i];
@@ -93,28 +150,25 @@ class SSACompiler {
           // TODO: Handle spilling by allocating memory and moving
         });
 
-        var target = await state.analyzer.expressionAnalyzer
+        var tgt = await state.analyzer.expressionAnalyzer
             .resolve(ctx.target, state.function, state.scope);
 
-        if (target is! BonoboFunction) {
-          throw '$target is not a function.\n${target.span?.highlight() ?? ''}';
+        if (tgt is! BonoboFunction) {
+          throw '$tgt is not a function.\n${tgt.span?.highlight() ?? ''}';
         }
 
+        var target = tgt as BonoboFunction;
         var tuple = await compileFunction(target, state);
         var pointer = tuple.item1.location.offset;
         state = emitInstruction(
             tuple.item2,
-            new BasicInstruction(
-                BVMOpcode.CALL,
-                [
-                  // Encode 32-bit pointer
-                  (pointer >> (8 * 0)) & 0xff,
-                  (pointer >> (8 * 1)) & 0xff,
-                  (pointer >> (8 * 2)) & 0xff,
-                  (pointer >> (8 * 3)) & 0xff,
-                ],
-                ctx.span,
+            new BasicInstruction(BVMOpcode.CALL, pointer32(pointer), ctx.span,
                 state.dominanceFrontier.createChild()));
+
+        // The return value will be in EAX, if anything at all.
+        value = new RegisterValue(
+            target.returnType.bvmType, target.returnType.size, target.span);
+        return new Tuple2(value, state);
       }
     }
 
@@ -132,7 +186,8 @@ class SSACompiler {
 class SSACompilerState {
   final List<BonoboError> errors;
   final LinearMemory<Procedure> addresses = new LinearMemory(0);
-  final LinearMemory<RegisterValue> constants = new LinearMemory(0);
+  final LinearMemory<RegisterValue> dataSection = new LinearMemory(0);
+  final Map<dynamic, MemoryBlock<RegisterValue>> constantCache = {};
   final Map<BonoboFunction, Procedure> procedures = {};
   final Program program;
   final BonoboFunction function;
