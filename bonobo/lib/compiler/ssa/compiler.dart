@@ -11,20 +11,20 @@ class SSACompiler {
     var main = module.mainFunction;
     var state = new SSACompilerState(
         program, main, module, null, null, null, errors, main.scope, main.body);
-    await compileFunction(main, state);
+    state = await compileFunction(main, state).then((t) => t.item2);
     return new Tuple2(program, state);
   }
 
-  Future<Procedure> compileFunction(
+  Future<Tuple2<Procedure, SSACompilerState>> compileFunction(
       BonoboFunction function, SSACompilerState state) async {
     if (state.procedures.containsKey(function))
-      return state.procedures[function];
+      return new Tuple2(state.procedures[function], state);
 
     var proc = state.procedures[function] = new Procedure(function.fullName);
     var block = new BasicBlock('entry');
     proc.blocks.add(block);
 
-    await compileControlFlow(
+    state = await compileControlFlow(
         function.body,
         state.copyWith(
           function: function,
@@ -44,27 +44,46 @@ class SSACompiler {
       proc.location = block;
     }
 
-    return proc;
+    return new Tuple2(proc, state);
   }
 
-  Future compileControlFlow(
+  Future<SSACompilerState> compileControlFlow(
       ControlFlow controlFlow, SSACompilerState state) async {
     state = state.copyWith(controlFlow: controlFlow);
 
+    void emitInstruction(Instruction instruction) {
+      if (state.block.entry == null) {
+        state = state.copyWith(
+          dominanceFrontier: instruction.dominanceFrontier,
+        );
+      }
+    }
+
     for (var statement in controlFlow.statements) {
       if (statement is ExpressionStatementContext)
-        return await compileExpression(statement.expression, state);
+        return state = await compileExpression(statement.expression, state)
+            .then((t) => t.item2);
+      else if (statement is ReturnStatementContext) {
+        state = await compileExpression(statement.expression, state)
+            .then((t) => t.item2);
+        return state;
+      }
+
+      throw 'Cannot compile ${statement.runtimeType}\n${statement.span
+          ?.highlight() ?? ''}';
     }
+
+    return state;
   }
 
-  Future<RegisterValue> compileExpression(
+  Future<Tuple2<RegisterValue, SSACompilerState>> compileExpression(
       ExpressionContext ctx, SSACompilerState state) async {
     var object = await state.analyzer.expressionAnalyzer
         .resolve(ctx, state.function, state.scope);
     return await compileObject(object, state);
   }
 
-  Future<RegisterValue> compileObject(
+  Future<Tuple2<RegisterValue, SSACompilerState>> compileObject(
       BonoboObject object, SSACompilerState state) async {
     throw 'Cannot compile ${object.type}';
   }

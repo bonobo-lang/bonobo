@@ -9,6 +9,7 @@ import 'package:tuple/tuple.dart';
 import '../../analysis/analysis.dart';
 import '../../ast/ast.dart';
 import '../../scanner/scanner.dart';
+import '../bvm/bvm.dart';
 
 part 'block.dart';
 part 'compiler.dart';
