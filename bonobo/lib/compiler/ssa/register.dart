@@ -15,8 +15,9 @@ class Register {
     return this;
   }
 
-  MemoryBlock<RegisterValue> set(int size, RegisterValue value,
+  MemoryBlock<RegisterValue> set(RegisterValue value,
       void Function(List<MemoryBlock<RegisterValue>>) onSpill) {
+    var size = value.size;
     var block = values.allocate(size, value);
 
     if (block != null) {

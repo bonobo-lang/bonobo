@@ -47,18 +47,16 @@ class SSACompiler {
     return new Tuple2(proc, state);
   }
 
+  SSACompilerState emitInstruction(
+      SSACompilerState state, Instruction instruction) {
+    state.block.entry ??= instruction;
+    state.dominanceFrontier?.next = instruction;
+    return state.copyWith(dominanceFrontier: instruction.dominanceFrontier);
+  }
+
   Future<SSACompilerState> compileControlFlow(
       ControlFlow controlFlow, SSACompilerState state) async {
     state = state.copyWith(controlFlow: controlFlow);
-
-    void emitInstruction(Instruction instruction) {
-      state.block.entry ??= instruction;
-      state.dominanceFrontier?.next = instruction;
-
-      state = state.copyWith(
-        dominanceFrontier: instruction.dominanceFrontier,
-      );
-    }
 
     for (var statement in controlFlow.statements) {
       if (statement is ExpressionStatementContext)
@@ -67,8 +65,10 @@ class SSACompiler {
       else if (statement is ReturnStatementContext) {
         state = await compileExpression(statement.expression, state)
             .then((t) => t.item2);
-        emitInstruction(new BasicInstruction(BVMOpcode.RET, [], statement.span,
-            state.dominanceFrontier.createChild()));
+        state = emitInstruction(
+            state,
+            new BasicInstruction(BVMOpcode.RET, [], statement.span,
+                state.dominanceFrontier.createChild()));
         return state;
       }
 
@@ -88,6 +88,33 @@ class SSACompiler {
         var value = result.item1;
         state = result.item2;
         var reg = state.program.registers.firstAvailable(value.size);
+
+        reg.set(value, (spill) {
+          // TODO: Handle spilling by allocating memory and moving
+        });
+
+        var target = await state.analyzer.expressionAnalyzer
+            .resolve(ctx.target, state.function, state.scope);
+
+        if (target is! BonoboFunction) {
+          throw '$target is not a function.\n${target.span?.highlight() ?? ''}';
+        }
+
+        var tuple = await compileFunction(target, state);
+        var pointer = tuple.item1.location.offset;
+        state = emitInstruction(
+            tuple.item2,
+            new BasicInstruction(
+                BVMOpcode.CALL,
+                [
+                  // Encode 32-bit pointer
+                  (pointer >> (8 * 0)) & 0xff,
+                  (pointer >> (8 * 1)) & 0xff,
+                  (pointer >> (8 * 2)) & 0xff,
+                  (pointer >> (8 * 3)) & 0xff,
+                ],
+                ctx.span,
+                state.dominanceFrontier.createChild()));
       }
     }
 
