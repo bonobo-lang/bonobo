@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:io' hide gzip;
 import 'package:archive/archive.dart';
 import 'package:dart2_constant/io.dart';
 import 'package:path/path.dart' as pp;
