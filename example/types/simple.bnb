@@ -1,7 +1,0 @@
-type Point {
-  x: Int
-  y: Int
-  fn length: Double
-}
-
-fn main => 'Hello!'

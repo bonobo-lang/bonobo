@@ -77,3 +77,4 @@ Testing/
 release/bonobo-*/
 *.DS_Store
 release/*.tar.gz
+.antlr/

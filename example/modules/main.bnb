@@ -1,5 +1,0 @@
-/*
- * Use the `::` syntax to call functionality from
- * another package.
- */
-fn main => print(foo::bar())
