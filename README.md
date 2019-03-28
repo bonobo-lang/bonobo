@@ -1,4 +1,4 @@
-# monkey_business
+# monkey_business 🙈
 MonkeyBusiness is the new frontend for the Bonobo language.
 It is written in Java, and aims to be a foundation for solid tooling
 around the language.
