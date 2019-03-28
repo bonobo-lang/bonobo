@@ -1,4 +1,0 @@
-fn main {
-    res = a + b * c // a + (b * c)
-    res = a + b + c * d + e + f
-}

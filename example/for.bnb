@@ -1,0 +1,7 @@
+fn main {
+  let langs = ['Dart', 'Bonobo', 'Golang']
+
+  for lang in langs => print('%lang is an awesome language!')
+
+  for lang, i in langs => print('langs[%i] = %lang')
+}

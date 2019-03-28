@@ -1,9 +1,0 @@
-/*
- * Bonobo ships with a built-in HTML documentation generator.
- *
- * Writing documentation for functions and types is as simple as
- * writing comments above them.
- *
- * # Look Mom!, I'm using Markdown!
- */
-fn main => 2

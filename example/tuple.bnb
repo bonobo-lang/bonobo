@@ -1,0 +1,7 @@
+// doIt: fn(Int) -> (String, Int)
+fn doIt (x: Int) => ('x', x)
+
+fn main {
+  let (key, val) = doIt(34)
+  print('%key=%val')
+}

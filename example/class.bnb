@@ -1,0 +1,22 @@
+// This is a class.
+type Animal = class {
+  // Fields are protected by default
+  species: String
+
+  // Fields can also be private, or public.
+  private one: Int
+
+  // Constructor
+  new(this.species) {
+    one = 1
+  }
+
+  // Methods, getters, etc.
+  get two => one + one
+
+  set two(x: Int) {
+    one = x ~/ 2
+  }
+
+  makeSound => print('Hi! I am a(n) %species.')
+}

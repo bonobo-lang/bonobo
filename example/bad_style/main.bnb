@@ -1,6 +1,0 @@
-// Bonobo is a very opinionated language, and the formatter is also very opinionated.
-//
-// Take a look... Run `bonobo format bad_style.bnb` and see the output!
-fn preferSingleQuotes => "These will be replaced with single quotes!!!"
-
-fn occassionalDoubleQuotes => "Single quotes are not inserted if the string already contains them. '''"

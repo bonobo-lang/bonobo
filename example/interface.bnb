@@ -1,0 +1,15 @@
+// This is considered "abstract" because one of its members,
+// `length`, is missing an implementation.
+type IPoint = {
+  x: Int,
+  y: Int,
+  fn length: Double
+}
+
+// The following type implements IPoint.
+type MyPoint = class {
+  public x: Int
+  public y: Int
+
+  fn length => x * y * 1.0
+}

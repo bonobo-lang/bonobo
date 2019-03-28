@@ -1,9 +1,0 @@
-fn g {
-  var a = 0
-  a++
-  ret a < 10
-}
-
-fn main {
-  while g => print a
-}
