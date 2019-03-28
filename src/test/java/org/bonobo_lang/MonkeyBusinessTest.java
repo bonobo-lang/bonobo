@@ -1,13 +1,13 @@
-package com.mycompany.app;
+package org.bonobo_lang;
 
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 /**
- * Unit test for simple App.
+ * Unit test for simple MonkeyBusiness.
  */
-public class AppTest 
+public class MonkeyBusinessTest
 {
     /**
      * Rigorous Test :-)
