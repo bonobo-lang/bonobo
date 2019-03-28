@@ -1,6 +1,0 @@
-set (CMAKE_CXX_STANDARD 11)
-enable_testing()
-add_executable(return_int ReturnInt.cc)
-target_link_libraries(return_int ${GTEST_BOTH_LIBRARIES} bvm_binary bvm_jit)
-add_test(ReturnIntTest return_int)
-install(TARGETS return_int DESTINATION bin)
