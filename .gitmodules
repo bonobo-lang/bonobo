@@ -1,3 +1,0 @@
-[submodule "bonobo/lib/bvm/src/tcc"]
-	path = bonobo/lib/bvm/src/tcc
-  url = https://github.com/bonobo-lang/tinycc.git
