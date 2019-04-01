@@ -40,7 +40,7 @@ public class BonoboAnalyzer {
 
     public BonoboModule analyze(String uri, BonoboParser.ProgContext ctx) {
         // Create the module.
-        BonoboModule module = new BonoboModule(rootScope.createChild(), uri);
+        BonoboModule module = new BonoboModule(rootScope.createChild(), uri, ctx);
         moduleCache.put(uri, module);
 
         // Conduct a cursory glance at the module in question.

@@ -8,7 +8,7 @@ public class BonoboModule {
     private String sourceUrl;
     private BonoboParser.ProgContext ctx;
 
-    public BonoboModule(BonoboScope scope, String sourceUrl) {
+    protected BonoboModule(BonoboScope scope, String sourceUrl) {
         this.scope = scope;
         this.sourceUrl = sourceUrl;
     }

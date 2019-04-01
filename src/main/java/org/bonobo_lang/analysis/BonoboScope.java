@@ -19,6 +19,14 @@ public class BonoboScope {
         return parent == null;
     }
 
+    public BonoboScope getParent() {
+        return parent;
+    }
+
+    public List<BonoboSymbol> getSymbols() {
+        return symbols;
+    }
+
     public BonoboScope createChild() {
         return new BonoboScope(this);
     }

@@ -42,7 +42,6 @@ public class BonoboCursoryGlance {
 
         try {
             module.getScope().create(location, name, fn);
-            System.out.printf("FUNCTION %s\n", name);
         } catch (IllegalStateException exc) {
             analyzer.getErrors().add(new BonoboError(BonoboError.Severity.error, location, exc.getMessage()));
         }
