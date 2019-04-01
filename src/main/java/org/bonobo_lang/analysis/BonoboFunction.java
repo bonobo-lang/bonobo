@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BonoboFunction extends BonoboValue {
-    private final List<BonoboStatement> body = new ArrayList<>();
+    private final BonoboBlock body;
     private BonoboParser.FnDeclContext declaration;
     private final BonoboModule module;
     private final BonoboScope scope;
@@ -17,10 +17,11 @@ public class BonoboFunction extends BonoboValue {
         this.module = module;
         this.name = name;
         this.scope = scope;
+        body = new BonoboBlock(scope);
         returnType = new BonoboUnknownType();
     }
 
-    public List<BonoboStatement> getBody() {
+    public BonoboBlock getBody() {
         return body;
     }
 
