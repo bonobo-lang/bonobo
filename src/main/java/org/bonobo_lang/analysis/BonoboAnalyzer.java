@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BonoboAnalyzer {
+    private final BonoboCoreTypes coreTypes = new BonoboCoreTypes();
     private final List<BonoboError> errors = new ArrayList<>();
     // TODO: Only analyze a file once
     // private final Map<String>
