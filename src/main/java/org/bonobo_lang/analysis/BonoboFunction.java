@@ -2,7 +2,11 @@ package org.bonobo_lang.analysis;
 
 import org.bonobo_lang.frontend.BonoboParser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BonoboFunction extends BonoboValue {
+    private final List<BonoboStatement> body = new ArrayList<>();
     private BonoboParser.FnDeclContext declaration;
     private final BonoboModule module;
     private final BonoboScope scope;
@@ -14,6 +18,10 @@ public class BonoboFunction extends BonoboValue {
         this.name = name;
         this.scope = scope;
         returnType = new BonoboUnknownType();
+    }
+
+    public List<BonoboStatement> getBody() {
+        return body;
     }
 
     public BonoboModule getModule() {
