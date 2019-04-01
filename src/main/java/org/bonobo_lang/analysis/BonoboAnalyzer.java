@@ -56,6 +56,9 @@ public class BonoboAnalyzer extends BaseErrorListener {
         // Conduct a cursory glance at the module in question.
         new BonoboCursoryGlance(this, module).run();
 
+        // Next, we want to analyze all functions.
+        new BonoboFunctionAnalyzer(this, module).run();
+
         return module;
     }
 }

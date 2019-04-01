@@ -41,6 +41,7 @@ public class BonoboCursoryGlance {
         SourceLocation location = new SourceLocation(module.getSourceUrl(), ctx);
 
         try {
+            fn.setDeclaration(ctx);
             module.getScope().create(location, name, fn);
         } catch (IllegalStateException exc) {
             analyzer.getErrors().add(new BonoboError(BonoboError.Severity.error, location, exc.getMessage()));
