@@ -8,13 +8,25 @@ import java.util.List;
 import java.util.Map;
 
 public class BonoboAnalyzer {
-    private final BonoboCoreTypes coreTypes = new BonoboCoreTypes();
+    private final BonoboCoreModule coreModule;
     private final List<BonoboError> errors = new ArrayList<>();
     private final Map<String, BonoboModule> moduleCache = new HashMap<>();
     private final BonoboScope rootScope = new BonoboScope();
 
+    public BonoboAnalyzer() {
+        this.coreModule = new BonoboCoreModule(rootScope);
+    }
+
     public List<BonoboError> getErrors() {
         return errors;
+    }
+
+    public BonoboCoreModule getCoreModule() {
+        return coreModule;
+    }
+
+    public BonoboScope getRootScope() {
+        return rootScope;
     }
 
     public BonoboModule analyzeIdempotent(String uri, BonoboParser.ProgContext ctx) {
