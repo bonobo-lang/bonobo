@@ -20,3 +20,24 @@ type Animal = class {
 
   makeSound => print('Hi! I am a(n) %species.')
 }
+
+fn main {
+    // Classes are automatically disposed, because of RAII.
+    var human = Animal("homo sapiens")
+    human->makeSound()
+
+    // However, using the "alloc" keyword, you can make an
+    // unmanaged instance.
+    //
+    // In the vast majority of instances, you won't need this,
+    // as classes are pass-by-reference already.
+    var blackRat = alloc Animal("rattus rattus")
+    blackRat->makeSound()
+
+    // Unmanaged instances must be manually freed.
+    dealloc blackRat
+
+    // The compiler explicitly prevents use-after-free.
+    // The following line produces an error:
+    blackRat->makeSound()
+}
