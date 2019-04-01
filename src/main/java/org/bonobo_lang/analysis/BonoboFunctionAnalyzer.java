@@ -16,13 +16,17 @@ public class BonoboFunctionAnalyzer {
                 BonoboValue value = sym.getValue();
 
                 if (value instanceof BonoboFunction) {
-
+                    analyzeTopLevelFunction((BonoboFunction) value);
                 }
             }
         }
     }
 
     public void analyzeTopLevelFunction(BonoboFunction fn) {
-        
+        // Firstly, we want to analyze all of its parameters.
+        // TODO: Params
+
+        // Next, we want to analyze its block, and
+        // determine its return type, if none has been declared.
     }
 }
