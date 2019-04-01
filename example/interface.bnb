@@ -8,8 +8,8 @@ type IPoint = {
 
 // The following type implements IPoint.
 type MyPoint = class {
-  public x: Int
-  public y: Int
+  x: Int
+  y: Int
 
   fn length => x * y * 1.0
 }

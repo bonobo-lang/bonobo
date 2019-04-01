@@ -7,7 +7,7 @@ type Animal = class {
   private one: Int
 
   // Constructor
-  new(this.species) {
+  Animal(this.species) {
     one = 1
   }
 
@@ -18,7 +18,7 @@ type Animal = class {
     one = x ~/ 2
   }
 
-  makeSound => print('Hi! I am a(n) %species.')
+  makeSound => print("Hi! I am a(n) %species.")
 }
 
 fn main {
