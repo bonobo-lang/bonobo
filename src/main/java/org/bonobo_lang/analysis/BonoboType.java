@@ -1,4 +1,20 @@
 package org.bonobo_lang.analysis;
 
-public class BonoboType {
+public abstract class BonoboType {
+    public abstract String getName();
+
+    public abstract boolean isExactly(BonoboType other);
+
+    public abstract BonoboType getParent();
+
+    public boolean isAssignableTo(BonoboType other) {
+        BonoboType type = other;
+
+        while (type != null) {
+            if (type.isExactly(this)) return true;
+            type = type.getParent();
+        }
+
+        return false;
+    }
 }
