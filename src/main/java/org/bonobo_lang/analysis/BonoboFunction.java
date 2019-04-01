@@ -5,15 +5,21 @@ import org.bonobo_lang.frontend.BonoboParser;
 public class BonoboFunction extends BonoboValue {
     private BonoboParser.FnDeclContext declaration;
     private final BonoboModule module;
+    private final BonoboScope scope;
     private final String name;
 
-    public BonoboFunction(BonoboModule module, String name) {
+    public BonoboFunction(BonoboScope scope, BonoboModule module, String name) {
         this.module = module;
         this.name = name;
+        this.scope = scope;
     }
 
     public BonoboModule getModule() {
         return module;
+    }
+
+    public BonoboScope getScope() {
+        return scope;
     }
 
     public String getName() {
