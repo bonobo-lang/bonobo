@@ -11,12 +11,13 @@ import org.bonobo_lang.frontend.BonoboLexer;
 import org.bonobo_lang.frontend.BonoboParser;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class CursoryGlanceTest {
-    BonoboModule analyze(String src) {
+    private BonoboParser.ProgContext parse(String src, BonoboAnalyzer analyzer) {
         CharStream charStream = CharStreams.fromString(src, "<test srcs>");
-        BonoboAnalyzer analyzer = new BonoboAnalyzer();
         BonoboLexer lexer = new BonoboLexer(charStream);
         lexer.removeErrorListeners();
         lexer.addErrorListener(analyzer);
@@ -26,14 +27,18 @@ public class CursoryGlanceTest {
         parser.addErrorListener(analyzer);
         BonoboParser.ProgContext prog = parser.prog();
         assertNotNull(prog);
-        assertEquals(analyzer.getErrors().size(), 0);
-        BonoboModule module = analyzer.analyze("<test srcs>", prog);
+        return prog;
+    }
+
+    private BonoboModule analyzeModule(String src) {
+        BonoboAnalyzer analyzer = new BonoboAnalyzer();
+        BonoboParser.ProgContext prog = parse(src, analyzer);
 
         for (BonoboError err : analyzer.getErrors()) {
             System.out.printf("%s: %s\n", err.getLocation().toString(), err.getMessage());
         }
 
-        return module;
+        return analyzer.analyze("<test srcs>", prog);
 
     }
 
@@ -41,12 +46,23 @@ public class CursoryGlanceTest {
     public void shouldGatherFunctions() {
         String src = "fn main => 1\n" +
                 "fn main2 => 2";
-        BonoboModule module = analyze(src);
-        assertEquals(module.getScope().getSymbols().size(), 2);
+        BonoboModule module = analyzeModule(src);
+        assertEquals(2, module.getScope().getSymbols().size());
 
         BonoboFunction main = (BonoboFunction) module.getScope().resolve("main").getValue();
         BonoboFunction main2 = (BonoboFunction) module.getScope().resolve("main2").getValue();
-        assertEquals(main.getName(), "main");
-        assertEquals(main2.getName(), "main2");
+        assertEquals("main", main.getName());
+        assertEquals("main2", main2.getName());
+    }
+
+    @Test
+    public void cannotRedefineNames() {
+        String src = "fn main => 1\n" +
+                "fn main => 2";
+        BonoboAnalyzer analyzer = new BonoboAnalyzer();
+        BonoboParser.ProgContext prog = parse(src, analyzer);
+        BonoboModule module = analyzer.analyze("<test srcs>", prog);
+        assertEquals(1, module.getScope().getSymbols().size());
+        assertTrue(!analyzer.getErrors().isEmpty());
     }
 }
