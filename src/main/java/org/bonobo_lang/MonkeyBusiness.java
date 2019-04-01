@@ -4,6 +4,8 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.bonobo_lang.analysis.BonoboAnalyzer;
+import org.bonobo_lang.frontend.BonoboLexer;
+import org.bonobo_lang.frontend.BonoboParser;
 
 import java.io.IOException;
 

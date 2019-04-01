@@ -1,7 +1,7 @@
 grammar Bonobo;
 
 @header {
-package org.bonobo_lang;
+package org.bonobo_lang.frontend;
 }
 
 prog: topLevel*;
@@ -20,8 +20,12 @@ stmt:
     | 'return'? expr #ReturnStmt;
 expr:
     ID #IdExpr
+    | HEX #HexExpr
+    | INT #IntExpr
     | target=expr '(' ((args+=expr ',')* args+=expr)? ')' #CallExpr
     | '(' expr ')' #ParenExpr;
 
 WS: [ \n\r\t]+ -> skip;
+HEX: '0x' [A-Fa-f0-9]+;
+INT: [0-9]+;
 ID: [A-Za-z_] [A-Za-z0-9_]*;

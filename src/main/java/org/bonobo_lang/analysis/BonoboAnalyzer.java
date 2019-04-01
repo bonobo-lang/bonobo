@@ -1,6 +1,6 @@
 package org.bonobo_lang.analysis;
 
-import org.bonobo_lang.BonoboParser;
+import org.bonobo_lang.frontend.BonoboParser;
 
 import java.util.ArrayList;
 import java.util.List;
