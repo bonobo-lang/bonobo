@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.bonobo_lang.analysis.BonoboAnalyzer;
+import org.bonobo_lang.analysis.BonoboModule;
 import org.bonobo_lang.frontend.BonoboLexer;
 import org.bonobo_lang.frontend.BonoboParser;
 
@@ -25,7 +26,7 @@ public class MonkeyBusiness {
                 BonoboParser parser = new BonoboParser(tokenStream);
                 BonoboParser.ProgContext prog = parser.prog();
                 BonoboAnalyzer analyzer = new BonoboAnalyzer();
-                analyzer.analyze(filename, prog);
+                BonoboModule module = analyzer.analyzeIdempotent(filename, prog);
             }
         }
     }

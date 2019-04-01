@@ -19,6 +19,10 @@ public class BonoboScope {
         return parent == null;
     }
 
+    public BonoboScope createChild() {
+        return new BonoboScope(this);
+    }
+
     public BonoboSymbol resolve(String name) {
         for (BonoboSymbol symbol : symbols) {
             if (symbol.getName().equals(name)) {
