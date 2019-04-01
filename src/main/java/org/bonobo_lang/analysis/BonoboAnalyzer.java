@@ -44,6 +44,7 @@ public class BonoboAnalyzer {
         moduleCache.put(uri, module);
 
         // Conduct a cursory glance at the module in question.
+        new BonoboCursoryGlance(this, module).run();
 
         return module;
     }

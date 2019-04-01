@@ -1,5 +1,6 @@
 package org.bonobo_lang;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.antlr.v4.runtime.CharStream;
@@ -22,6 +23,7 @@ public class MonkeyBusinessTest
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);
         BonoboParser parser = new BonoboParser(tokenStream);
         BonoboParser.ProgContext prog = parser.prog();
+        assertNotNull(prog);
         BonoboAnalyzer analyzer = new BonoboAnalyzer();
         analyzer.analyze("<test srcs>", prog);
         return analyzer;
