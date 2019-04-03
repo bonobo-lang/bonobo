@@ -41,6 +41,7 @@ public class BonoboBlockState {
 
     public void setReturnValue(BonoboValue returnValue) {
         this.returnValue = returnValue;
+        terminate();
     }
 
     public boolean isTerminated() {

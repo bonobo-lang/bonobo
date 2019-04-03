@@ -13,13 +13,23 @@ public class BonoboStatementAnalyzer extends BonoboBaseVisitor<BonoboBlockState>
         this.scope = scope;
     }
 
-    public BonoboBlockState analyzeExpr(BonoboParser.ExprContext ctx) {
-        // TODO:
-        return null;
+    public BonoboBlockState analyzeExpr(SourceLocation location, BonoboParser.ExprContext ctx) {
+        BonoboExprAnalyzer exprAnalyzer = new BonoboExprAnalyzer(analyzer, functionAnalyzer, scope);
+        BonoboValue value = ctx.accept(exprAnalyzer);
+
+        if (value == null) {
+            // TODO: What if this is null?
+            return null;
+        } else {
+            BonoboBlockState state = new BonoboBlockState(scope);
+            BonoboReturnStatement stmt = new BonoboReturnStatement(location, scope, value);
+            state.setReturnValue(value);
+        }
     }
 
     @Override
     public BonoboBlockState visitReturnStmt(BonoboParser.ReturnStmtContext ctx) {
-        return analyzeExpr(ctx.expr());
+        SourceLocation location = new SourceLocation(ctx);
+        return analyzeExpr(location, ctx.expr());
     }
 }

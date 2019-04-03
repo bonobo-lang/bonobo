@@ -38,7 +38,8 @@ public class BonoboFunctionAnalyzer {
 
         if (ctx instanceof BonoboParser.LambdaBlockContext) {
             BonoboStatementAnalyzer statementAnalyzer = new BonoboStatementAnalyzer(analyzer, this, scope);
-            BonoboBlockState state = statementAnalyzer.analyzeExpr(((BonoboParser.LambdaBlockContext) ctx).expr());
+            SourceLocation location = new SourceLocation(ctx);
+            BonoboBlockState state = statementAnalyzer.analyzeExpr(location, ((BonoboParser.LambdaBlockContext) ctx).expr());
             block.getBody().add(state);
         } else if (ctx instanceof BonoboParser.SingleStatementBlockContext) {
             // TODO: Single statement
