@@ -14,7 +14,18 @@ public class BonoboExprAnalyzer extends BonoboBaseVisitor<BonoboValue> {
     }
 
     @Override
-    public Object visitIntExpr(BonoboParser.IntExprContext ctx) {
-        return super.visitIntExpr(ctx);
+    public BonoboValue visitIntExpr(BonoboParser.IntExprContext ctx) {
+        SourceLocation location = new SourceLocation(ctx);
+        Integer value = Integer.parseInt(ctx.getText());
+        BonoboType intType = analyzer.getCoreModule().getInt64Type();
+        return new BonoboConstant(location, intType, value);
+    }
+
+    @Override
+    public BonoboValue visitHexExpr(BonoboParser.HexExprContext ctx) {
+        SourceLocation location = new SourceLocation(ctx);
+        Integer value = Integer.parseInt(ctx.getText().substring(2), 16);
+        BonoboType intType = analyzer.getCoreModule().getInt64Type();
+        return new BonoboConstant(location, intType, value);
     }
 }
