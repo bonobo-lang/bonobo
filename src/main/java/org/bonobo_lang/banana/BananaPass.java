@@ -41,9 +41,12 @@ public class BananaPass {
     public void compileTopLevelFunction(BonoboFunction fn) {
         // Create a new function, and then just compile all of the statements into
         // SSA form.
-        BananaFunction bananaFunction = new BananaFunction(fn.getName());
+        BonoboScope scope = fn.getBody().getScope();
+        BananaTypeCompiler typeCompiler = new BananaTypeCompiler(this, scope);
+        BananaType returnType = fn.getBody().getReturnType().accept(typeCompiler);
+        BananaFunction bananaFunction = new BananaFunction(fn.getName(), returnType);
         bananaModule.getFunctions().add(bananaFunction);
-        BananaPassBlockCompiler blockCompiler = new BananaPassBlockCompiler(this, fn, bananaFunction, bananaFunction.getEntryBlock());
+        BananaBlockCompiler blockCompiler = new BananaBlockCompiler(this, fn, bananaFunction, bananaFunction.getEntryBlock());
         blockCompiler.run();
     }
 }

@@ -2,11 +2,11 @@ package org.bonobo_lang.banana;
 
 import org.bonobo_lang.analysis.*;
 
-public class BananaPassStatementCompiler implements BonoboStatementVisitor {
-    private final BananaPassBlockCompiler blockCompiler;
+public class BananaStatementCompiler implements BonoboStatementVisitor {
+    private final BananaBlockCompiler blockCompiler;
     private final BonoboBlockState state;
 
-    public BananaPassStatementCompiler(BananaPassBlockCompiler blockCompiler, BonoboBlockState state) {
+    public BananaStatementCompiler(BananaBlockCompiler blockCompiler, BonoboBlockState state) {
         this.blockCompiler = blockCompiler;
         this.state = state;
     }

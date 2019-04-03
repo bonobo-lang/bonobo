@@ -15,4 +15,9 @@ public class BonoboUnknownType extends BonoboType {
     public BonoboType getParent() {
         return null;
     }
+
+    @Override
+    public <T> T accept(BonoboTypeVisitor<T> visitor) {
+        throw new UnsupportedOperationException("The unknown type indicates an error, cannot be compiled.");
+    }
 }

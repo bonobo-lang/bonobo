@@ -2,10 +2,10 @@ package org.bonobo_lang.analysis;
 
 public class BonoboIntegerType extends BonoboNumericType {
     private String name;
-    private int size;
+    private long size;
     private boolean unsigned;
 
-    public BonoboIntegerType(String name, int size, boolean unsigned) {
+    public BonoboIntegerType(String name, long size, boolean unsigned) {
         this.name = name;
         this.size = size;
         this.unsigned = unsigned;
@@ -16,7 +16,7 @@ public class BonoboIntegerType extends BonoboNumericType {
         return name;
     }
 
-    public int getSize() {
+    public long getSize() {
         return size;
     }
 
@@ -32,5 +32,10 @@ public class BonoboIntegerType extends BonoboNumericType {
     @Override
     public BonoboType getParent() {
         return null;
+    }
+
+    @Override
+    public <T> T accept(BonoboTypeVisitor<T> visitor) {
+        return visitor.visitIntegerType(this);
     }
 }

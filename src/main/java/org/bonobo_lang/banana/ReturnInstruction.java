@@ -1,5 +1,5 @@
 package org.bonobo_lang.banana;
 
-public class ReturnInstruction extends BananaInstruction {
+public abstract class ReturnInstruction extends BananaInstruction {
 
 }

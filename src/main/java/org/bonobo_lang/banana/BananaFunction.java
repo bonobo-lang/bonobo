@@ -6,12 +6,12 @@ import java.util.List;
 public class BananaFunction {
     private final List<BananaBlock> blocks = new ArrayList<>();
     private final String name;
-    private final BananaType type;
+    private final BananaType returnType;
     private final BananaBlock entryBlock;
 
-    public BananaFunction(String name, BananaType type) {
+    public BananaFunction(String name, BananaType returnType) {
         this.name = name;
-        this.type = type;
+        this.returnType = returnType;
         entryBlock = new BananaBlock("entry");
         blocks.add(entryBlock);
     }
@@ -28,7 +28,7 @@ public class BananaFunction {
         return entryBlock;
     }
 
-    public BananaType getType() {
-        return type;
+    public BananaType getReturnType() {
+        return returnType;
     }
 }

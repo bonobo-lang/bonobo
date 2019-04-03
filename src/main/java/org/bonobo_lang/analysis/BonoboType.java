@@ -7,6 +7,8 @@ public abstract class BonoboType {
 
     public abstract BonoboType getParent();
 
+    public abstract <T> T accept(BonoboTypeVisitor<T> visitor);
+
     public boolean isAssignableTo(BonoboType other) {
         BonoboType type = other;
 
