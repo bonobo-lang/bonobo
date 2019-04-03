@@ -1,0 +1,4 @@
+*.o
+*.ll
+simplest
+*.s

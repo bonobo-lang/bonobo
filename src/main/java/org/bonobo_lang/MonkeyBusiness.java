@@ -3,7 +3,9 @@ package org.bonobo_lang;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.bonobo_lang.analysis.*;
+import org.apache.commons.cli.*;
+import org.bonobo_lang.analysis.BonoboAnalyzer;
+import org.bonobo_lang.analysis.BonoboModule;
 import org.bonobo_lang.backend.llvm.LlvmBackend;
 import org.bonobo_lang.banana.BananaModule;
 import org.bonobo_lang.banana.BananaPass;
@@ -11,31 +13,147 @@ import org.bonobo_lang.frontend.BonoboLexer;
 import org.bonobo_lang.frontend.BonoboParser;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Hello world!
- */
 public class MonkeyBusiness {
-    public static void main(String[] args) throws IOException {
-        if (args.length < 1) {
-            System.err.println("fatal error: no input file");
-        } else {
-            // TODO: Options
-            for (String filename : args) {
-                CharStream charStream = CharStreams.fromFileName(filename);
-                BonoboLexer lexer = new BonoboLexer(charStream);
-                CommonTokenStream tokenStream = new CommonTokenStream(lexer);
-                BonoboParser parser = new BonoboParser(tokenStream);
-                BonoboParser.ProgContext prog = parser.prog();
-                BonoboAnalyzer analyzer = new BonoboAnalyzer();
-                BonoboModule module = analyzer.analyzeIdempotent(filename, prog);
-                BananaPass bananaPass = new BananaPass(analyzer, module);
-                bananaPass.run();
-                BananaModule bananaModule = bananaPass.getBananaModule();
-                LlvmBackend llvmBackend = new LlvmBackend(bananaModule);
-                llvmBackend.compile();
-                System.out.println(llvmBackend.getStringBuilder());
+    public static void main(String[] args) {
+        Options options = new Options();
+        options.addOption("c", false, "Only compile; do not link.");
+        options.addOption("g", false, "Include debug symbols.");
+        options.addOption("h", "help", false, "Print this help information.");
+        options.addOption("o", "out", true, "Specify an output name to write to.");
+        options.addOption("f", "emit", true, "The type of output to produce.");
+        options.addOption("O", true, "Optimization level (default -O2)");
+
+        Option linkFileOption = new Option("l", true, "Link a library.");
+        Option linkDirectoryOption = new Option("L", true, "Link a directory containing libraries.");
+        linkFileOption.setArgs(Option.UNLIMITED_VALUES);
+        linkDirectoryOption.setArgs(Option.UNLIMITED_VALUES);
+        options.addOption(linkFileOption);
+        options.addOption(linkDirectoryOption);
+
+        try {
+            CommandLine cmd = new DefaultParser().parse(options, args);
+            List<String> argList = cmd.getArgList();
+            Runtime rt = Runtime.getRuntime();
+
+            if (cmd.hasOption("h")) {
+                new HelpFormatter().printHelp("bonobo [options...] [<files>]", options);
+                return;
             }
+
+
+            if (argList.isEmpty()) {
+                System.err.println("fatal error: no input file");
+                System.exit(64);
+            } else {
+                if (!cmd.hasOption("c")) {
+                    List<String> ccArgs = new ArrayList<>();
+                    ccArgs.add("env");
+                    ccArgs.add("cc");
+                    ccArgs.add("-O" + cmd.getOptionValue("O", "2"));
+                    if (cmd.hasOption("l")) for (String name : cmd.getOptionValues("l")) ccArgs.add("-l" + name);
+                    if (cmd.hasOption("L")) for (String name : cmd.getOptionValues("L")) ccArgs.add("-L" + name);
+                    ccArgs.add("-o");
+                    ccArgs.add(cmd.getOptionValue("o", "a.out"));
+                    ccArgs.addAll(argList);
+                    Process cc = rt.exec(ccArgs.toArray(new String[0]));
+                    handleProcess(cc);
+                } else {
+                    String emit = cmd.getOptionValue("emit", "obj");
+
+                    if (cmd.hasOption("o") && argList.size() > 1) {
+                        throw new ParseException("cannot use the -o flag when generating multiple output files");
+                    }
+
+                    for (String filename : argList) {
+                        String outputFilename;
+
+                        if (argList.size() == 1 && cmd.hasOption("o")) {
+                            outputFilename = cmd.getOptionValue("o");
+                        } else {
+                            String extension = ".o";
+                            if (emit.equals("llvm"))
+                                extension = ".ll";
+                            else if (emit.equals("asm"))
+                                extension = ".s";
+                            outputFilename = filename.replaceFirst("(\\.\\w+)?$", extension);
+                        }
+
+                        CharStream charStream = CharStreams.fromFileName(filename);
+                        BonoboLexer lexer = new BonoboLexer(charStream);
+                        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+                        BonoboParser parser = new BonoboParser(tokenStream);
+                        BonoboParser.ProgContext prog = parser.prog();
+                        BonoboAnalyzer analyzer = new BonoboAnalyzer();
+                        BonoboModule module = analyzer.analyzeIdempotent(filename, prog);
+
+                        BananaPass bananaPass = new BananaPass(analyzer, module);
+                        bananaPass.run();
+                        BananaModule bananaModule = bananaPass.getBananaModule();
+                        LlvmBackend llvmBackend = new LlvmBackend(bananaModule);
+                        llvmBackend.compile();
+
+                        if (emit.equals("llvm")) {
+                            PrintStream out = new PrintStream(outputFilename);
+                            out.println(llvmBackend.getStringBuilder());
+                            out.close();
+                            continue;
+                        }
+
+                        // Generating either asm or obj
+                        List<String> llcArgs = new ArrayList<>();
+                        llcArgs.add("env");
+                        llcArgs.add("llc");
+                        llcArgs.add("-filetype");
+                        llcArgs.add(emit);
+                        llcArgs.add("-o");
+                        llcArgs.add(outputFilename);
+                        String[] llcArgArray = llcArgs.toArray(new String[0]);
+                        Process llc = rt.exec(llcArgArray);
+                        PrintStream llcIn = new PrintStream(llc.getOutputStream());
+                        llcIn.println(llvmBackend.getStringBuilder());
+                        //llcIn.flush();
+                        llcIn.close();
+                        handleProcess(llc);
+                    }
+                }
+
+            }
+        } catch (ParseException exc) {
+            System.err.printf("fatal error: %s%n", exc.getMessage());
+            System.exit(64);
+        } catch (Exception exc) {
+            exc.printStackTrace();
+            System.err.printf("fatal error: %s%n", exc.getMessage());
+            new HelpFormatter().printHelp("bonobo [options...] [<files>]", options);
+            System.exit(1);
+        }
+    }
+
+    private static void handleProcess(Process llc) throws IOException, InterruptedException {
+        llc.waitFor();
+        InputStream input;
+
+        if (llc.exitValue() != 0) {
+            input = llc.getErrorStream();
+        } else {
+            input = llc.getInputStream();
+        }
+
+        InputStreamReader errReader = new InputStreamReader(input);
+        int ch = errReader.read();
+        while (ch != -1) {
+            System.err.write(ch);
+            ch = errReader.read();
+        }
+
+        if (llc.exitValue() != 0) {
+            System.exit(llc.exitValue());
         }
     }
 }
