@@ -4,6 +4,9 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.bonobo_lang.analysis.*;
+import org.bonobo_lang.banana.BananaFunction;
+import org.bonobo_lang.banana.BananaModule;
+import org.bonobo_lang.banana.BananaPass;
 import org.bonobo_lang.frontend.BonoboLexer;
 import org.bonobo_lang.frontend.BonoboParser;
 
@@ -26,18 +29,12 @@ public class MonkeyBusiness {
                 BonoboParser.ProgContext prog = parser.prog();
                 BonoboAnalyzer analyzer = new BonoboAnalyzer();
                 BonoboModule module = analyzer.analyzeIdempotent(filename, prog);
-                System.out.println(module.getScope().getSymbols().size());
+                BananaPass bananaPass = new BananaPass(analyzer, module);
+                bananaPass.run();
+                BananaModule bananaModule = bananaPass.getBananaModule();
 
-                for (BonoboSymbol sym : module.getScope().getSymbols()) {
-                    if (sym.isValue()) {
-                        BonoboValue value = sym.getValue();
-
-                        if (value instanceof BonoboFunction) {
-                            System.out.printf("fn %s => %s\n",
-                                    ((BonoboFunction) value).getName(),
-                                    ((BonoboFunction) value).getBody().getReturnType().getName());
-                        }
-                    }
+                for (BananaFunction fn : bananaModule.getFunctions()) {
+                    System.out.println(fn.getName());
                 }
             }
         }

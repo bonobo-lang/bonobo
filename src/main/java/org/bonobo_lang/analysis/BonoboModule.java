@@ -19,6 +19,10 @@ public class BonoboModule {
         this.ctx = ctx;
     }
 
+    public String getName() {
+        return sourceUrl.replaceAll("\\W", "_");
+    }
+
     public BonoboScope getScope() {
         return scope;
     }
