@@ -27,6 +27,7 @@ public class MonkeyBusiness {
                 BonoboParser.ProgContext prog = parser.prog();
                 BonoboAnalyzer analyzer = new BonoboAnalyzer();
                 BonoboModule module = analyzer.analyzeIdempotent(filename, prog);
+                System.out.println(module.getScope().getSymbols().size());
             }
         }
     }
