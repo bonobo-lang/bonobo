@@ -12,4 +12,9 @@ public class BananaReturnConstantInstruction extends BananaInstruction {
     public BonoboConstant getValue() {
         return value;
     }
+
+    @Override
+    public <T> T accept(BananaInstructionVisitor<T> visitor) {
+        return visitor.visitReturnConstant(this);
+    }
 }
