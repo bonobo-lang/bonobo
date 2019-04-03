@@ -1,5 +1,7 @@
 package org.bonobo_lang.analysis;
 
+import org.bonobo_lang.banana.BonoboStatementVisitor;
+
 public class BonoboReturnStatement extends BonoboStatement {
     private final BonoboValue returnValue;
 
@@ -10,5 +12,10 @@ public class BonoboReturnStatement extends BonoboStatement {
 
     public BonoboValue getReturnValue() {
         return returnValue;
+    }
+
+    @Override
+    public <T> T accept(BonoboStatementVisitor<T> visitor) {
+        return visitor.visitReturnStatement(this);
     }
 }
