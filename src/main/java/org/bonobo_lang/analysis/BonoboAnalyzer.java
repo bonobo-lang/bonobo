@@ -43,12 +43,12 @@ public class BonoboAnalyzer extends BaseErrorListener {
         if (moduleCache.containsKey(uri)) {
             return moduleCache.get(uri);
         } else {
-            // `analyze` puts the module in the cache.
-            return analyze(uri, ctx);
+            // `analyzeInFull` puts the module in the cache.
+            return analyzeInFull(uri, ctx);
         }
     }
 
-    public BonoboModule analyze(String uri, BonoboParser.ProgContext ctx) {
+    public BonoboModule analyzeCursory(String uri, BonoboParser.ProgContext ctx) {
         // Create the module.
         BonoboModule module = new BonoboModule(rootScope.createChild(), uri, ctx);
         moduleCache.put(uri, module);
@@ -56,9 +56,17 @@ public class BonoboAnalyzer extends BaseErrorListener {
         // Conduct a cursory glance at the module in question.
         new BonoboCursoryGlance(this, module).run();
 
+        return module;
+    }
+
+    public void analyzeAllFunctions(BonoboModule module) {
         // Next, we want to analyze all functions.
         new BonoboFunctionAnalyzer(this, module).run();
+    }
 
+    public BonoboModule analyzeInFull(String uri, BonoboParser.ProgContext ctx) {
+        BonoboModule module = analyzeCursory(uri, ctx);
+        analyzeAllFunctions(module);
         return module;
     }
 }

@@ -25,10 +25,10 @@ public class BonoboFunctionAnalyzer {
     }
 
     public void analyzeTopLevelFunction(BonoboFunction fn, BonoboParser.BlockContext ctx) {
-        // Firstly, we want to analyze all of its parameters.
+        // Firstly, we want to analyzeCursory all of its parameters.
         // TODO: Params
 
-        // Next, we want to analyze its block, and
+        // Next, we want to analyzeCursory its block, and
         // determine its return type, if none has been declared.
         BonoboBlock block = analyzeBlock(fn.getScope().createChild(), ctx);
         fn.setBody(block);

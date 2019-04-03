@@ -38,7 +38,7 @@ public class CursoryGlanceTest {
             System.out.printf("%s: %s\n", err.getLocation().toString(), err.getMessage());
         }
 
-        return analyzer.analyze("<test srcs>", prog);
+        return analyzer.analyzeCursory("<test srcs>", prog);
 
     }
 
@@ -61,7 +61,7 @@ public class CursoryGlanceTest {
                 "fn main => 2";
         BonoboAnalyzer analyzer = new BonoboAnalyzer();
         BonoboParser.ProgContext prog = parse(src, analyzer);
-        BonoboModule module = analyzer.analyze("<test srcs>", prog);
+        BonoboModule module = analyzer.analyzeCursory("<test srcs>", prog);
         assertEquals(1, module.getScope().getSymbols().size());
         assertTrue(!analyzer.getErrors().isEmpty());
     }
