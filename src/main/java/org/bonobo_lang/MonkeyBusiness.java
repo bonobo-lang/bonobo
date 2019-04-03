@@ -5,7 +5,9 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.cli.*;
 import org.bonobo_lang.analysis.BonoboAnalyzer;
+import org.bonobo_lang.analysis.BonoboError;
 import org.bonobo_lang.analysis.BonoboModule;
+import org.bonobo_lang.analysis.SourceLocation;
 import org.bonobo_lang.backend.llvm.LlvmBackend;
 import org.bonobo_lang.banana.BananaModule;
 import org.bonobo_lang.banana.BananaPass;
@@ -91,6 +93,23 @@ public class MonkeyBusiness {
                         BonoboParser.ProgContext prog = parser.prog();
                         BonoboAnalyzer analyzer = new BonoboAnalyzer();
                         BonoboModule module = analyzer.analyzeIdempotent(filename, prog);
+
+                        // Find all errors
+                        boolean anyWasError = false;
+                        for (BonoboError error : analyzer.getErrors()) {
+                            SourceLocation location = error.getLocation();
+                            anyWasError |= error.getSeverity() == BonoboError.Severity.error;
+                            // TODO: severity to string
+                            System.err.printf("\\u001b[1m%s:%d:%d: %s: %s\\u001b[0m%n",
+                                    location.getSourceUrl(), location.getLine(), location.getColumn(),
+                                    "error", error.getMessage()
+                            );
+                        }
+
+                        if (anyWasError) {
+                            System.exit(1);
+                            return;
+                        }
 
                         BananaPass bananaPass = new BananaPass(analyzer, module);
                         bananaPass.run();
