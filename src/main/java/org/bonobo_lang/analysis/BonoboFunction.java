@@ -3,12 +3,11 @@ package org.bonobo_lang.analysis;
 import org.bonobo_lang.frontend.BonoboParser;
 
 public class BonoboFunction extends BonoboValue {
-    private final BonoboBlock body;
     private BonoboParser.FnDeclContext declaration;
     private final BonoboModule module;
     private final BonoboScope scope;
     private final String name;
-    private BonoboType returnType;
+    private BonoboBlock body;
 
     public BonoboFunction(SourceLocation location, BonoboScope scope, BonoboModule module, String name) {
         super(location, null); // TODO: Types of functions
@@ -16,11 +15,22 @@ public class BonoboFunction extends BonoboValue {
         this.name = name;
         this.scope = scope;
         body = new BonoboBlock(scope);
-        returnType = new BonoboUnknownType();
     }
 
     public BonoboBlock getBody() {
         return body;
+    }
+
+    public void setBody(BonoboBlock body) {
+        this.body = body;
+    }
+
+    public BonoboParser.BlockContext getBlock(){
+        if (declaration != null) {
+            return declaration.block();
+        } else {
+            return null;
+        }
     }
 
     public BonoboModule getModule() {
@@ -41,13 +51,5 @@ public class BonoboFunction extends BonoboValue {
 
     public void setDeclaration(BonoboParser.FnDeclContext declaration) {
         this.declaration = declaration;
-    }
-
-    public BonoboType getReturnType() {
-        return returnType;
-    }
-
-    public void setReturnType(BonoboType returnType) {
-        this.returnType = returnType;
     }
 }

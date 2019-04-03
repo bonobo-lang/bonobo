@@ -18,18 +18,20 @@ public class BonoboFunctionAnalyzer {
                 BonoboValue value = sym.getValue();
 
                 if (value instanceof BonoboFunction) {
-                    analyzeTopLevelFunction((BonoboFunction) value);
+                    analyzeTopLevelFunction((BonoboFunction) value, ((BonoboFunction) value).getBlock());
                 }
             }
         }
     }
 
-    public void analyzeTopLevelFunction(BonoboFunction fn) {
+    public void analyzeTopLevelFunction(BonoboFunction fn, BonoboParser.BlockContext ctx) {
         // Firstly, we want to analyze all of its parameters.
         // TODO: Params
 
         // Next, we want to analyze its block, and
         // determine its return type, if none has been declared.
+        BonoboBlock block = analyzeBlock(fn.getScope().createChild(), ctx);
+        fn.setBody(block);
     }
 
     public BonoboBlock analyzeBlock(BonoboScope scope, BonoboParser.BlockContext ctx) {
@@ -37,8 +39,8 @@ public class BonoboFunctionAnalyzer {
         BonoboBlock block = new BonoboBlock(scope);
 
         if (ctx instanceof BonoboParser.LambdaBlockContext) {
-            BonoboStatementAnalyzer statementAnalyzer = new BonoboStatementAnalyzer(analyzer, this, scope);
-            SourceLocation location = new SourceLocation(ctx);
+            BonoboStatementAnalyzer statementAnalyzer = new BonoboStatementAnalyzer(analyzer, module, this, scope);
+            SourceLocation location = new SourceLocation(module.getSourceUrl(), ctx);
             BonoboBlockState state = statementAnalyzer.analyzeExpr(location, ((BonoboParser.LambdaBlockContext) ctx).expr());
             block.getBody().add(state);
         } else if (ctx instanceof BonoboParser.SingleStatementBlockContext) {
@@ -56,11 +58,18 @@ public class BonoboFunctionAnalyzer {
             }
         }
 
+        // Set the block's return type.
+        for (BonoboBlockState state : block.getBody()) {
+            if (state.getReturnValue() != null) {
+                block.setReturnType(state.getReturnType());
+            }
+        }
+
         return block;
     }
 
     public BonoboBlockState analyzeStatement(BonoboScope scope, BonoboParser.StmtContext ctx) {
-        BonoboStatementAnalyzer statementAnalyzer = new BonoboStatementAnalyzer(analyzer, this, scope);
+        BonoboStatementAnalyzer statementAnalyzer = new BonoboStatementAnalyzer(analyzer, module, this, scope);
         return ctx.accept(statementAnalyzer);
     }
 }

@@ -3,8 +3,7 @@ package org.bonobo_lang;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.bonobo_lang.analysis.BonoboAnalyzer;
-import org.bonobo_lang.analysis.BonoboModule;
+import org.bonobo_lang.analysis.*;
 import org.bonobo_lang.frontend.BonoboLexer;
 import org.bonobo_lang.frontend.BonoboParser;
 
@@ -28,6 +27,18 @@ public class MonkeyBusiness {
                 BonoboAnalyzer analyzer = new BonoboAnalyzer();
                 BonoboModule module = analyzer.analyzeIdempotent(filename, prog);
                 System.out.println(module.getScope().getSymbols().size());
+
+                for (BonoboSymbol sym : module.getScope().getSymbols()) {
+                    if (sym.isValue()) {
+                        BonoboValue value = sym.getValue();
+
+                        if (value instanceof BonoboFunction) {
+                            System.out.printf("fn %s => %s\n",
+                                    ((BonoboFunction) value).getName(),
+                                    ((BonoboFunction) value).getBody().getReturnType().getName());
+                        }
+                    }
+                }
             }
         }
     }

@@ -21,6 +21,14 @@ public class BonoboBlock {
         return returnType;
     }
 
+    public void setReturnType(BonoboType returnType) {
+        if (this.returnType instanceof BonoboUnknownType) {
+            this.returnType = returnType;
+        } else {
+            // TODO: Reduce existing types.
+        }
+    }
+
     public BonoboScope getScope() {
         return scope;
     }
