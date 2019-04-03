@@ -30,5 +30,7 @@ public class BonoboFunctionAnalyzer {
         // determine its return type, if none has been declared.
     }
 
+    public BonoboBlock analyzeBlock(BonoboScope scope, BonoboBlock block) {
 
+    }
 }

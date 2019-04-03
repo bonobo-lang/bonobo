@@ -37,8 +37,8 @@ public class BonoboCursoryGlance {
 
     private void visitFnDecl(BonoboParser.FnDeclContext ctx) {
         String name = ctx.ID().getText();
-        BonoboFunction fn = new BonoboFunction(module.getScope().createChild(), module, name);
         SourceLocation location = new SourceLocation(module.getSourceUrl(), ctx);
+        BonoboFunction fn = new BonoboFunction(location, module.getScope().createChild(), module, name);
 
         try {
             fn.setDeclaration(ctx);

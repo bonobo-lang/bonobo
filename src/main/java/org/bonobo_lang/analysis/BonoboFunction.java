@@ -2,9 +2,6 @@ package org.bonobo_lang.analysis;
 
 import org.bonobo_lang.frontend.BonoboParser;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class BonoboFunction extends BonoboValue {
     private final BonoboBlock body;
     private BonoboParser.FnDeclContext declaration;
@@ -13,7 +10,8 @@ public class BonoboFunction extends BonoboValue {
     private final String name;
     private BonoboType returnType;
 
-    public BonoboFunction(BonoboScope scope, BonoboModule module, String name) {
+    public BonoboFunction(SourceLocation location, BonoboScope scope, BonoboModule module, String name) {
+        super(location, null); // TODO: Types of functions
         this.module = module;
         this.name = name;
         this.scope = scope;

@@ -4,15 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BonoboBlock {
-    private final List<BonoboStatement> body = new ArrayList<>();
+    private final List<BonoboBlockState> body = new ArrayList<>();
+    private BonoboType returnType;
     private final BonoboScope scope;
 
     public BonoboBlock(BonoboScope scope) {
         this.scope = scope;
+        returnType = new BonoboUnknownType();
     }
 
-    public List<BonoboStatement> getBody() {
+    public List<BonoboBlockState> getBody() {
         return body;
+    }
+
+    public BonoboType getReturnType() {
+        return returnType;
     }
 
     public BonoboScope getScope() {
