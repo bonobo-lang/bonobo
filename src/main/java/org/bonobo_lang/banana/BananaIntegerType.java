@@ -22,4 +22,9 @@ public class BananaIntegerType extends BananaType {
     public long computeSize(BananaSystem system) {
         return underlying.getSize();
     }
+
+    @Override
+    public <T> T accept(BananaTypeVisitor<T> visitor) {
+        return visitor.visitIntegerType(this);
+    }
 }

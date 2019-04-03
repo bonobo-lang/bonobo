@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.bonobo_lang.analysis.*;
+import org.bonobo_lang.backend.llvm.LlvmBackend;
 import org.bonobo_lang.banana.BananaModule;
 import org.bonobo_lang.banana.BananaPass;
 import org.bonobo_lang.frontend.BonoboLexer;
@@ -31,6 +32,9 @@ public class MonkeyBusiness {
                 BananaPass bananaPass = new BananaPass(analyzer, module);
                 bananaPass.run();
                 BananaModule bananaModule = bananaPass.getBananaModule();
+                LlvmBackend llvmBackend = new LlvmBackend(bananaModule);
+                llvmBackend.compile();
+                System.out.println(llvmBackend.getStringBuilder());
             }
         }
     }
