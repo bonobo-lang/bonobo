@@ -87,11 +87,15 @@ public class MonkeyBusiness {
                         }
 
                         CharStream charStream = CharStreams.fromFileName(filename);
+                        BonoboAnalyzer analyzer = new BonoboAnalyzer();
                         BonoboLexer lexer = new BonoboLexer(charStream);
+                        lexer.removeErrorListeners();
+                        lexer.addErrorListener(analyzer);
                         CommonTokenStream tokenStream = new CommonTokenStream(lexer);
                         BonoboParser parser = new BonoboParser(tokenStream);
+                        parser.removeErrorListeners();
+                        parser.addErrorListener(analyzer);
                         BonoboParser.ProgContext prog = parser.prog();
-                        BonoboAnalyzer analyzer = new BonoboAnalyzer();
                         BonoboModule module = analyzer.analyzeIdempotent(filename, prog);
 
                         // Find all errors
@@ -100,10 +104,17 @@ public class MonkeyBusiness {
                             SourceLocation location = error.getLocation();
                             anyWasError |= error.getSeverity() == BonoboError.Severity.error;
                             // TODO: severity to string
-                            System.err.printf("\\u001b[1m%s:%d:%d: %s: %s\\u001b[0m%n",
-                                    location.getSourceUrl(), location.getLine(), location.getColumn(),
-                                    "error", error.getMessage()
-                            );
+                            if (System.console() != null) {
+                                System.err.printf("\u001b[1m%s:%d:%d: \u001b[31m%s\u001b[0m\u001b[1m: %s\u001b[0m%n",
+                                        location.getSourceUrl(), location.getLine(), location.getColumn(),
+                                        "error", error.getMessage()
+                                );
+                            } else {
+                                System.err.printf("%s:%d:%d: %s: %s%n",
+                                        location.getSourceUrl(), location.getLine(), location.getColumn(),
+                                        "error", error.getMessage()
+                                );
+                            }
                         }
 
                         if (anyWasError) {

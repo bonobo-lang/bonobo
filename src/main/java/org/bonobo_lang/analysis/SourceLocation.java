@@ -15,7 +15,7 @@ public class SourceLocation {
 
     public SourceLocation(String sourceUrl, ParserRuleContext ctx) {
         line = ctx.start.getLine();
-        column = ctx.start.getCharPositionInLine();
+        column = ctx.start.getCharPositionInLine() + 1;
         this.sourceUrl = sourceUrl;
     }
 
