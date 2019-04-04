@@ -44,12 +44,11 @@ public class LlvmBackend {
         writeln(String.format("define %s @%s () {", type, ctx.getName()));
         indent();
         for (BananaBlock block : ctx.getBlocks()) compileBlock(block);
-        outdent();
-
         // If the function returns void, add a "ret void"
         if (ctx.getReturnType() instanceof BananaVoidType)
             writeln("ret void");
 
+        outdent();
         writeln("}");
     }
 
