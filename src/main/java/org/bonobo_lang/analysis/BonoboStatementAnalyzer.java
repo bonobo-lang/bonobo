@@ -1,6 +1,7 @@
 package org.bonobo_lang.analysis;
-import org.bonobo_lang.frontend.BonoboParser;
+
 import org.bonobo_lang.frontend.BonoboBaseVisitor;
+import org.bonobo_lang.frontend.BonoboParser;
 
 public class BonoboStatementAnalyzer extends BonoboBaseVisitor<BonoboBlockState> {
     private final BonoboAnalyzer analyzer;
@@ -56,11 +57,13 @@ public class BonoboStatementAnalyzer extends BonoboBaseVisitor<BonoboBlockState>
 
         // Add the declared variable to the scope.
         try {
-            scope.create(location, name, value);
+            BonoboSymbol symbol = scope.create(location, name, value);
+            BonoboBlockState state = new BonoboBlockState(scope);
+            state.setStatement(new BonoboVariableDeclarationStatement(scope, symbol));
+            return state;
         } catch (IllegalStateException exc) {
             analyzer.getErrors().add(new BonoboError(BonoboError.Severity.error, location, exc.getMessage()));
+            return null;
         }
-
-        return new BonoboBlockState(scope);
     }
 }

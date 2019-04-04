@@ -16,6 +16,6 @@ public class BonoboReturnStatement extends BonoboStatement {
 
     @Override
     public <T> T accept(BonoboStatementVisitor<T> visitor) {
-        return visitor.visitReturnStatement(this);
+        return visitor.visitReturn(this);
     }
 }

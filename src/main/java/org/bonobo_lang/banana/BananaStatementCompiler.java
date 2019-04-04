@@ -12,7 +12,7 @@ public class BananaStatementCompiler implements BonoboStatementVisitor {
     }
 
     @Override
-    public Object visitReturnStatement(BonoboReturnStatement ctx) {
+    public Object visitReturn(BonoboReturnStatement ctx) {
         // Check if this is a Bonobo constant. If so, we can have a specific return.
         if (ctx.getReturnValue() instanceof BonoboConstant) {
             BonoboConstant value = (BonoboConstant) ctx.getReturnValue();
