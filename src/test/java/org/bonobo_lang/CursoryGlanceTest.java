@@ -15,38 +15,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class CursoryGlanceTest {
-    private BonoboParser.ProgContext parse(String src, BonoboAnalyzer analyzer) {
-        CharStream charStream = CharStreams.fromString(src, "<test srcs>");
-        BonoboLexer lexer = new BonoboLexer(charStream);
-        lexer.removeErrorListeners();
-        lexer.addErrorListener(analyzer);
-        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
-        BonoboParser parser = new BonoboParser(tokenStream);
-        parser.removeErrorListeners();
-        parser.addErrorListener(analyzer);
-        BonoboParser.ProgContext prog = parser.prog();
-        assertNotNull(prog);
-        return prog;
-    }
-
-    private BonoboModule analyzeModule(String src) {
-        BonoboAnalyzer analyzer = new BonoboAnalyzer();
-        BonoboParser.ProgContext prog = parse(src, analyzer);
-
-        for (BonoboError err : analyzer.getErrors()) {
-            System.out.printf("%s: %s\n", err.getLocation().toString(), err.getMessage());
-        }
-
-        return analyzer.analyzeCursory("<test srcs>", prog);
-
-    }
+public class CursoryGlanceTest extends BonoboBaseTest {
 
     @Test
     public void shouldGatherFunctions() {
         String src = "fn main => 1\n" +
                 "fn main2 => 2";
-        BonoboModule module = analyzeModule(src);
+        BonoboModule module = cursoryAnalyzeModule(src);
         assertEquals(2, module.getScope().getSymbols().size());
 
         BonoboFunction main = (BonoboFunction) module.getScope().resolve("main").getValue();
