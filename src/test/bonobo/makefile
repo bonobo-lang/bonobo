@@ -9,6 +9,8 @@ BONOBO = $(JAVA) -jar $(BONOBO_JAR)
 .PHONY: clean
 all: simplest simplest_variable
 
+llvm: simplest.ll simplest_variable.ll
+
 simplest: simplest.o
 	$(BONOBO) -o $@ $^
 

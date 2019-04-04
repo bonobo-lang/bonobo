@@ -1,5 +1,4 @@
 *.o
-*.ll
 simplest
 simplest_variable
 *.s
