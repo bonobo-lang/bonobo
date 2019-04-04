@@ -1,9 +1,6 @@
 package org.bonobo_lang.backend.llvm;
 
-import org.bonobo_lang.banana.BananaBlock;
-import org.bonobo_lang.banana.BananaFunction;
-import org.bonobo_lang.banana.BananaInstruction;
-import org.bonobo_lang.banana.BananaModule;
+import org.bonobo_lang.banana.*;
 
 public class LlvmBackend {
     private final StringBuilder stringBuilder = new StringBuilder();
@@ -48,6 +45,11 @@ public class LlvmBackend {
         indent();
         for (BananaBlock block : ctx.getBlocks()) compileBlock(block);
         outdent();
+
+        // If the function returns void, add a "ret void"
+        if (ctx.getReturnType() instanceof BananaVoidType)
+            writeln("ret void");
+
         writeln("}");
     }
 

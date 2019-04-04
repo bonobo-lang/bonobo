@@ -57,7 +57,6 @@ public class MonkeyBusiness {
                     List<String> ccArgs = new ArrayList<>();
                     ccArgs.add("env");
                     ccArgs.add("cc");
-                    ccArgs.add("-O" + cmd.getOptionValue("O", "2"));
                     if (cmd.hasOption("l")) for (String name : cmd.getOptionValues("l")) ccArgs.add("-l" + name);
                     if (cmd.hasOption("L")) for (String name : cmd.getOptionValues("L")) ccArgs.add("-L" + name);
                     ccArgs.add("-o");
@@ -141,6 +140,7 @@ public class MonkeyBusiness {
                         List<String> llcArgs = new ArrayList<>();
                         llcArgs.add("env");
                         llcArgs.add("llc");
+                        llcArgs.add("-O" + cmd.getOptionValue("O", "2"));
                         llcArgs.add("-filetype");
                         llcArgs.add(emit);
                         llcArgs.add("-o");
