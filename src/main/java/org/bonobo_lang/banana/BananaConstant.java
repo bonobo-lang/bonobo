@@ -13,4 +13,9 @@ public class BananaConstant extends BananaValue {
     public BonoboConstant getUnderlying() {
         return underlying;
     }
+
+    @Override
+    public <T> T accept(BananaValueVisitor<T> visitor) {
+        return visitor.visitConstant(this);
+    }
 }
