@@ -53,7 +53,9 @@ public class BananaStatementCompiler implements BonoboStatementVisitor {
         ctx.getSymbol().setBanana(variable);
 
         // Step 4: Emit an assign instruction.
-        blockCompiler.emit(new BananaAssignInstruction(variable, value));
+        BananaAssignInstruction instr = new BananaAssignInstruction(variable, value);
+        instr.setInitial(true);
+        blockCompiler.emit(instr);
         return null;
     }
 }

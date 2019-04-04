@@ -25,7 +25,21 @@ public class LlvmInstructionCompiler implements BananaInstructionVisitor {
 
     @Override
     public Object visitAssign(BananaAssignInstruction ctx) {
+        LlvmTypeCompiler typeCompiler = new LlvmTypeCompiler();
+        String llvmType = ctx.getValue().getType().accept(typeCompiler);
+
+        if (llvmType == null) {
+            // TODO: What if this is null?
+            return null;
+        }
+
+        // If this is the first usage of the variable, allocate it first.
+        if (ctx.isInitial()) {
+            llvmBackend.writeln(String.format("%%%s = alloca %s, align 4", ctx.getVariable().getName(), llvmType));
+        }
+
         // TODO: Perform assignment
+
         return null;
     }
 }

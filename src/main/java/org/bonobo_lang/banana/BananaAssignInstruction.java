@@ -3,6 +3,7 @@ package org.bonobo_lang.banana;
 public class BananaAssignInstruction extends BananaInstruction {
     private final BananaVariable variable;
     private final BananaValue value;
+    private boolean initial = false;
 
     public BananaAssignInstruction(BananaVariable variable, BananaValue value) {
         this.variable = variable;
@@ -15,6 +16,14 @@ public class BananaAssignInstruction extends BananaInstruction {
 
     public BananaValue getValue() {
         return value;
+    }
+
+    public boolean isInitial() {
+        return initial;
+    }
+
+    public void setInitial(boolean initial) {
+        this.initial = initial;
     }
 
     @Override
