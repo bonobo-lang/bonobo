@@ -11,6 +11,10 @@ public class BananaStatementCompiler implements BonoboStatementVisitor {
         this.state = state;
     }
 
+    public BananaValue compileValue(BonoboValue value) {
+        // TODO: Do this
+    }
+
     @Override
     public Object visitReturn(BonoboReturnStatement ctx) {
         // Check if this is a Bonobo constant. If so, we can have a specific return.
@@ -29,7 +33,24 @@ public class BananaStatementCompiler implements BonoboStatementVisitor {
     @Override
     public Object visitVariableDeclaration(BonoboVariableDeclarationStatement ctx) {
         // TLDR: Declare an SSA variable, emit an assignment instruction.
+        // Step 1: Compile the value.
+        BananaValue value = compileValue(ctx.getSymbol().getValue());
 
+        if (value == null) {
+            // TODO: What if this is null?
+            return null;
+        }
+
+        // Step 2: Create the SSA variable.
+        String name = ctx.getSymbol().getName();
+        BananaType type = value.getType();
+        BananaVariable variable = blockCompiler.getBananaPass().createVariable(name, type);
+
+        // Step 3: Associate the symbol in question with the banana variable.
+        ctx.getSymbol().setBanana(variable);
+
+        // Step 4: Emit an assign instruction.
+        blockCompiler.emit(new BananaAssignInstruction(variable, value));
         return null;
     }
 }
