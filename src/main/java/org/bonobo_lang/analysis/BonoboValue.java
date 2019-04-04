@@ -1,6 +1,6 @@
 package org.bonobo_lang.analysis;
 
-public class BonoboValue {
+public abstract class BonoboValue {
     private final SourceLocation location;
     private final BonoboType type;
 
@@ -16,4 +16,6 @@ public class BonoboValue {
     public BonoboType getType() {
         return type;
     }
+
+    public abstract <T> T accept(BonoboValueVisitor<T> visitor);
 }

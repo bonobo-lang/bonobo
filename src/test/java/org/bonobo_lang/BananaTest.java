@@ -17,4 +17,6 @@ public class BananaTest extends BonoboBaseTest {
         Assert.assertEquals("main", main.getName());
         Assert.assertEquals(main.getReturnType().getName(), "i64");
     }
+
+    // TODO: Add variable declaration tests
 }

@@ -12,7 +12,8 @@ public class BananaStatementCompiler implements BonoboStatementVisitor {
     }
 
     public BananaValue compileValue(BonoboValue value) {
-        // TODO: Do this
+        BananaValueCompiler valueCompiler = new BananaValueCompiler(blockCompiler, state);
+        return value.accept(valueCompiler);
     }
 
     @Override
