@@ -7,7 +7,7 @@ BONOBO_JAR := $(mkfile_dir)../../../target/monkey_business-1.0-SNAPSHOT-jar-with
 BONOBO = $(JAVA) -jar $(BONOBO_JAR)
 
 .PHONY: clean
-all: simplest foo.o
+all: simplest
 
 simplest: simplest.o
 	$(BONOBO) -o $@ $^
