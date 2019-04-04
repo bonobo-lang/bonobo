@@ -17,6 +17,7 @@ type:
     | '(' type ')' #ParenType;
 stmt:
     target=expr '(' ((args+=expr ',')* args+=expr)? ')' #CallStmt
+    | 'var' ID (':' explicitType=type)? '=' expr #VarDeclStmt // TODO: Immutable variables
     | 'return'? expr #ReturnStmt;
 expr:
     ID #IdExpr

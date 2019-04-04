@@ -36,4 +36,31 @@ public class BonoboStatementAnalyzer extends BonoboBaseVisitor<BonoboBlockState>
         SourceLocation location = new SourceLocation(module.getSourceUrl(), ctx);
         return analyzeExpr(location, ctx.expr());
     }
+
+    @Override
+    public BonoboBlockState visitVarDeclStmt(BonoboParser.VarDeclStmtContext ctx) {
+        // Firstly, we analyze the expression.
+        SourceLocation location = new SourceLocation(module.getSourceUrl(), ctx);
+        BonoboExprAnalyzer exprAnalyzer = new BonoboExprAnalyzer(analyzer, module, functionAnalyzer, scope);
+        String name = ctx.ID().getText();
+        BonoboValue value = ctx.accept(exprAnalyzer);
+
+        if (value == null) {
+            // TODO: What if this is null?
+            return null;
+        }
+
+        // If there is an explicit type, we want to resolve it, and then
+        // change `value` accordingly.
+        // TODO: Handle explicit type
+
+        // Add the declared variable to the scope.
+        try {
+            scope.create(location, name, value);
+        } catch (IllegalStateException exc) {
+            analyzer.getErrors().add(new BonoboError(BonoboError.Severity.error, location, exc.getMessage()));
+        }
+
+        return new BonoboBlockState(scope);
+    }
 }
