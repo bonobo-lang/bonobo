@@ -3,6 +3,7 @@ package org.bonobo_lang.banana;
 import org.bonobo_lang.analysis.BonoboIntegerType;
 import org.bonobo_lang.analysis.BonoboScope;
 import org.bonobo_lang.analysis.BonoboTypeVisitor;
+import org.bonobo_lang.analysis.BonoboVoidType;
 
 public class BananaTypeCompiler implements BonoboTypeVisitor<BananaType> {
     private final BananaPass bananaPass;
@@ -16,5 +17,10 @@ public class BananaTypeCompiler implements BonoboTypeVisitor<BananaType> {
     @Override
     public BananaType visitIntegerType(BonoboIntegerType ctx) {
         return new BananaIntegerType(ctx);
+    }
+
+    @Override
+    public BananaType visitVoidType(BonoboVoidType ctx) {
+        return new BananaVoidType();
     }
 }

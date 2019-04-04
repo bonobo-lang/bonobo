@@ -1,4 +1,3 @@
 fn main {
   var x = 0
-  x
 }

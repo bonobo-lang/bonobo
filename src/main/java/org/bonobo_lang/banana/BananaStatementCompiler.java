@@ -37,6 +37,8 @@ public class BananaStatementCompiler implements BonoboStatementVisitor {
         // Step 1: Compile the value.
         BananaValue value = compileValue(ctx.getSymbol().getValue());
 
+        // TODO: Prevent assigning result of "void" call
+
         if (value == null) {
             // TODO: What if this is null?
             return null;

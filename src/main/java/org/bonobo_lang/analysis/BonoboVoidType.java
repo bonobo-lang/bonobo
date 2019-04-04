@@ -1,14 +1,14 @@
 package org.bonobo_lang.analysis;
 
-public class BonoboUnknownType extends BonoboType {
+public class BonoboVoidType extends BonoboType {
     @Override
     public String getName() {
-        return "?";
+        return "void";
     }
 
     @Override
     public boolean isExactly(BonoboType other) {
-        return other instanceof BonoboUnknownType;
+        return other instanceof BonoboVoidType;
     }
 
     @Override
@@ -18,6 +18,6 @@ public class BonoboUnknownType extends BonoboType {
 
     @Override
     public <T> T accept(BonoboTypeVisitor<T> visitor) {
-        throw new UnsupportedOperationException("The unknown type indicates an error, cannot be compiled.");
+        return visitor.visitVoidType(this);
     }
 }

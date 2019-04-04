@@ -10,7 +10,7 @@ public class BonoboBlock {
 
     public BonoboBlock(BonoboScope scope) {
         this.scope = scope;
-        returnType = new BonoboUnknownType();
+        returnType = new BonoboVoidType();
     }
 
     public List<BonoboBlockState> getBody() {
@@ -22,7 +22,7 @@ public class BonoboBlock {
     }
 
     public void setReturnType(BonoboType returnType) {
-        if (this.returnType instanceof BonoboUnknownType) {
+        if (this.returnType instanceof BonoboVoidType) {
             this.returnType = returnType;
         } else {
             // TODO: Reduce existing types.
