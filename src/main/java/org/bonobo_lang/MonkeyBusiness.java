@@ -72,8 +72,11 @@ public class MonkeyBusiness {
                         throw new ParseException("cannot use the -o flag when generating multiple output files");
                     }
 
+                    BonoboAnalyzer analyzer = new BonoboAnalyzer();
+
                     for (String filename : argList) {
                         String outputFilename;
+                        analyzer.getErrors().clear();
 
                         if (argList.size() == 1 && cmd.hasOption("o")) {
                             outputFilename = cmd.getOptionValue("o");
@@ -87,7 +90,6 @@ public class MonkeyBusiness {
                         }
 
                         CharStream charStream = CharStreams.fromFileName(filename);
-                        BonoboAnalyzer analyzer = new BonoboAnalyzer();
                         BonoboLexer lexer = new BonoboLexer(charStream);
                         lexer.removeErrorListeners();
                         lexer.addErrorListener(analyzer);
@@ -105,7 +107,7 @@ public class MonkeyBusiness {
                             anyWasError |= error.getSeverity() == BonoboError.Severity.error;
                             // TODO: severity to string
                             if (System.console() != null) {
-                                System.err.printf("\u001b[1m%s:%d:%d: \u001b[31m%s\u001b[0m\u001b[1m: %s\u001b[0m%n",
+                                System.err.printf("\u001b[1m%s:%d:%d: \u001b[31m%s:\u001b[0m\u001b[1m %s\u001b[0m%n",
                                         location.getSourceUrl(), location.getLine(), location.getColumn(),
                                         "error", error.getMessage()
                                 );
