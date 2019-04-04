@@ -52,4 +52,9 @@ public class BonoboFunction extends BonoboValue {
     public void setDeclaration(BonoboParser.FnDeclContext declaration) {
         this.declaration = declaration;
     }
+
+    @Override
+    public <T> T accept(BonoboValueVisitor<T> visitor) {
+        return visitor.visitFunction(this);
+    }
 }

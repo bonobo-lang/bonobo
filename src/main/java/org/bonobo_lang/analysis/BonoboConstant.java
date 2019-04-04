@@ -15,4 +15,9 @@ public class BonoboConstant extends BonoboValue {
     public long asLong() {
         return (long) value;
     }
+
+    @Override
+    public <T> T accept(BonoboValueVisitor<T> visitor) {
+        return visitor.visitConstant(this);
+    }
 }

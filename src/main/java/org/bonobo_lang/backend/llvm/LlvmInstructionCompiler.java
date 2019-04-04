@@ -1,6 +1,7 @@
 package org.bonobo_lang.backend.llvm;
 
 import org.bonobo_lang.analysis.BonoboIntegerType;
+import org.bonobo_lang.banana.BananaAssignInstruction;
 import org.bonobo_lang.banana.BananaInstructionVisitor;
 import org.bonobo_lang.banana.BananaReturnConstantInstruction;
 
@@ -19,6 +20,12 @@ public class LlvmInstructionCompiler implements BananaInstructionVisitor {
         }
 
         // TODO: Other constants
+        return null;
+    }
+
+    @Override
+    public Object visitAssign(BananaAssignInstruction ctx) {
+        // TODO: Perform assignment
         return null;
     }
 }

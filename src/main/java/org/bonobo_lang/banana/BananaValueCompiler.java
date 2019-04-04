@@ -1,9 +1,6 @@
 package org.bonobo_lang.banana;
 
-import org.bonobo_lang.analysis.BonoboBlockState;
-import org.bonobo_lang.analysis.BonoboConstant;
-import org.bonobo_lang.analysis.BonoboIntegerType;
-import org.bonobo_lang.analysis.BonoboValueVisitor;
+import org.bonobo_lang.analysis.*;
 
 public class BananaValueCompiler implements BonoboValueVisitor<BananaValue> {
     private final BananaBlockCompiler blockCompiler;
@@ -23,5 +20,11 @@ public class BananaValueCompiler implements BonoboValueVisitor<BananaValue> {
 
         // TODO: Other constants
         return null;
+    }
+
+    @Override
+    public BananaValue visitFunction(BonoboFunction ctx) {
+        // TODO: Handle closures (this is far off in the future)
+        throw new UnsupportedOperationException("Closures are not yet supported in Bonobo.");
     }
 }
