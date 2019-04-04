@@ -30,6 +30,10 @@ public class AnalyzerTest extends BonoboBaseTest {
     @Test
     public void varDeclShouldInferType() {
         BonoboFunction main = (BonoboFunction) findSymbol("fn main { var x = 1 }", "main").getValue();
-
+        BonoboBlockState state = main.getBody().getBody().get(0);
+        BonoboVariableDeclarationStatement stmt = (BonoboVariableDeclarationStatement) state.getStatement();
+        BonoboSymbol symbol = stmt.getSymbol();
+        BonoboIntegerType intType = (BonoboIntegerType) symbol.getValue().getType();
+        assertEquals("i64", intType.getName());
     }
 }
