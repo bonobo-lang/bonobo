@@ -43,20 +43,20 @@ public class LlvmBackend {
         String type = ctx.getReturnType().accept(new LlvmTypeCompiler());
         writeln(String.format("define %s @%s () {", type, ctx.getName()));
         indent();
-        for (BananaBlock block : ctx.getBlocks()) compileBlock(block);
-        // If the function returns void, add a "ret void"
-        if (ctx.getReturnType() instanceof BananaVoidType)
-            writeln("ret void");
+        for (BananaBlock block : ctx.getBlocks()) compileBlock(ctx, block);
 
         outdent();
         writeln("}");
     }
 
-    public void compileBlock(BananaBlock block) {
+    public void compileBlock(BananaFunction fn, BananaBlock block) {
         writeln(String.format("%s:", block.getName()));
         indent();
         for (BananaInstruction instr : block.getInstructions())
             compileInstruction(instr);
+        // If the function returns void, add a "ret void"
+        if (fn.getReturnType() instanceof BananaVoidType && block == fn.getEntryBlock())
+            writeln("ret void");
         outdent();
     }
 
