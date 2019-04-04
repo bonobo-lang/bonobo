@@ -4,6 +4,9 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.bonobo_lang.analysis.*;
+import org.bonobo_lang.banana.BananaModule;
+import org.bonobo_lang.banana.BananaPass;
+import org.bonobo_lang.frontend.BonoboParser;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -42,6 +45,15 @@ public abstract class BonoboBaseTest {
         }
 
         return analyzer.analyzeInFull("<test srcs>", prog);
+    }
+
+    protected BananaModule compileToBanana(String src) {
+        BonoboAnalyzer analyzer = new BonoboAnalyzer();
+        BonoboParser.ProgContext prog = parse(src, analyzer);
+        BonoboModule module = analyzer.analyzeInFull("<test srcs>", prog);
+        BananaPass bananaPass = new BananaPass(analyzer, module);
+        bananaPass.run();
+        return bananaPass.getBananaModule();
     }
 
     protected BonoboSymbol findSymbol(String src, String name) {

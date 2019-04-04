@@ -16,7 +16,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class CursoryGlanceTest extends BonoboBaseTest {
-
     @Test
     public void shouldGatherFunctions() {
         String src = "fn main => 1\n" +
