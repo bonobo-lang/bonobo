@@ -36,4 +36,8 @@ public class AnalyzerTest extends BonoboBaseTest {
         BonoboIntegerType intType = (BonoboIntegerType) symbol.getValue().getType();
         assertEquals("i64", intType.getName());
     }
+
+    public void cannotRedeclareVariables() {
+        // TODO: This test
+    }
 }

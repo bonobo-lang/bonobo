@@ -25,4 +25,11 @@ public class BananaStatementCompiler implements BonoboStatementVisitor {
         // TODO: Other returns
         return null;
     }
+
+    @Override
+    public Object visitVariableDeclaration(BonoboVariableDeclarationStatement ctx) {
+        // TLDR: Declare an SSA variable, emit an assignment instruction.
+
+        return null;
+    }
 }
