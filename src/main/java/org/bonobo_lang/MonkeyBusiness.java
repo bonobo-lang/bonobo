@@ -23,13 +23,13 @@ import java.util.List;
 
 public class MonkeyBusiness {
     public static void main(String[] args) {
-        Options options = new Options();
-        options.addOption("c", false, "Only compile; do not link.");
-        options.addOption("g", false, "Include debug symbols.");
-        options.addOption("h", "help", false, "Print this help information.");
-        options.addOption("o", "out", true, "Specify an output name to write to.");
-        options.addOption("f", "emit", true, "The type of output to produce.");
-        options.addOption("O", true, "Optimization level (default -O2)");
+        Options options = new Options()
+                .addOption("c", false, "Only compile; do not link.")
+                .addOption("g", false, "Include debug symbols.")
+                .addOption("h", "help", false, "Print this help information.")
+                .addOption("o", "out", true, "Specify an output name to write to.")
+                .addOption("f", "emit", true, "The type of output to produce.")
+                .addOption("O", true, "Optimization level (default -O2)");
 
         Option linkFileOption = new Option("l", true, "Link a library.");
         Option linkDirectoryOption = new Option("L", true, "Link a directory containing libraries.");
@@ -158,11 +158,10 @@ public class MonkeyBusiness {
             }
         } catch (ParseException exc) {
             System.err.printf("fatal error: %s%n", exc.getMessage());
+            new HelpFormatter().printHelp("bonobo [options...] [<files>]", options);
             System.exit(64);
         } catch (Exception exc) {
-            exc.printStackTrace();
             System.err.printf("fatal error: %s%n", exc.getMessage());
-            new HelpFormatter().printHelp("bonobo [options...] [<files>]", options);
             System.exit(1);
         }
     }

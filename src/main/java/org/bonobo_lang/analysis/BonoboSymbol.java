@@ -2,6 +2,7 @@ package org.bonobo_lang.analysis;
 
 import org.bonobo_lang.banana.BananaVariable;
 
+// TODO: Track symbol usages
 public class BonoboSymbol {
     private SourceLocation location;
     private String name;
