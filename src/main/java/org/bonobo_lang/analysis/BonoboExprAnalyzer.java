@@ -17,6 +17,10 @@ public class BonoboExprAnalyzer extends BonoboBaseVisitor<BonoboValue> {
     }
 
     @Override
+    public BonoboValue visitIdExpr(BonoboParser.IdExprContext ctx) {
+    }
+
+    @Override
     public BonoboValue visitIntExpr(BonoboParser.IntExprContext ctx) {
         SourceLocation location = new SourceLocation(module.getSourceUrl(), ctx);
         Integer value = Integer.parseInt(ctx.getText());
