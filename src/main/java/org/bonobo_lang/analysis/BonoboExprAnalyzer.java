@@ -18,6 +18,24 @@ public class BonoboExprAnalyzer extends BonoboBaseVisitor<BonoboValue> {
 
     @Override
     public BonoboValue visitIdExpr(BonoboParser.IdExprContext ctx) {
+        String name = ctx.getText();
+        SourceLocation location = new SourceLocation(module.getSourceUrl(), ctx);
+        BonoboSymbol symbol = scope.resolve(name);
+
+        if (symbol == null) {
+            analyzer.getErrors().add(new BonoboError(
+                    BonoboError.Severity.error, location,
+                    String.format("The name \"%s\" does not exist in this scope.", name)));
+            return null;
+        } else if (symbol.isType()) {
+            analyzer.getErrors().add(new BonoboError(
+                    BonoboError.Severity.error, location,
+                    String.format("%s resolves a type, and cannot be used as a value.", name)));
+            return null;
+        } else {
+            BonoboType type = symbol.getValue().getType();
+            return new BonoboVariableGet(location, type, symbol);
+        }
     }
 
     @Override

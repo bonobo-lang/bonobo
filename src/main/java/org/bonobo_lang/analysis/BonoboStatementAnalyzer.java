@@ -59,7 +59,7 @@ public class BonoboStatementAnalyzer extends BonoboBaseVisitor<BonoboBlockState>
                     BonoboError.Severity.error,
                     location,
                     String.format(
-                            "Evaluation of this expression produced an error, so it cannot be assigned to %s%n.", name)
+                            "Evaluation of this expression produced an error, so it cannot be assigned to %s.", name)
             ));
             return null;
         }
