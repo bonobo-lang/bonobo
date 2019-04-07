@@ -21,13 +21,15 @@ public class BonoboStatementAnalyzer extends BonoboBaseVisitor<BonoboBlockState>
         return ctx.accept(exprAnalyzer);
     }
 
-    @Override
-    public BonoboBlockState visitReturnStmt(BonoboParser.ReturnStmtContext ctx) {
-        SourceLocation location = new SourceLocation(module.getSourceUrl(), ctx);
-        BonoboValue value = analyzeExpr(location, ctx.expr());
+    public BonoboBlockState analyzeReturn(SourceLocation location, BonoboParser.ExprContext ctx) {
+        BonoboValue value = analyzeExpr(location, ctx);
 
         if (value == null) {
-            // TODO: What if this is null?
+            analyzer.getErrors().add(new BonoboError(
+                    BonoboError.Severity.error,
+                    location,
+                    "Evaluation of the returned expression produced an error."
+            ));
             return null;
         } else {
             BonoboBlockState state = new BonoboBlockState(scope);
@@ -39,6 +41,12 @@ public class BonoboStatementAnalyzer extends BonoboBaseVisitor<BonoboBlockState>
     }
 
     @Override
+    public BonoboBlockState visitReturnStmt(BonoboParser.ReturnStmtContext ctx) {
+        SourceLocation location = new SourceLocation(module.getSourceUrl(), ctx);
+        return analyzeReturn(location, ctx.expr());
+    }
+
+    @Override
     public BonoboBlockState visitVarDeclStmt(BonoboParser.VarDeclStmtContext ctx) {
         // Firstly, we analyze the expression.
         SourceLocation location = new SourceLocation(module.getSourceUrl(), ctx);
@@ -47,7 +55,12 @@ public class BonoboStatementAnalyzer extends BonoboBaseVisitor<BonoboBlockState>
         BonoboValue value = ctx.accept(exprAnalyzer);
 
         if (value == null) {
-            // TODO: What if this is null?
+            analyzer.getErrors().add(new BonoboError(
+                    BonoboError.Severity.error,
+                    location,
+                    String.format(
+                            "Evaluation of this expression produced an error, so it cannot be assigned to %s%n.", name)
+            ));
             return null;
         }
 
