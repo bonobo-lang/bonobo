@@ -162,6 +162,7 @@ public class MonkeyBusiness {
             System.exit(64);
         } catch (Exception exc) {
             System.err.printf("fatal error: %s%n", exc.getMessage());
+            exc.printStackTrace(System.err);
             System.exit(1);
         }
     }
