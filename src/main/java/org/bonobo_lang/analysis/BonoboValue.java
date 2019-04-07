@@ -17,5 +17,7 @@ public abstract class BonoboValue {
         return type;
     }
 
-    public abstract <T> T accept(BonoboValueVisitor<T> visitor);
+    public <T> T accept(BonoboValueVisitor<T> visitor) {
+        throw new UnsupportedOperationException();
+    }
 }

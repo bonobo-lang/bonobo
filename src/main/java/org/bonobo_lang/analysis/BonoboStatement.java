@@ -6,7 +6,9 @@ public abstract class BonoboStatement {
     private final SourceLocation location;
     private final BonoboScope scope;
 
-    public abstract <T> T accept(BonoboStatementVisitor<T> visitor);
+    public <T> T accept(BonoboStatementVisitor<T> visitor) {
+        throw new UnsupportedOperationException();
+    }
 
     public BonoboStatement(SourceLocation location, BonoboScope scope) {
         this.location = location;

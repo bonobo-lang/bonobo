@@ -1,9 +1,15 @@
 package org.bonobo_lang.analysis;
 
-public interface BonoboValueVisitor<T> {
-    T visitConstant(BonoboConstant ctx);
+public abstract class BonoboValueVisitor<T> {
+    T visitConstant(BonoboConstant ctx) {
+        throw new UnsupportedOperationException();
+    }
 
-    T visitFunction(BonoboFunction ctx);
+    T visitFunction(BonoboFunction ctx) {
+        throw new UnsupportedOperationException();
+    }
 
-    T visitVariableGet(BonoboVariableGet ctx);
+    T visitVariableGet(BonoboVariableGet ctx) {
+        throw new UnsupportedOperationException();
+    }
 }

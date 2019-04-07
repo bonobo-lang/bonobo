@@ -16,7 +16,6 @@ public class BonoboExprAnalyzer extends BonoboBaseVisitor<BonoboValue> {
         this.scope = scope;
     }
 
-    @Override
     public BonoboValue visitIdExpr(BonoboParser.IdExprContext ctx) {
         String name = ctx.getText();
         SourceLocation location = new SourceLocation(module.getSourceUrl(), ctx);
@@ -38,7 +37,7 @@ public class BonoboExprAnalyzer extends BonoboBaseVisitor<BonoboValue> {
         }
     }
 
-    @Override
+
     public BonoboValue visitIntExpr(BonoboParser.IntExprContext ctx) {
         SourceLocation location = new SourceLocation(module.getSourceUrl(), ctx);
         Integer value = Integer.parseInt(ctx.getText());
@@ -46,7 +45,7 @@ public class BonoboExprAnalyzer extends BonoboBaseVisitor<BonoboValue> {
         return new BonoboConstant(location, intType, value);
     }
 
-    @Override
+
     public BonoboValue visitHexExpr(BonoboParser.HexExprContext ctx) {
         SourceLocation location = new SourceLocation(module.getSourceUrl(), ctx);
         Integer value = Integer.parseInt(ctx.getText().substring(2), 16);

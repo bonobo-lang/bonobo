@@ -11,5 +11,7 @@ public abstract class BananaValue {
         return type;
     }
 
-    public abstract <T> T accept(BananaValueVisitor<T> visitor);
+    public <T> T accept(BananaValueVisitor<T> visitor) {
+        throw new UnsupportedOperationException();
+    }
 }

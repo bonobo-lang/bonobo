@@ -7,7 +7,9 @@ public abstract class BonoboType {
 
     public abstract BonoboType getParent();
 
-    public abstract <T> T accept(BonoboTypeVisitor<T> visitor);
+    public <T> T accept(BonoboTypeVisitor<T> visitor) {
+        throw new UnsupportedOperationException();
+    }
 
     public boolean isAssignableTo(BonoboType other) {
         BonoboType type = other;

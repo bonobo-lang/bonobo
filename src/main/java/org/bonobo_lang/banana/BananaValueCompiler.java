@@ -2,7 +2,7 @@ package org.bonobo_lang.banana;
 
 import org.bonobo_lang.analysis.*;
 
-public class BananaValueCompiler implements BonoboValueVisitor<BananaValue> {
+public class BananaValueCompiler extends BonoboValueVisitor<BananaValue> {
     private final BananaBlockCompiler blockCompiler;
     private final BonoboBlockState state;
 
@@ -11,7 +11,6 @@ public class BananaValueCompiler implements BonoboValueVisitor<BananaValue> {
         this.state = state;
     }
 
-    @Override
     public BananaValue visitConstant(BonoboConstant ctx) {
         if (ctx.getType() instanceof BonoboIntegerType) {
             BananaType type = new BananaIntegerType((BonoboIntegerType) ctx.getType());
@@ -22,7 +21,6 @@ public class BananaValueCompiler implements BonoboValueVisitor<BananaValue> {
         return null;
     }
 
-    @Override
     public BananaValue visitFunction(BonoboFunction ctx) {
         // TODO: Handle closures (this is far off in the future)
         throw new UnsupportedOperationException("Closures are not yet supported in Bonobo.");

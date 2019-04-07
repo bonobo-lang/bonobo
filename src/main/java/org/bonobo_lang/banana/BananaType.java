@@ -5,5 +5,7 @@ public abstract class BananaType {
 
     public abstract long computeSize(BananaSystem system);
 
-    public abstract <T> T accept(BananaTypeVisitor<T> visitor);
+    public <T> T accept(BananaTypeVisitor<T> visitor) {
+        throw new UnsupportedOperationException();
+    }
 }

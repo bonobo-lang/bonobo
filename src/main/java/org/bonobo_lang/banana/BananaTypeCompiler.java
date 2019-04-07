@@ -5,7 +5,7 @@ import org.bonobo_lang.analysis.BonoboScope;
 import org.bonobo_lang.analysis.BonoboTypeVisitor;
 import org.bonobo_lang.analysis.BonoboVoidType;
 
-public class BananaTypeCompiler implements BonoboTypeVisitor<BananaType> {
+public class BananaTypeCompiler extends BonoboTypeVisitor<BananaType> {
     private final BananaPass bananaPass;
     private final BonoboScope scope;
 

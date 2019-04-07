@@ -1,5 +1,7 @@
 package org.bonobo_lang.banana;
 
-public interface BananaValueVisitor<T> {
-    T visitConstant(BananaConstant ctx);
+public abstract class BananaValueVisitor<T> {
+    T visitConstant(BananaConstant ctx) {
+        throw new UnsupportedOperationException();
+    }
 }

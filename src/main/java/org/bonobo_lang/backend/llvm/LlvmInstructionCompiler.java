@@ -6,14 +6,13 @@ import org.bonobo_lang.banana.BananaConstant;
 import org.bonobo_lang.banana.BananaInstructionVisitor;
 import org.bonobo_lang.banana.BananaReturnConstantInstruction;
 
-public class LlvmInstructionCompiler implements BananaInstructionVisitor {
+public class LlvmInstructionCompiler extends BananaInstructionVisitor {
     private final LlvmBackend llvmBackend;
 
     public LlvmInstructionCompiler(LlvmBackend llvmBackend) {
         this.llvmBackend = llvmBackend;
     }
 
-    @Override
     public Object visitReturnConstant(BananaReturnConstantInstruction ctx) {
         if (ctx.getValue().getType() instanceof BonoboIntegerType) {
             BonoboIntegerType type = (BonoboIntegerType) ctx.getValue().getType();
@@ -24,7 +23,6 @@ public class LlvmInstructionCompiler implements BananaInstructionVisitor {
         return null;
     }
 
-    @Override
     public Object visitAssign(BananaAssignInstruction ctx) {
         LlvmTypeCompiler typeCompiler = new LlvmTypeCompiler();
         String llvmType = ctx.getValue().getType().accept(typeCompiler);

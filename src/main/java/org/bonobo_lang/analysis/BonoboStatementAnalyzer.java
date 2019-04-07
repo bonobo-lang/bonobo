@@ -40,13 +40,11 @@ public class BonoboStatementAnalyzer extends BonoboBaseVisitor<BonoboBlockState>
         }
     }
 
-    @Override
     public BonoboBlockState visitReturnStmt(BonoboParser.ReturnStmtContext ctx) {
         SourceLocation location = new SourceLocation(module.getSourceUrl(), ctx);
         return analyzeReturn(location, ctx.expr());
     }
 
-    @Override
     public BonoboBlockState visitVarDeclStmt(BonoboParser.VarDeclStmtContext ctx) {
         // Firstly, we analyze the expression.
         SourceLocation location = new SourceLocation(module.getSourceUrl(), ctx);
