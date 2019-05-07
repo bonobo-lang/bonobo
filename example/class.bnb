@@ -7,14 +7,14 @@ type Animal = class {
   private one: Int
 
   // Constructor
-  Animal(this.species) {
+  new (this.species) {
     one = 1
   }
 
   // Methods, getters, etc.
   get two => one + one
 
-  set two(x: Int) {
+  set two (x: Int) {
     one = x ~/ 2
   }
 
