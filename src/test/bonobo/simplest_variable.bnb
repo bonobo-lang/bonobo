@@ -1,4 +1,4 @@
 fn main {
-  var x = 0
+  var x = 65
   x
 }
