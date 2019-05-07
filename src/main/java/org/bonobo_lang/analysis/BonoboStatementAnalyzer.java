@@ -36,6 +36,7 @@ public class BonoboStatementAnalyzer extends BonoboBaseVisitor<BonoboBlockState>
             BonoboReturnStatement stmt = new BonoboReturnStatement(location, scope, value);
             state.setStatement(stmt);
             state.setReturnValue(value);
+            System.out.println(location);
             return state;
         }
     }

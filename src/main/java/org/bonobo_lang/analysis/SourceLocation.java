@@ -30,4 +30,9 @@ public class SourceLocation {
     public String getSourceUrl() {
         return sourceUrl;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s:%d:%d", sourceUrl, line, column);
+    }
 }

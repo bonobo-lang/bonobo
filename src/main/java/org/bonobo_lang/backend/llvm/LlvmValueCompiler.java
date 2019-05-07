@@ -5,7 +5,7 @@ import org.bonobo_lang.analysis.BonoboIntegerType;
 import org.bonobo_lang.banana.BananaConstant;
 import org.bonobo_lang.banana.BananaValueVisitor;
 
-public class LlvmValueCompiler extends BananaValueVisitor<String> {
+public class LlvmValueCompiler implements BananaValueVisitor<String> {
     public String visitConstant(BananaConstant ctx) {
         BonoboConstant underlying = ctx.getUnderlying();
 
