@@ -5,10 +5,16 @@ import org.bonobo_lang.banana.*;
 public class LlvmBackend {
     private final StringBuilder stringBuilder = new StringBuilder();
     private final BananaModule module;
+    private final BananaPass bananaPass;
     private int indentationLevel = 0;
 
-    public LlvmBackend(BananaModule module) {
+    public LlvmBackend(BananaModule module, BananaPass bananaPass) {
         this.module = module;
+        this.bananaPass = bananaPass;
+    }
+
+    public BananaPass getBananaPass() {
+        return bananaPass;
     }
 
     public StringBuilder getStringBuilder() {

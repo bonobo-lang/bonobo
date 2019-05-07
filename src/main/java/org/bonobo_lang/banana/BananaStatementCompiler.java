@@ -25,6 +25,9 @@ public class BananaStatementCompiler implements BonoboStatementVisitor {
                 blockCompiler.emit(new BananaReturnConstantInstruction(value));
                 return null;
             }
+        } else if (ctx.getReturnValue() instanceof BonoboVariableGet) {
+            BonoboVariableGet value = (BonoboVariableGet) ctx.getReturnValue();
+            blockCompiler.emit(new BananaStaticReturnInstruction(value.getSymbol().getBanana()));
         }
 
         // TODO: Other returns

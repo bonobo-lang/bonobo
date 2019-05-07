@@ -4,6 +4,8 @@ public interface BananaInstructionVisitor<T> {
     T visitReturnConstant(BananaReturnConstantInstruction ctx);
 
     T visitAssign(BananaAssignInstruction ctx);
+
+    T visitStaticReturn(BananaStaticReturnInstruction ctx);
 }
 
 //public abstract class BananaInstructionVisitor<T> {

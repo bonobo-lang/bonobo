@@ -126,7 +126,7 @@ public class MonkeyBusiness {
                         BananaPass bananaPass = new BananaPass(analyzer, module);
                         bananaPass.run();
                         BananaModule bananaModule = bananaPass.getBananaModule();
-                        LlvmBackend llvmBackend = new LlvmBackend(bananaModule);
+                        LlvmBackend llvmBackend = new LlvmBackend(bananaModule, bananaPass);
                         llvmBackend.compile();
 
                         if (emit.equals("llvm")) {

@@ -1,10 +1,7 @@
 package org.bonobo_lang.backend.llvm;
 
 import org.bonobo_lang.analysis.BonoboIntegerType;
-import org.bonobo_lang.banana.BananaAssignInstruction;
-import org.bonobo_lang.banana.BananaConstant;
-import org.bonobo_lang.banana.BananaInstructionVisitor;
-import org.bonobo_lang.banana.BananaReturnConstantInstruction;
+import org.bonobo_lang.banana.*;
 
 public class LlvmInstructionCompiler implements BananaInstructionVisitor {
     private final LlvmBackend llvmBackend;
@@ -68,6 +65,28 @@ public class LlvmInstructionCompiler implements BananaInstructionVisitor {
         if (needsAssignment)
             llvmBackend.writeln(String.format("%%%s = %s", ctx.getVariable().getName(), llvmValue));
         else llvmBackend.writeln(llvmValue);
+        return null;
+    }
+
+    @Override
+    public Object visitStaticReturn(BananaStaticReturnInstruction ctx) {
+        // TODO: Compile types
+        String name = ctx.getVariable().getName();
+        BananaType type = ctx.getVariable().getType();
+
+        if (type instanceof BananaIntegerType) {
+            // %3 = load i32, i32* %2, align 4
+            //  ret i32 %3
+
+            // Create a new temp variable to read in the value.
+            BananaVariable tempVar = llvmBackend.getBananaPass().createVariable("temp", type);
+            llvmBackend.writeln(String.format("%%%s = load %s, %s* %%%s, align 4", tempVar.getName(), type.getName(), type.getName(), name));
+
+            // Return the temp var.
+            llvmBackend.writeln(String.format("ret %s %%%s", type.getName(), tempVar.getName()));
+        }
+
+        // TODO: Other types
         return null;
     }
 }
